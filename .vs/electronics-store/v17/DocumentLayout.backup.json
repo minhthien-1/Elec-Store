@@ -1,7 +1,72 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "D:\\Projects\\electronics-store\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{CCB2E60F-9A72-4CA0-98C9-DED8AD992C88}|ElectronicsStore.API\\ElectronicsStore.API.csproj|d:\\projects\\electronics-store\\electronicsstore.api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{CCB2E60F-9A72-4CA0-98C9-DED8AD992C88}|ElectronicsStore.API\\ElectronicsStore.API.csproj|solutionrelative:electronicsstore.api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projects\\electronics-store\\ElectronicsStore.API\\Migrations\\20260128160306_InitialCreate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ElectronicsStore.API\\Migrations\\20260128160306_InitialCreate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CCB2E60F-9A72-4CA0-98C9-DED8AD992C88}|ElectronicsStore.API\\ElectronicsStore.API.csproj|d:\\projects\\electronics-store\\electronicsstore.api\\data\\electronicsstoredbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CCB2E60F-9A72-4CA0-98C9-DED8AD992C88}|ElectronicsStore.API\\ElectronicsStore.API.csproj|solutionrelative:electronicsstore.api\\data\\electronicsstoredbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CCB2E60F-9A72-4CA0-98C9-DED8AD992C88}|ElectronicsStore.API\\ElectronicsStore.API.csproj|d:\\projects\\electronics-store\\electronicsstore.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CCB2E60F-9A72-4CA0-98C9-DED8AD992C88}|ElectronicsStore.API\\ElectronicsStore.API.csproj|solutionrelative:electronicsstore.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CCB2E60F-9A72-4CA0-98C9-DED8AD992C88}|ElectronicsStore.API\\ElectronicsStore.API.csproj|d:\\projects\\electronics-store\\electronicsstore.api\\models\\entities\\chitietdonhang.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CCB2E60F-9A72-4CA0-98C9-DED8AD992C88}|ElectronicsStore.API\\ElectronicsStore.API.csproj|solutionrelative:electronicsstore.api\\models\\entities\\chitietdonhang.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CCB2E60F-9A72-4CA0-98C9-DED8AD992C88}|ElectronicsStore.API\\ElectronicsStore.API.csproj|d:\\projects\\electronics-store\\electronicsstore.api\\models\\entities\\danhgiasanpham.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CCB2E60F-9A72-4CA0-98C9-DED8AD992C88}|ElectronicsStore.API\\ElectronicsStore.API.csproj|solutionrelative:electronicsstore.api\\models\\entities\\danhgiasanpham.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CCB2E60F-9A72-4CA0-98C9-DED8AD992C88}|ElectronicsStore.API\\ElectronicsStore.API.csproj|d:\\projects\\electronics-store\\electronicsstore.api\\models\\entities\\danhmucsanpham.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CCB2E60F-9A72-4CA0-98C9-DED8AD992C88}|ElectronicsStore.API\\ElectronicsStore.API.csproj|solutionrelative:electronicsstore.api\\models\\entities\\danhmucsanpham.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CCB2E60F-9A72-4CA0-98C9-DED8AD992C88}|ElectronicsStore.API\\ElectronicsStore.API.csproj|d:\\projects\\electronics-store\\electronicsstore.api\\models\\entities\\donhang.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CCB2E60F-9A72-4CA0-98C9-DED8AD992C88}|ElectronicsStore.API\\ElectronicsStore.API.csproj|solutionrelative:electronicsstore.api\\models\\entities\\donhang.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CCB2E60F-9A72-4CA0-98C9-DED8AD992C88}|ElectronicsStore.API\\ElectronicsStore.API.csproj|d:\\projects\\electronics-store\\electronicsstore.api\\models\\entities\\giohang.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CCB2E60F-9A72-4CA0-98C9-DED8AD992C88}|ElectronicsStore.API\\ElectronicsStore.API.csproj|solutionrelative:electronicsstore.api\\models\\entities\\giohang.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CCB2E60F-9A72-4CA0-98C9-DED8AD992C88}|ElectronicsStore.API\\ElectronicsStore.API.csproj|d:\\projects\\electronics-store\\electronicsstore.api\\models\\entities\\lichsudonhang.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CCB2E60F-9A72-4CA0-98C9-DED8AD992C88}|ElectronicsStore.API\\ElectronicsStore.API.csproj|solutionrelative:electronicsstore.api\\models\\entities\\lichsudonhang.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CCB2E60F-9A72-4CA0-98C9-DED8AD992C88}|ElectronicsStore.API\\ElectronicsStore.API.csproj|d:\\projects\\electronics-store\\electronicsstore.api\\models\\entities\\makhuyenmai.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CCB2E60F-9A72-4CA0-98C9-DED8AD992C88}|ElectronicsStore.API\\ElectronicsStore.API.csproj|solutionrelative:electronicsstore.api\\models\\entities\\makhuyenmai.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CCB2E60F-9A72-4CA0-98C9-DED8AD992C88}|ElectronicsStore.API\\ElectronicsStore.API.csproj|d:\\projects\\electronics-store\\electronicsstore.api\\models\\entities\\lichsuthanhtoan.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CCB2E60F-9A72-4CA0-98C9-DED8AD992C88}|ElectronicsStore.API\\ElectronicsStore.API.csproj|solutionrelative:electronicsstore.api\\models\\entities\\lichsuthanhtoan.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CCB2E60F-9A72-4CA0-98C9-DED8AD992C88}|ElectronicsStore.API\\ElectronicsStore.API.csproj|d:\\projects\\electronics-store\\electronicsstore.api\\models\\entities\\nguoidung.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CCB2E60F-9A72-4CA0-98C9-DED8AD992C88}|ElectronicsStore.API\\ElectronicsStore.API.csproj|solutionrelative:electronicsstore.api\\models\\entities\\nguoidung.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CCB2E60F-9A72-4CA0-98C9-DED8AD992C88}|ElectronicsStore.API\\ElectronicsStore.API.csproj|d:\\projects\\electronics-store\\electronicsstore.api\\models\\entities\\nhasanxuat.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CCB2E60F-9A72-4CA0-98C9-DED8AD992C88}|ElectronicsStore.API\\ElectronicsStore.API.csproj|solutionrelative:electronicsstore.api\\models\\entities\\nhasanxuat.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CCB2E60F-9A72-4CA0-98C9-DED8AD992C88}|ElectronicsStore.API\\ElectronicsStore.API.csproj|d:\\projects\\electronics-store\\electronicsstore.api\\models\\entities\\sanpham.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CCB2E60F-9A72-4CA0-98C9-DED8AD992C88}|ElectronicsStore.API\\ElectronicsStore.API.csproj|solutionrelative:electronicsstore.api\\models\\entities\\sanpham.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CCB2E60F-9A72-4CA0-98C9-DED8AD992C88}|ElectronicsStore.API\\ElectronicsStore.API.csproj|d:\\projects\\electronics-store\\electronicsstore.api\\models\\entities\\thongkeluotxem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CCB2E60F-9A72-4CA0-98C9-DED8AD992C88}|ElectronicsStore.API\\ElectronicsStore.API.csproj|solutionrelative:electronicsstore.api\\models\\entities\\thongkeluotxem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 1,
@@ -9,11 +74,219 @@
       "DocumentGroups": [
         {
           "DockedHeight": 321,
-          "SelectedChildIndex": -1,
+          "SelectedChildIndex": 4,
           "Children": [
             {
               "$type": "Bookmark",
               "Name": "ST:129:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "20260128160306_InitialCreate.cs",
+              "DocumentMoniker": "D:\\Projects\\electronics-store\\ElectronicsStore.API\\Migrations\\20260128160306_InitialCreate.cs",
+              "RelativeDocumentMoniker": "ElectronicsStore.API\\Migrations\\20260128160306_InitialCreate.cs",
+              "ToolTip": "D:\\Projects\\electronics-store\\ElectronicsStore.API\\Migrations\\20260128160306_InitialCreate.cs",
+              "RelativeToolTip": "ElectronicsStore.API\\Migrations\\20260128160306_InitialCreate.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-28T16:03:07.243Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "ChiTietDonHang.cs",
+              "DocumentMoniker": "D:\\Projects\\electronics-store\\ElectronicsStore.API\\Models\\Entities\\ChiTietDonHang.cs",
+              "RelativeDocumentMoniker": "ElectronicsStore.API\\Models\\Entities\\ChiTietDonHang.cs",
+              "ToolTip": "D:\\Projects\\electronics-store\\ElectronicsStore.API\\Models\\Entities\\ChiTietDonHang.cs",
+              "RelativeToolTip": "ElectronicsStore.API\\Models\\Entities\\ChiTietDonHang.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABwAAAAXAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-28T15:46:18.327Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "ElectronicsStoreDbContext.cs",
+              "DocumentMoniker": "D:\\Projects\\electronics-store\\ElectronicsStore.API\\Data\\ElectronicsStoreDbContext.cs",
+              "RelativeDocumentMoniker": "ElectronicsStore.API\\Data\\ElectronicsStoreDbContext.cs",
+              "ToolTip": "D:\\Projects\\electronics-store\\ElectronicsStore.API\\Data\\ElectronicsStoreDbContext.cs",
+              "RelativeToolTip": "ElectronicsStore.API\\Data\\ElectronicsStoreDbContext.cs",
+              "ViewState": "AgIAABUAAAAAAAAAAAA6wBgAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-28T15:42:38.231Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "D:\\Projects\\electronics-store\\ElectronicsStore.API\\appsettings.json",
+              "RelativeDocumentMoniker": "ElectronicsStore.API\\appsettings.json",
+              "ToolTip": "D:\\Projects\\electronics-store\\ElectronicsStore.API\\appsettings.json",
+              "RelativeToolTip": "ElectronicsStore.API\\appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAYAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-01-28T15:28:43.571Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "DanhGiaSanPham.cs",
+              "DocumentMoniker": "D:\\Projects\\electronics-store\\ElectronicsStore.API\\Models\\Entities\\DanhGiaSanPham.cs",
+              "RelativeDocumentMoniker": "ElectronicsStore.API\\Models\\Entities\\DanhGiaSanPham.cs",
+              "ToolTip": "D:\\Projects\\electronics-store\\ElectronicsStore.API\\Models\\Entities\\DanhGiaSanPham.cs",
+              "RelativeToolTip": "ElectronicsStore.API\\Models\\Entities\\DanhGiaSanPham.cs",
+              "ViewState": "AgIAAAkAAAAAAAAAAAAywAMAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-28T15:46:34.161Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "DanhMucSanPham.cs",
+              "DocumentMoniker": "D:\\Projects\\electronics-store\\ElectronicsStore.API\\Models\\Entities\\DanhMucSanPham.cs",
+              "RelativeDocumentMoniker": "ElectronicsStore.API\\Models\\Entities\\DanhMucSanPham.cs",
+              "ToolTip": "D:\\Projects\\electronics-store\\ElectronicsStore.API\\Models\\Entities\\DanhMucSanPham.cs",
+              "RelativeToolTip": "ElectronicsStore.API\\Models\\Entities\\DanhMucSanPham.cs",
+              "ViewState": "AgIAAA4AAAAAAAAAAAAmwAIAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-28T15:46:48.794Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Program.cs",
+              "DocumentMoniker": "D:\\Projects\\electronics-store\\ElectronicsStore.API\\Program.cs",
+              "RelativeDocumentMoniker": "ElectronicsStore.API\\Program.cs",
+              "ToolTip": "D:\\Projects\\electronics-store\\ElectronicsStore.API\\Program.cs",
+              "RelativeToolTip": "ElectronicsStore.API\\Program.cs",
+              "ViewState": "AgIAAAsAAAAAAAAAAAAiwBgAAAAzAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-28T15:29:43.579Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "DonHang.cs",
+              "DocumentMoniker": "D:\\Projects\\electronics-store\\ElectronicsStore.API\\Models\\Entities\\DonHang.cs",
+              "RelativeDocumentMoniker": "ElectronicsStore.API\\Models\\Entities\\DonHang.cs",
+              "ToolTip": "D:\\Projects\\electronics-store\\ElectronicsStore.API\\Models\\Entities\\DonHang.cs",
+              "RelativeToolTip": "ElectronicsStore.API\\Models\\Entities\\DonHang.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAMAAAAuAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-28T15:47:01.791Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "GioHang.cs",
+              "DocumentMoniker": "D:\\Projects\\electronics-store\\ElectronicsStore.API\\Models\\Entities\\GioHang.cs",
+              "RelativeDocumentMoniker": "ElectronicsStore.API\\Models\\Entities\\GioHang.cs",
+              "ToolTip": "D:\\Projects\\electronics-store\\ElectronicsStore.API\\Models\\Entities\\GioHang.cs",
+              "RelativeToolTip": "ElectronicsStore.API\\Models\\Entities\\GioHang.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAAuAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-28T15:47:12.626Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "LichSuDonHang.cs",
+              "DocumentMoniker": "D:\\Projects\\electronics-store\\ElectronicsStore.API\\Models\\Entities\\LichSuDonHang.cs",
+              "RelativeDocumentMoniker": "ElectronicsStore.API\\Models\\Entities\\LichSuDonHang.cs",
+              "ToolTip": "D:\\Projects\\electronics-store\\ElectronicsStore.API\\Models\\Entities\\LichSuDonHang.cs",
+              "RelativeToolTip": "ElectronicsStore.API\\Models\\Entities\\LichSuDonHang.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAAuAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-28T15:47:19.349Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "MaKhuyenMai.cs",
+              "DocumentMoniker": "D:\\Projects\\electronics-store\\ElectronicsStore.API\\Models\\Entities\\MaKhuyenMai.cs",
+              "RelativeDocumentMoniker": "ElectronicsStore.API\\Models\\Entities\\MaKhuyenMai.cs",
+              "ToolTip": "D:\\Projects\\electronics-store\\ElectronicsStore.API\\Models\\Entities\\MaKhuyenMai.cs",
+              "RelativeToolTip": "ElectronicsStore.API\\Models\\Entities\\MaKhuyenMai.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-28T15:47:32.3Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "LichSuThanhToan.cs",
+              "DocumentMoniker": "D:\\Projects\\electronics-store\\ElectronicsStore.API\\Models\\Entities\\LichSuThanhToan.cs",
+              "RelativeDocumentMoniker": "ElectronicsStore.API\\Models\\Entities\\LichSuThanhToan.cs",
+              "ToolTip": "D:\\Projects\\electronics-store\\ElectronicsStore.API\\Models\\Entities\\LichSuThanhToan.cs",
+              "RelativeToolTip": "ElectronicsStore.API\\Models\\Entities\\LichSuThanhToan.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAMAAAAuAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-28T15:47:26.894Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "NguoiDung.cs",
+              "DocumentMoniker": "D:\\Projects\\electronics-store\\ElectronicsStore.API\\Models\\Entities\\NguoiDung.cs",
+              "RelativeDocumentMoniker": "ElectronicsStore.API\\Models\\Entities\\NguoiDung.cs",
+              "ToolTip": "D:\\Projects\\electronics-store\\ElectronicsStore.API\\Models\\Entities\\NguoiDung.cs",
+              "RelativeToolTip": "ElectronicsStore.API\\Models\\Entities\\NguoiDung.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAAuAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-28T15:47:38.528Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "NhaSanXuat.cs",
+              "DocumentMoniker": "D:\\Projects\\electronics-store\\ElectronicsStore.API\\Models\\Entities\\NhaSanXuat.cs",
+              "RelativeDocumentMoniker": "ElectronicsStore.API\\Models\\Entities\\NhaSanXuat.cs",
+              "ToolTip": "D:\\Projects\\electronics-store\\ElectronicsStore.API\\Models\\Entities\\NhaSanXuat.cs",
+              "RelativeToolTip": "ElectronicsStore.API\\Models\\Entities\\NhaSanXuat.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAMAAAAbAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-28T15:47:42.432Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "SanPham.cs",
+              "DocumentMoniker": "D:\\Projects\\electronics-store\\ElectronicsStore.API\\Models\\Entities\\SanPham.cs",
+              "RelativeDocumentMoniker": "ElectronicsStore.API\\Models\\Entities\\SanPham.cs",
+              "ToolTip": "D:\\Projects\\electronics-store\\ElectronicsStore.API\\Models\\Entities\\SanPham.cs",
+              "RelativeToolTip": "ElectronicsStore.API\\Models\\Entities\\SanPham.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAMAAAAuAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-28T15:47:56.509Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "ThongKeLuotXem.cs",
+              "DocumentMoniker": "D:\\Projects\\electronics-store\\ElectronicsStore.API\\Models\\Entities\\ThongKeLuotXem.cs",
+              "RelativeDocumentMoniker": "ElectronicsStore.API\\Models\\Entities\\ThongKeLuotXem.cs",
+              "ToolTip": "D:\\Projects\\electronics-store\\ElectronicsStore.API\\Models\\Entities\\ThongKeLuotXem.cs",
+              "RelativeToolTip": "ElectronicsStore.API\\Models\\Entities\\ThongKeLuotXem.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAAuAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-28T15:48:06.294Z",
+              "EditorCaption": ""
             }
           ]
         },
