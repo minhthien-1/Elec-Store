@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Projects\\electronics-store\\ElectronicsStore.Customer\\ElectronicsStore.Customer.csproj": {}
+    "C:\\ASP.NET\\Elec-Store\\ElectronicsStore.Customer\\ElectronicsStore.Customer.csproj": {}
   },
   "projects": {
-    "D:\\Projects\\electronics-store\\ElectronicsStore.Customer\\ElectronicsStore.Customer.csproj": {
+    "C:\\ASP.NET\\Elec-Store\\ElectronicsStore.API\\ElectronicsStore.API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Projects\\electronics-store\\ElectronicsStore.Customer\\ElectronicsStore.Customer.csproj",
-        "projectName": "ElectronicsStore.Customer",
-        "projectPath": "D:\\Projects\\electronics-store\\ElectronicsStore.Customer\\ElectronicsStore.Customer.csproj",
-        "packagesPath": "C:\\Users\\Thieu\\.nuget\\packages\\",
-        "outputPath": "D:\\Projects\\electronics-store\\ElectronicsStore.Customer\\obj\\",
+        "projectUniqueName": "C:\\ASP.NET\\Elec-Store\\ElectronicsStore.API\\ElectronicsStore.API.csproj",
+        "projectName": "ElectronicsStore.API",
+        "projectPath": "C:\\ASP.NET\\Elec-Store\\ElectronicsStore.API\\ElectronicsStore.API.csproj",
+        "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
+        "outputPath": "C:\\ASP.NET\\Elec-Store\\ElectronicsStore.API\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Thieu\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -25,14 +25,103 @@
           "net8.0"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.300"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "dependencies": {
+            "Microsoft.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.EntityFrameworkCore.Tools": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Npgsql.EntityFrameworkCore.PostgreSQL": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Swashbuckle.AspNetCore": {
+              "target": "Package",
+              "version": "[6.6.2, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.AspNetCore.App": {
+              "privateAssets": "none"
+            },
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.310/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\ASP.NET\\Elec-Store\\ElectronicsStore.Customer\\ElectronicsStore.Customer.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\ASP.NET\\Elec-Store\\ElectronicsStore.Customer\\ElectronicsStore.Customer.csproj",
+        "projectName": "ElectronicsStore.Customer",
+        "projectPath": "C:\\ASP.NET\\Elec-Store\\ElectronicsStore.Customer\\ElectronicsStore.Customer.csproj",
+        "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
+        "outputPath": "C:\\ASP.NET\\Elec-Store\\ElectronicsStore.Customer\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\Admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "C:\\ASP.NET\\Elec-Store\\ElectronicsStore.API\\ElectronicsStore.API.csproj": {
+                "projectPath": "C:\\ASP.NET\\Elec-Store\\ElectronicsStore.API\\ElectronicsStore.API.csproj"
+              }
+            }
           }
         },
         "warningProperties": {

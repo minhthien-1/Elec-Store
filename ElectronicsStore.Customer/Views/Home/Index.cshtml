@@ -1,8 +1,115 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@using ElectronicsStore.API.Models.Entities
+@model IEnumerable<SanPham>
+
+@{
+    ViewData["Title"] = "Trang chủ";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<section class="section-slider">
+    <div class="container border" style="height: 300px; display: flex; align-items: center; justify-content: center;">Slider Placeholder</div>
+</section>
+
+<section class="section-subanner">
+    <div class="container text-center">
+        <img src="" alt="Sub Banner" />
+    </div>
+</section>
+
+<section class="section-collection flashsale has-banner flashsale-2">
+    <div class="container">
+        <div class="section-heading">FLASHSALE</div>
+        <div class="section-content border" style="height: 100px;"></div>
+    </div>
+</section>
+
+<section class="section-banners">
+    <div class="container d-flex gap-2">
+        <div class="w-50 border"><img src="" alt="Main Banner 1" class="w-100" /></div>
+        <div class="w-50 border"><img src="" alt="Main Banner 2" class="w-100" /></div>
+    </div>
+</section>
+
+@{
+    // Định nghĩa danh sách các danh mục và ID tương ứng để lọc dữ liệu
+    var categoryMapping = new List<(string Name, int Id)>
+    {
+        ("Laptop bán chạy", 1),
+        ("Điện thoại bán chạy", 2),
+        ("Sản phẩm bán chạy", 3),
+        ("Tai nghe bán chạy", 4),
+        ("Phụ kiện chính hãng", 5)
+    };
+}
+
+@foreach (var cat in categoryMapping)
+{
+    <section class="section-collection">
+        <div class="container">
+            <div class="section-heading">@cat.Name</div>
+            <div class="section-content row">
+                @{
+                    // Lấy ra các sản phẩm thuộc danh mục hiện tại
+                    var productsInCategory = Model.Where(p => p.MaDanhMuc == cat.Id).ToList();
+                }
+
+                @if (productsInCategory.Any())
+                {
+                    @foreach (var item in productsInCategory)
+                    {
+                        <div class="col-md-3 mb-4">
+                            <div class="card p-3 shadow-sm h-100">
+                                @* Bạn muốn để trống img nên mình giữ src="", khi cần hãy đổi thành src="@item.HinhAnh" *@
+                                <img src="" alt="@item.TenSP" style="height: 150px; background: #eee;" />
+                                <div class="mt-2 text-center">
+                                    <h6 class="fw-bold">@item.TenSP</h6>
+                                    <p class="text-danger mb-0">@item.GiaBan.ToString("N0") đ</p>
+                                    @if (item.GiaGiamGia.HasValue && item.GiaGiamGia > 0)
+                                    {
+                                        <small class="text-decoration-line-through text-muted">@item.GiaGiamGia.Value.ToString("N0") đ</small>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    @* Nếu danh mục chưa có sản phẩm nào trong DB, hiện 4 khung trống như cũ *@
+                    @for (int i = 0; i < 4; i++)
+                    {
+                        <div class="col-md-3">
+                            <div class="card p-3 shadow-sm">
+                                <img src="" alt="Chưa có sản phẩm" style="height: 150px; background: #eee;" />
+                                <div class="mt-2 text-center text-muted">Đang cập nhật...</div>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </section>
+}
+
+<section class="section-category">
+    <div class="container">
+        <div class="section-heading">Danh mục nổi bật</div>
+        <div class="item-icon">
+            <div class="list-icon d-flex justify-content-around border mb-2" style="height: 50px;">Line 1</div>
+            <div class="list-icon d-flex justify-content-around border" style="height: 50px;">Line 2</div>
+        </div>
+    </div>
+</section>
+
+<section class="section-pagelist">
+    <div class="container">
+        <div class="section-heading">Trang liên kết</div>
+        <div class="section-content border" style="height: 80px;"></div>
+    </div>
+</section>
+
+<section class="section-bloglist">
+    <div class="container">
+        <div class="section-heading">Tin tức công nghệ</div>
+        <div class="section-content border" style="height: 150px;"></div>
+    </div>
+</section>
