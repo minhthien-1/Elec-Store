@@ -1,3 +1,8 @@
+﻿using ElectronicsStore.API.Data;
+
+using Microsoft.EntityFrameworkCore;
+using Npgsql.EntityFrameworkCore.PostgreSQL;
+
 namespace ElectronicsStore.Customer
 {
     public class Program
@@ -6,16 +11,23 @@ namespace ElectronicsStore.Customer
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
+            // --- 1. CẤU HÌNH DATABASE (SUPABASE) ---
+            // Lấy chuỗi kết nối "DefaultConnection" từ file appsettings.json
+            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+            // Đăng ký DbContext sử dụng Npgsql (PostgreSQL)
+            builder.Services.AddDbContext<ElectronicsStoreDbContext>(options =>
+                options.UseNpgsql(connectionString));
+
+            // --- 2. CẤU HÌNH SERVICES ---
             builder.Services.AddControllersWithViews();
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
+            // --- 3. CẤU HÌNH PIPELINE (MIDDLEWARE) ---
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
 
@@ -26,6 +38,7 @@ namespace ElectronicsStore.Customer
 
             app.UseAuthorization();
 
+            // Cấu hình Route mặc định để chạy vào HomeController -> Index
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
