@@ -1,7 +1,6 @@
 ﻿using ElectronicsStore.API.Data;
-
 using Microsoft.EntityFrameworkCore;
-using Npgsql.EntityFrameworkCore.PostgreSQL;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace ElectronicsStore.Customer
 {
@@ -11,16 +10,24 @@ namespace ElectronicsStore.Customer
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // --- 1. CẤU HÌNH DATABASE (SUPABASE) ---
-            // Lấy chuỗi kết nối "DefaultConnection" từ file appsettings.json
+            // --- 1. CẤU HÌNH DATABASE (POSTGRESQL) ---
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-
-            // Đăng ký DbContext sử dụng Npgsql (PostgreSQL)
             builder.Services.AddDbContext<ElectronicsStoreDbContext>(options =>
                 options.UseNpgsql(connectionString));
 
             // --- 2. CẤU HÌNH SERVICES ---
             builder.Services.AddControllersWithViews();
+
+            // --- CẤU HÌNH ĐĂNG NHẬP (BỎ EXPIRETIMESPAN ĐỂ DÙNG SESSION COOKIE) ---
+            builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(options =>
+                {
+                    options.LoginPath = "/Home/Index";
+                    options.LogoutPath = "/Account/Logout";
+                    options.AccessDeniedPath = "/Home/Index";
+                    options.Cookie.Name = "ElectronicsStore_Session";
+                    // Không đặt ExpireTimeSpan ở đây để ưu tiên Session Cookie của trình duyệt
+                });
 
             var app = builder.Build();
 
@@ -36,9 +43,10 @@ namespace ElectronicsStore.Customer
 
             app.UseRouting();
 
+            // Thứ tự quan trọng: Authentication trước Authorization
+            app.UseAuthentication();
             app.UseAuthorization();
 
-            // Cấu hình Route mặc định để chạy vào HomeController -> Index
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");

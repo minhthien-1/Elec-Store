@@ -22,6 +22,8 @@ namespace ElectronicsStore.Customer.Controllers
 
         public async Task<IActionResult> Index()
         {
+
+
             try
             {
                 // Kiểm tra xem Web có "chạm" vào được DB không
@@ -32,6 +34,22 @@ namespace ElectronicsStore.Customer.Controllers
                 }
 
                 var products = await _context.SanPhams.ToListAsync();
+                // Lấy danh sách danh mục để làm menu bên trái
+                var categories = await _context.DanhMucSanPhams
+                                   .Where(c => c.TrangThai == true)
+                                   .ToListAsync();
+                ViewBag.Categories = categories;
+                var categoryBrands = await _context.SanPhams
+        .Include(p => p.NhaSanXuat)
+        .Where(p => p.MaNhaSX != null)
+        .GroupBy(p => p.MaDanhMuc)
+        .Select(g => new {
+            MaDanhMuc = g.Key,
+            Brands = g.Select(p => p.NhaSanXuat).Distinct().ToList()
+        })
+        .ToDictionaryAsync(x => x.MaDanhMuc, x => x.Brands);
+
+                ViewBag.CategoryBrands = categoryBrands;
 
                 // Nếu DB có dữ liệu nhưng products rỗng, báo lỗi dữ liệu
                 if (products == null || !products.Any())

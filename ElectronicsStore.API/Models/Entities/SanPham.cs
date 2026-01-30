@@ -15,10 +15,19 @@ namespace ElectronicsStore.API.Models.Entities
         public string? MoTaChiTiet { get; set; }
         public string? ThongTinKyThuat { get; set; }
 
+        // --- FIX DANH MỤC ---
         [Required]
         public int MaDanhMuc { get; set; }
 
+        [ForeignKey("MaDanhMuc")] // Thêm dòng này để chắc chắn không lỗi giống MaNhaSX
+        public virtual DanhMucSanPham? DanhMuc { get; set; }
+
+        // --- FIX NHÀ SẢN XUẤT ---
         public int? MaNhaSX { get; set; }
+
+        [ForeignKey("MaNhaSX")]
+        public virtual NhaSanXuat? NhaSanXuat { get; set; }
+        // LƯU Ý: Đã xóa dòng "public virtual NhaSanXuat? NhaSX" ở dưới
 
         [Required]
         [Column(TypeName = "decimal(15,2)")]
@@ -42,9 +51,7 @@ namespace ElectronicsStore.API.Models.Entities
         public DateTime ThemTrongDB { get; set; } = DateTime.Now;
         public DateTime? SuaDoi { get; set; }
 
-        // Navigation
-        public virtual DanhMucSanPham? DanhMuc { get; set; }
-        public virtual NhaSanXuat? NhaSX { get; set; }
+        // Navigation Collections
         public virtual ICollection<GioHang> GioHangs { get; set; } = new List<GioHang>();
         public virtual ICollection<ChiTietDonHang> ChiTietDonHangs { get; set; } = new List<ChiTietDonHang>();
         public virtual ICollection<DanhGiaSanPham> DanhGias { get; set; } = new List<DanhGiaSanPham>();

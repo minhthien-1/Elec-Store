@@ -51,7 +51,7 @@ namespace ElectronicsStore.API.Data
                 .HasForeignKey(s => s.MaDanhMuc);
 
             modelBuilder.Entity<SanPham>()
-                .HasOne(s => s.NhaSX)
+                .HasOne(s => s.NhaSanXuat)
                 .WithMany(n => n.SanPhams)
                 .HasForeignKey(s => s.MaNhaSX);
 
