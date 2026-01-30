@@ -1,0 +1,99 @@
+﻿@model ElectronicsStore.Customer.Models.RegisterViewModel
+
+<style>
+    /* ===== CSS CYBERPUNK (GIỮ NGUYÊN) ===== */
+    #registerModal .modal-content {
+        background: #1a1c2e;
+        border-radius: 24px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        max-width: 480px;
+        margin: auto;
+    }
+
+    #registerModal .modal-header {
+        background: linear-gradient(90deg, #8e2de2 0%, #4a00e0 100%);
+        padding: 1rem 1.5rem !important;
+    }
+
+    .register-btn-main {
+        background: linear-gradient(90deg, #9d50bb 0%, #2bdce3 100%) !important;
+        border: none !important;
+        color: white !important;
+        font-weight: 800;
+        padding: 12px !important;
+        border-radius: 50px;
+        width: 100%;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+    }
+
+    .input-group-custom {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 12px;
+    }
+
+        .input-group-custom .form-control {
+            background: transparent;
+            border: none;
+            color: white !important;
+        }
+</style>
+
+<div class="modal fade" id="registerModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" style="color:white; font-weight:800;">TẠO TÀI KHOẢN MỚI</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="filter: invert(1);"></button>
+            </div>
+            <div class="modal-body" style="background: rgba(15, 23, 42, 0.4); padding: 1.5rem 2rem !important;">
+                <form asp-controller="Account" asp-action="Register" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="mb-3">
+                        <label class="form-label text-white small fw-bold">HỌ VÀ TÊN</label>
+                        <div class="input-group input-group-custom">
+                            <span class="input-group-text bg-transparent border-0 text-white"><i class="bi bi-person"></i></span>
+                            <input asp-for="TenDayDu" class="form-control ps-0" placeholder="Nhập tên đầy đủ" />
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-white small fw-bold">EMAIL</label>
+                        <div class="input-group input-group-custom">
+                            <span class="input-group-text bg-transparent border-0 text-white"><i class="bi bi-envelope"></i></span>
+                            <input asp-for="Email" class="form-control ps-0" placeholder="example@gmail.com" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-white small fw-bold">MẬT KHẨU</label>
+                            <div class="input-group input-group-custom">
+                                <span class="input-group-text bg-transparent border-0 text-white"><i class="bi bi-lock"></i></span>
+                                <input asp-for="Password" type="password" class="form-control ps-0" placeholder="••••••" />
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-white small fw-bold">XÁC NHẬN</label>
+                            <div class="input-group input-group-custom">
+                                <span class="input-group-text bg-transparent border-0 text-white"><i class="bi bi-shield-check"></i></span>
+                                <input asp-for="ConfirmPassword" type="password" class="form-control ps-0" placeholder="••••••" />
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="register-btn-main mt-3">ĐĂNG KÝ NGAY</button>
+                </form>
+            </div>
+            <div class="modal-footer border-0" style="background: rgba(0,0,0,0.2); justify-content: center;">
+                <span style="color: rgba(255,255,255,0.6);" class="small">Đã có tài khoản?</span>
+                <a href="javascript:void(0);"
+                   class="text-decoration-none fw-bold"
+                   style="color: var(--accent-cyan) !important;"
+                   data-target-login>
+                    Đăng nhập ngay!
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

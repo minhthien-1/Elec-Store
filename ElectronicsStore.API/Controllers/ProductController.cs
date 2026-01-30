@@ -67,7 +67,7 @@ namespace ElectronicsStore.API.Controllers
 
                 var products = await query
                     .Include(s => s.DanhMuc)
-                    .Include(s => s.NhaSX)
+                    .Include(s => s.NhaSanXuat)
                     .OrderByDescending(s => s.ThemTrongDB)
                     .Skip((page - 1) * pageSize)
                     .Take(pageSize)
@@ -83,7 +83,7 @@ namespace ElectronicsStore.API.Controllers
                         s.DanhGiaXepHang,
                         s.SoLuotDanhGia,
                         DanhMuc = new { s.DanhMuc!.MaDanhMuc, s.DanhMuc.TenDanhMuc },
-                        NhaSX = new { s.NhaSX!.MaNhaSX, s.NhaSX.TenNhaSX }
+                        NhaSX = new { s.NhaSanXuat!.MaNhaSX, s.NhaSanXuat.TenNhaSX }
                     })
                     .ToListAsync();
 
@@ -112,7 +112,7 @@ namespace ElectronicsStore.API.Controllers
                 var product = await _context.SanPhams
                     .Where(s => s.MaSP == id && s.TrangThai == true)
                     .Include(s => s.DanhMuc)
-                    .Include(s => s.NhaSX)
+                    .Include(s => s.NhaSanXuat)
                     .Include(s => s.DanhGias.Where(dg => dg.DuocDuyet == true))
                     .FirstOrDefaultAsync();
 
@@ -138,7 +138,7 @@ namespace ElectronicsStore.API.Controllers
                     soLuotDanhGia = product.SoLuotDanhGia,
                     soLuotXem = product.SoLuotXem,
                     danhMuc = new { product.DanhMuc!.MaDanhMuc, product.DanhMuc.TenDanhMuc },
-                    nhaSX = new { product.NhaSX!.MaNhaSX, product.NhaSX.TenNhaSX },
+                    nhaSX = new { product.NhaSanXuat!.MaNhaSX, product.NhaSanXuat.TenNhaSX },
                     danhGias = product.DanhGias.Select(dg => new
                     {
                         dg.MaDG,

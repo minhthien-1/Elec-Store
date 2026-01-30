@@ -3,84 +3,294 @@
 
 @{
     ViewData["Title"] = "Trang chủ";
+    var categories = ViewBag.Categories as List<DanhMucSanPham>;
+    var categoryBrands = ViewBag.CategoryBrands as Dictionary<int, List<NhaSanXuat>>;
+
+    // Helper gán icon theo tên
+    string GetCategoryIcon(string name)
+    {
+        name = name.ToLower();
+        if (name.Contains("laptop")) return "bi-laptop";
+        if (name.Contains("điện thoại")) return "bi-phone";
+        if (name.Contains("máy ảnh")) return "bi-camera";
+        if (name.Contains("tai nghe")) return "bi-headphones";
+        if (name.Contains("phụ kiện")) return "bi-keyboard";
+        return "bi-cpu";
+    }
 }
 
-<section class="section-slider">
-    <div class="container border" style="height: 300px; display: flex; align-items: center; justify-content: center;">Slider Placeholder</div>
-</section>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
-<section class="section-subanner">
-    <div class="container text-center">
-        <img src="" alt="Sub Banner" />
-    </div>
-</section>
+<style>
+    :root {
+        --primary-brown: #5D4037; /* Màu nâu chủ đạo */
+        --accent-red: #D32F2F; /* Màu đỏ thương hiệu */
+        --modern-font: 'Inter', sans-serif;
+    }
 
-<section class="section-collection flashsale has-banner flashsale-2">
+    body {
+        font-family: var(--modern-font);
+        background-color: #fcfcfc;
+        color: #333;
+    }
+
+    /* --- SIDEBAR & MEGA MENU TỐI GIẢN --- */
+    .category-sidebar {
+        width: 85%;
+        background: #fff;
+        border-radius: 12px;
+        border: 1px solid #eee;
+        position: relative;
+        z-index: 1000;
+        padding: 10px 0;
+    }
+
+    .category-item {
+        padding: 10px 20px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: var(--primary-brown);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        text-decoration: none;
+    }
+
+        .category-item:hover {
+            background: #fff5f5;
+            color: var(--accent-red) !important;
+        }
+
+    .mega-menu {
+        position: absolute;
+        left: 100%;
+        top: 0;
+        width: 550px;
+        min-height: 100%;
+        background: #fff;
+        box-shadow: 15px 0 30px rgba(0,0,0,0.05);
+        display: none;
+        border-radius: 0 12px 12px 0;
+        padding: 25px;
+        border: 1px solid #eee;
+        border-left: none;
+    }
+
+    .category-item:hover .mega-menu {
+        display: block;
+    }
+
+    .mega-heading {
+        color: var(--accent-red);
+        font-weight: 700;
+        font-size: 1rem;
+        margin-bottom: 12px;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 5px;
+    }
+
+    .brand-link {
+        display: block;
+        color: #555;
+        text-decoration: none;
+        padding: 4px 0;
+        font-size: 0.85rem;
+        transition: 0.2s;
+    }
+
+        .brand-link:hover {
+            color: var(--accent-red) !important;
+            font-weight: 600;
+            padding-left: 5px;
+        }
+
+    /* --- PRODUCT CARD --- */
+    .product-card {
+        border-radius: 20px;
+        border: 1px solid #eee;
+        padding: 15px;
+        height: 100%;
+        transition: 0.4s;
+        background: #fff;
+    }
+
+        .product-card:hover {
+            border-color: var(--accent-red);
+            transform: scale(1.03);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        }
+
+    /* Nút Mua ngay đặc biệt cho Flash Sale */
+    .btn-buy-now {
+        background-color: var(--accent-red);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        padding: 8px 15px;
+        font-weight: 700;
+        width: 100%;
+        margin-top: 15px;
+        transition: 0.3s;
+    }
+
+        .btn-buy-now:hover {
+            background-color: var(--primary-brown);
+            transform: translateY(-2px);
+        }
+
+    /* --- SECTIONS STYLING --- */
+    .section-heading {
+        font-weight: 800;
+        font-size: 1.5rem;
+        color: var(--primary-brown);
+        margin-bottom: 20px;
+    }
+
+    .time-box {
+        background: var(--accent-red);
+        color: #fff;
+        padding: 5px 10px;
+        border-radius: 6px;
+        font-weight: 700;
+    }
+
+    .cat-icon-card {
+        background: #fff;
+        border-radius: 12px;
+        padding: 15px;
+        text-align: center;
+        border: 1px solid #eee;
+        transition: 0.3s;
+        cursor: pointer;
+        height: 100%;
+    }
+
+        .cat-icon-card:hover {
+            border-color: var(--accent-red);
+            transform: translateY(-3px);
+        }
+</style>
+
+<section class="section-slider mt-4">
     <div class="container">
-        <div class="section-heading">FLASHSALE</div>
-        <div class="section-content border" style="height: 100px;"></div>
+        <div class="row g-2">
+            <div class="col-md-3 d-none d-md-block">
+                <div class="category-sidebar shadow-sm">
+                    @if (categories != null)
+                    {
+                        @foreach (var cat in categories)
+                        {
+                            <div class="category-item">
+                                <span><i class="bi @GetCategoryIcon(cat.TenDanhMuc) me-2"></i> @cat.TenDanhMuc</span>
+                                <i class="bi bi-chevron-right small"></i>
+                                <div class="mega-menu">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mega-heading">Thương hiệu</div>
+                                            @if (categoryBrands != null && categoryBrands.ContainsKey(cat.MaDanhMuc))
+                                            {
+                                                @foreach (var brand in categoryBrands[cat.MaDanhMuc])
+                                                {
+                                                    <a href="#" class="brand-link">@brand.TenNhaSX.ToUpper()</a>
+                                                }
+                                            }
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mega-heading">Mức giá</div>
+                                            <a href="#" class="brand-link">Dưới 15 triệu</a>
+                                            <a href="#" class="brand-link">Từ 15 - 25 triệu</a>
+                                            <a href="#" class="brand-link">Trên 25 triệu</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+            <div class="col-md-9">
+                <div class="slider-main d-flex align-items-center justify-content-center border shadow-sm rounded-4" style="height: 420px; background: #f0f0f0;">
+                    <h4 class="text-muted">CHÈN CAROUSEL/SLIDER TẠI ĐÀY</h4>
+                </div>
+            </div>
+        </div>
     </div>
 </section>
 
-<section class="section-banners">
-    <div class="container d-flex gap-2">
-        <div class="w-50 border"><img src="" alt="Main Banner 1" class="w-100" /></div>
-        <div class="w-50 border"><img src="" alt="Main Banner 2" class="w-100" /></div>
+<section class="section-subanner mt-4">
+    <div class="container text-center">
+        <img src="https://via.placeholder.com/1200x120?text=Ưu+đãi+đặc+quyền+sinh+viên+HUFLIT" class="w-100 rounded-3 shadow-sm" alt="Sub Banner" />
+    </div>
+</section>
+
+<section class="section-collection flashsale mt-5">
+    <div class="container p-4 rounded-4 border bg-white shadow-sm">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="d-flex align-items-center gap-3">
+                <h2 class="section-heading mb-0 text-danger">FLASHSALE</h2>
+                <div class="d-flex gap-2 align-items-center" id="countdown">
+                    <span class="time-box" id="h">02</span> :
+                    <span class="time-box" id="m">45</span> :
+                    <span class="time-box" id="s">12</span>
+                </div>
+            </div>
+            <a href="#" class="text-danger fw-bold text-decoration-none">Xem tất cả ></a>
+        </div>
+        <div class="row g-4">
+            @foreach (var item in Model.OrderBy(x => Guid.NewGuid()).Take(4))
+            {
+                <div class="col-md-3">
+                    <div class="product-card text-center d-flex flex-column justify-content-between">
+                        <div>
+                            <img src="@item.HinhAnh" class="img-fluid mb-2" style="height: 160px; object-fit: contain;">
+                            <h6 class="fw-bold text-truncate">@item.TenSP</h6>
+                            <p class="text-danger fw-bold mb-0">@item.GiaBan.ToString("N0") đ</p>
+                        </div>
+                        <button class="btn-buy-now">MUA NGAY</button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<section class="section-banners mt-5">
+    <div class="container d-flex gap-3">
+        <div class="w-50"><img src="https://via.placeholder.com/600x180?text=Laptop+Gaming+Sale" class="w-100 rounded-3 shadow-sm" /></div>
+        <div class="w-50"><img src="https://via.placeholder.com/600x180?text=Phụ+Kiện+Giá+Rẻ" class="w-100 rounded-3 shadow-sm" /></div>
     </div>
 </section>
 
 @{
-    // Định nghĩa danh sách các danh mục và ID tương ứng để lọc dữ liệu
-    var categoryMapping = new List<(string Name, int Id)>
-    {
-        ("Laptop bán chạy", 1),
-        ("Điện thoại bán chạy", 2),
-        ("Sản phẩm bán chạy", 3),
-        ("Tai nghe bán chạy", 4),
-        ("Phụ kiện chính hãng", 5)
+    var categoryMapping = new List<(string Name, int Id, string Icon)> {
+        ("Laptop bán chạy", 1, "bi-laptop"),
+        ("Điện thoại bán chạy", 2, "bi-phone"),
+        ("Sản phẩm mới", 3, "bi-star"),
+        ("Tai nghe nổi bật", 4, "bi-headphones"),
+        ("Phụ kiện chính hãng", 5, "bi-keyboard")
     };
 }
-
 @foreach (var cat in categoryMapping)
 {
-    <section class="section-collection">
+    <section class="section-collection mt-5">
         <div class="container">
-            <div class="section-heading">@cat.Name</div>
-            <div class="section-content row">
+            <h4 class="fw-bold mb-4 border-start border-danger border-4 ps-3">@cat.Name</h4>
+            <div class="row g-4">
                 @{
-                    // Lấy ra các sản phẩm thuộc danh mục hiện tại
-                    var productsInCategory = Model.Where(p => p.MaDanhMuc == cat.Id).ToList();
+                    var prods = Model.Where(p => p.MaDanhMuc == cat.Id).Take(4).ToList();
                 }
-
-                @if (productsInCategory.Any())
+                @if (prods.Any())
                 {
-                    @foreach (var item in productsInCategory)
-                    {
-                        <div class="col-md-3 mb-4">
-                            <div class="card p-3 shadow-sm h-100">
-                                @* Bạn muốn để trống img nên mình giữ src="", khi cần hãy đổi thành src="@item.HinhAnh" *@
-                                <img src="" alt="@item.TenSP" style="height: 150px; background: #eee;" />
-                                <div class="mt-2 text-center">
-                                    <h6 class="fw-bold">@item.TenSP</h6>
-                                    <p class="text-danger mb-0">@item.GiaBan.ToString("N0") đ</p>
-                                    @if (item.GiaGiamGia.HasValue && item.GiaGiamGia > 0)
-                                    {
-                                        <small class="text-decoration-line-through text-muted">@item.GiaGiamGia.Value.ToString("N0") đ</small>
-                                    }
-                                </div>
-                            </div>
-                        </div>
-                    }
-                }
-                else
-                {
-                    @* Nếu danh mục chưa có sản phẩm nào trong DB, hiện 4 khung trống như cũ *@
-                    @for (int i = 0; i < 4; i++)
+                    @foreach (var item in prods)
                     {
                         <div class="col-md-3">
-                            <div class="card p-3 shadow-sm">
-                                <img src="" alt="Chưa có sản phẩm" style="height: 150px; background: #eee;" />
-                                <div class="mt-2 text-center text-muted">Đang cập nhật...</div>
+                            <div class="product-card">
+                                <div class="text-center"><img src="@item.HinhAnh" height="150" style="object-fit: contain;"></div>
+                                <div class="mt-3 text-center">
+                                    <h6 class="fw-bold">@item.TenSP</h6>
+                                    <p class="text-danger fw-bold">@item.GiaBan.ToString("N0") đ</p>
+                                </div>
                             </div>
                         </div>
                     }
@@ -90,26 +300,62 @@
     </section>
 }
 
-<section class="section-category">
+<section class="section-category mt-5">
     <div class="container">
         <div class="section-heading">Danh mục nổi bật</div>
-        <div class="item-icon">
-            <div class="list-icon d-flex justify-content-around border mb-2" style="height: 50px;">Line 1</div>
-            <div class="list-icon d-flex justify-content-around border" style="height: 50px;">Line 2</div>
+        <div class="row g-3">
+            @foreach (var c in categoryMapping)
+            {
+                <div class="col-md-2 col-6">
+                    <div class="cat-icon-card shadow-sm">
+                        <i class="bi @c.Icon fs-2 text-danger"></i>
+                        <p class="mb-0 mt-2 fw-bold small">@c.Name.Replace(" bán chạy", "")</p>
+                    </div>
+                </div>
+            }
         </div>
     </div>
 </section>
 
-<section class="section-pagelist">
+<section class="section-pagelist mt-5">
     <div class="container">
         <div class="section-heading">Trang liên kết</div>
-        <div class="section-content border" style="height: 80px;"></div>
+        <div class="row g-3">
+            <div class="col-md-3 p-3 border rounded-3 text-center bg-white shadow-sm">Chính sách bảo hành</div>
+            <div class="col-md-3 p-3 border rounded-3 text-center bg-white shadow-sm">Hệ thống cửa hàng</div>
+            <div class="col-md-3 p-3 border rounded-3 text-center bg-white shadow-sm">Tuyển dụng 2026</div>
+            <div class="col-md-3 p-3 border rounded-3 text-center bg-white shadow-sm">Góp ý khách hàng</div>
+        </div>
     </div>
 </section>
 
-<section class="section-bloglist">
+<section class="section-bloglist mt-5 mb-5">
     <div class="container">
         <div class="section-heading">Tin tức công nghệ</div>
-        <div class="section-content border" style="height: 150px;"></div>
+        <div class="row g-4">
+            @for (int i = 1; i <= 3; i++)
+            {
+                <div class="col-md-4">
+                    <div class="p-3 border rounded-4 bg-white shadow-sm h-100">
+                        <div style="height: 180px; background: #eee; border-radius: 12px;" class="mb-3 d-flex align-items-center justify-content-center text-muted">Thumbnail News</div>
+                        <h6 class="fw-bold">Hệ thống quản lý Electronics Store tại HUFLIT</h6>
+                        <p class="small text-muted">Đồ án thực tế của sinh viên CNTT khóa 2023...</p>
+                        <a href="#" class="text-danger fw-bold small text-decoration-none">Đọc tiếp -></a>
+                    </div>
+                </div>
+            }
+        </div>
     </div>
 </section>
+
+<script>
+    function startTimer() {
+        const hEl = document.getElementById('h'), mEl = document.getElementById('m'), sEl = document.getElementById('s');
+        let hh = 2, mm = 45, ss = 12;
+        setInterval(() => {
+            if (ss > 0) ss--; else { ss = 59; if (mm > 0) mm--; else { mm = 59; hh--; } }
+            hEl.innerText = hh < 10 ? '0' + hh : hh; mEl.innerText = mm < 10 ? '0' + mm : mm; sEl.innerText = ss < 10 ? '0' + ss : ss;
+        }, 1000);
+    }
+    startTimer();
+</script>

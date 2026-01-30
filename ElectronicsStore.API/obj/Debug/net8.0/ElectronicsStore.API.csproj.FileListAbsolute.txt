@@ -214,3 +214,11 @@ C:\ASP.NET\Elec-Store\ElectronicsStore.API\obj\Debug\net8.0\refint\ElectronicsSt
 C:\ASP.NET\Elec-Store\ElectronicsStore.API\obj\Debug\net8.0\ElectronicsStore.API.pdb
 C:\ASP.NET\Elec-Store\ElectronicsStore.API\obj\Debug\net8.0\ElectronicsStore.API.genruntimeconfig.cache
 C:\ASP.NET\Elec-Store\ElectronicsStore.API\obj\Debug\net8.0\ref\ElectronicsStore.API.dll
+C:\ASP.NET\Elec-Store\ElectronicsStore.API\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+C:\ASP.NET\Elec-Store\ElectronicsStore.API\bin\Debug\net8.0\Microsoft.IdentityModel.Abstractions.dll
+C:\ASP.NET\Elec-Store\ElectronicsStore.API\bin\Debug\net8.0\Microsoft.IdentityModel.JsonWebTokens.dll
+C:\ASP.NET\Elec-Store\ElectronicsStore.API\bin\Debug\net8.0\Microsoft.IdentityModel.Logging.dll
+C:\ASP.NET\Elec-Store\ElectronicsStore.API\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.dll
+C:\ASP.NET\Elec-Store\ElectronicsStore.API\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+C:\ASP.NET\Elec-Store\ElectronicsStore.API\bin\Debug\net8.0\Microsoft.IdentityModel.Tokens.dll
+C:\ASP.NET\Elec-Store\ElectronicsStore.API\bin\Debug\net8.0\System.IdentityModel.Tokens.Jwt.dll
