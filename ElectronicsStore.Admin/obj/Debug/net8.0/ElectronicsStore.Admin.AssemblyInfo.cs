@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ElectronicsStore.Admin")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d02593f9da606bba27b42b00448f0700971414fd")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+49d244a63c34e84452bc861113aa0ef4c89c3bc1")]
 [assembly: System.Reflection.AssemblyProductAttribute("ElectronicsStore.Admin")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ElectronicsStore.Admin")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
