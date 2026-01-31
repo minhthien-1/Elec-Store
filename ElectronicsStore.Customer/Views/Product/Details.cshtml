@@ -1,0 +1,312 @@
+﻿@model ElectronicsStore.Customer.Models.ViewModels.ProductDetailViewModel
+
+@{
+    ViewData["Title"] = Model.TenSP;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    int percentDiscount = 0;
+    if (Model.GiaGiamGia.HasValue && Model.GiaBan > 0)
+    {
+        percentDiscount = (int)((1 - (Model.GiaGiamGia.Value / Model.GiaBan)) * 100);
+    }
+}
+
+<style>
+    /* ... (Giữ nguyên CSS cũ) ... */
+    :root {
+        --accent-red: #E31837;
+        --dark-brown: #3E2723;
+    }
+
+    .product-detail-page {
+        background-color: #f4f4f4;
+        padding-bottom: 50px;
+    }
+
+    .white-box {
+        background: #fff;
+        border-radius: 16px;
+        padding: 25px;
+        box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+        margin-bottom: 20px;
+    }
+
+    .main-image {
+        width: 100%;
+        border-radius: 12px;
+        object-fit: contain;
+        max-height: 500px;
+    }
+
+    .product-name h1 {
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 10px;
+    }
+
+    .pro-price {
+        color: var(--accent-red);
+        font-size: 2rem;
+        font-weight: 800;
+    }
+
+    .pro-percent {
+        background: var(--accent-red);
+        color: white;
+        padding: 2px 8px;
+        border-radius: 4px;
+        margin-left: 10px;
+    }
+
+    .btn-buynow {
+        background: linear-gradient(180deg, #ff424e, #e31837);
+        color: white;
+        border: none;
+        padding: 12px;
+        border-radius: 8px;
+        font-weight: 700;
+        width: 100%;
+    }
+
+    .btn-contact-now {
+        background: #2196F3;
+        color: white;
+        border-radius: 8px;
+        font-weight: 700;
+        padding: 12px;
+        display: block;
+        text-align: center;
+        text-decoration: none;
+        width: 100%;
+    }
+
+    .section-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        border-left: 4px solid var(--accent-red);
+        padding-left: 15px;
+        margin-bottom: 20px;
+        text-transform: uppercase;
+    }
+
+    /* CSS cho thẻ Card sản phẩm tương tự */
+    .similar-card {
+        border: 1px solid #eee;
+        border-radius: 12px;
+        transition: 0.3s;
+        background: #fff;
+        display: block;
+        text-decoration: none;
+        color: inherit;
+        height: 100%;
+    }
+
+        .similar-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-color: var(--accent-red);
+        }
+
+    .similar-img {
+        width: 100%;
+        height: 150px;
+        object-fit: contain;
+        padding: 10px;
+    }
+
+    /* CSS cho Form đánh giá */
+    .rating-select {
+        width: 100%; /* Đổi thành 100% để nó dài bằng khung nhập nội dung bên dưới */
+        max-width: 300px; /* (Tùy chọn) Giới hạn độ rộng tối đa cho đẹp nếu màn hình quá to */
+        border-radius: 20px;
+        border: 1px solid #ddd;
+        padding: 8px 15px; /* Tăng padding chút cho thoáng */
+        font-weight: bold;
+    }
+</style>
+
+<div class="product-detail-page">
+    <div class="container py-4">
+
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/" class="text-decoration-none text-muted">Trang chủ</a></li>
+                <li class="breadcrumb-item active">@Model.TenSP</li>
+            </ol>
+        </nav>
+
+        <div class="white-box">
+            <div class="row">
+                <div class="col-lg-5 col-md-12 mb-4 text-center">
+                    <img src="@Model.HinhAnh" class="main-image" alt="@Model.TenSP" onerror="this.src='https://via.placeholder.com/600'">
+                </div>
+                <div class="col-lg-7 col-md-12 col-12 product-info">
+                    <div class="info-wrapper">
+                        <div class="product-name"><h1>@Model.TenSP</h1></div>
+                        <div class="product-sku mb-2">
+                            <span class="text-muted small">Thương hiệu: <strong class="text-danger">@Model.NhaSX?.TenNhaSX</strong></span>
+                            <span class="text-muted small ms-3">Tình trạng: @(Model.SoLuongTonKho > 0 ? "Còn hàng" : "Hết hàng")</span>
+                        </div>
+                        <div class="product-rating mb-3">
+                            <span class="text-warning">
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    <i class="bi @(i <= Math.Round(Model.DanhGiaXepHang) ? "bi-star-fill" : "bi-star")"></i>
+                                }
+                            </span>
+                            <span class="small text-muted ms-2">(@Model.SoLuotDanhGia đánh giá)</span>
+                        </div>
+                        <div class="product-price mb-4">
+                            @if (Model.GiaGiamGia.HasValue && Model.GiaGiamGia > 0)
+                            {
+                                <span class="pro-price">@Model.GiaGiamGia.Value.ToString("N0")₫</span>
+                                <del class="text-muted ms-2">@Model.GiaBan.ToString("N0")₫</del>
+                                <span class="pro-percent">-@percentDiscount%</span>
+                            }
+                            else
+                            {
+                                <span class="pro-price">@Model.GiaBan.ToString("N0")₫</span>
+                            }
+                        </div>
+                        <div class="product-actions row g-3">
+                            <div class="col-6"><button class="btn btn-buynow">MUA NGAY</button></div>
+                            <div class="col-6"><a href="#" class="btn-contact-now">TƯ VẤN</a></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="white-box h-100">
+                    <h4 class="section-title">Đặc điểm nổi bật</h4>
+                    <div class="product-desc-content">@Html.Raw(Model.MoTaChiTiet ?? "Đang cập nhật...")</div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="white-box h-100">
+                    <h4 class="section-title">Thông số kỹ thuật</h4>
+                    <div class="specs-content">@Html.Raw(Model.ThongTinKyThuat ?? "Đang cập nhật...")</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <div class="white-box">
+                <h4 class="section-title">Sản phẩm tương tự </h4>
+                @if (Model.SanPhamTuongTu != null && Model.SanPhamTuongTu.Any())
+                {
+                    <div class="row g-3">
+                        @foreach (var item in Model.SanPhamTuongTu)
+                        {
+                            <div class="col-md-3 col-6">
+                                <a asp-controller="Product" asp-action="Details" asp-route-id="@item.MaSP" class="similar-card p-3">
+                                    <div class="text-center">
+                                        <img src="@item.HinhAnh" class="similar-img" onerror="this.src='https://via.placeholder.com/150'">
+                                    </div>
+                                    <div class="mt-2 text-center">
+                                        <h6 class="fw-bold text-truncate small mb-1">@item.TenSP</h6>
+                                        <p class="text-danger fw-bold mb-0">@item.GiaBan.ToString("N0") đ</p>
+                                    </div>
+                                </a>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted text-center">Không có sản phẩm tương tự nào.</p>
+                }
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <div class="white-box">
+                <div class="row">
+                    <div class="col-md-4 border-end">
+                        <h4 class="section-title">Gửi đánh giá của bạn</h4>
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <form asp-controller="Product" asp-action="SubmitReview" method="post">
+                                <input type="hidden" name="MaSP" value="@Model.MaSP" />
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Chọn mức độ hài lòng:</label>
+                                    <select name="DemSao" class="form-select rating-select text-warning fw-bold">
+                                        <option value="5">★★★★★ (Tuyệt vời)</option>
+                                        <option value="4">★★★★ (Hài lòng)</option>
+                                        <option value="3">★★★ (Bình thường)</option>
+                                        <option value="2">★★ (Tạm được)</option>
+                                        <option value="1">★ (Không thích)</option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Nội dung đánh giá:</label>
+                                    <textarea name="NoiDung" class="form-control" rows="4" placeholder="Chia sẻ cảm nhận của bạn về sản phẩm này..." required></textarea>
+                                </div>
+
+                                <button type="submit" class="btn btn-danger w-100 fw-bold">GỬI ĐÁNH GIÁ</button>
+                            </form>
+                        }
+                        else
+                        {
+                            <div class="text-center py-4">
+                                <i class="bi bi-person-lock fs-1 text-muted"></i>
+                                <p class="mt-2">Vui lòng đăng nhập để gửi đánh giá.</p>
+                                <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#loginModal">Đăng nhập ngay</button>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="col-md-8 ps-md-4">
+                        <h4 class="section-title">Khách hàng nhận xét (@Model.SoLuotDanhGia)</h4>
+
+                        @if (Model.DanhGias != null && Model.DanhGias.Any())
+                        {
+                            <div style="max-height: 500px; overflow-y: auto; padding-right: 10px;">
+                                @foreach (var review in Model.DanhGias)
+                                {
+                                    <div class="d-flex gap-3 mb-4 border-bottom pb-3">
+                                        <div class="flex-shrink-0">
+                                            <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center text-white fw-bold" style="width: 50px; height: 50px;">
+                                                @review.NguoiDung.TenDayDu.Substring(0, 1).ToUpper()
+                                            </div>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <div class="d-flex justify-content-between">
+                                                <h6 class="fw-bold mb-0">@review.NguoiDung.TenDayDu</h6>
+                                                <small class="text-muted">@review.ThemTrongDB.ToString("dd/MM/yyyy HH:mm")</small>
+                                            </div>
+                                            <div class="text-warning small my-1">
+                                                @for (int i = 0; i < review.DemSao; i++)
+                                                {
+                                                    <i class="bi bi-star-fill"></i>
+                                                }
+                                                @for (int i = review.DemSao; i < 5; i++)
+                                                {
+                                                    <i class="bi bi-star text-muted"></i>
+                                                }
+                                            </div>
+                                            <p class="mb-0 text-dark">@review.NoiDung</p>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-center py-5 text-muted">
+                                <i class="bi bi-chat-square-dots fs-1"></i>
+                                <p class="mt-2">Chưa có đánh giá nào. Hãy là người đầu tiên!</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

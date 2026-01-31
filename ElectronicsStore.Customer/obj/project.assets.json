@@ -1520,23 +1520,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Thieu\\.nuget\\packages\\": {},
+    "C:\\Users\\Admin\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\Elec-store3\\ElectronicsStore.Customer\\ElectronicsStore.Customer.csproj",
+      "projectUniqueName": "C:\\ASP.NET\\Elec-Store\\ElectronicsStore.Customer\\ElectronicsStore.Customer.csproj",
       "projectName": "ElectronicsStore.Customer",
-      "projectPath": "D:\\Elec-store3\\ElectronicsStore.Customer\\ElectronicsStore.Customer.csproj",
-      "packagesPath": "C:\\Users\\Thieu\\.nuget\\packages\\",
-      "outputPath": "D:\\Elec-store3\\ElectronicsStore.Customer\\obj\\",
+      "projectPath": "C:\\ASP.NET\\Elec-Store\\ElectronicsStore.Customer\\ElectronicsStore.Customer.csproj",
+      "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
+      "outputPath": "C:\\ASP.NET\\Elec-Store\\ElectronicsStore.Customer\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\Thieu\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\Admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -1544,16 +1544,14 @@
         "net8.0"
       ],
       "sources": {
-        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "D:\\Elec-store3\\ElectronicsStore.API\\ElectronicsStore.API.csproj": {
-              "projectPath": "D:\\Elec-store3\\ElectronicsStore.API\\ElectronicsStore.API.csproj"
+            "C:\\ASP.NET\\Elec-Store\\ElectronicsStore.API\\ElectronicsStore.API.csproj": {
+              "projectPath": "C:\\ASP.NET\\Elec-Store\\ElectronicsStore.API\\ElectronicsStore.API.csproj"
             }
           }
         }

@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Elec-store3\\ElectronicsStore.Admin\\ElectronicsStore.Admin.csproj": {}
+    "C:\\ASP.NET\\Elec-Store\\ElectronicsStore.Admin\\ElectronicsStore.Admin.csproj": {}
   },
   "projects": {
-    "D:\\Elec-store3\\ElectronicsStore.Admin\\ElectronicsStore.Admin.csproj": {
+    "C:\\ASP.NET\\Elec-Store\\ElectronicsStore.Admin\\ElectronicsStore.Admin.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Elec-store3\\ElectronicsStore.Admin\\ElectronicsStore.Admin.csproj",
+        "projectUniqueName": "C:\\ASP.NET\\Elec-Store\\ElectronicsStore.Admin\\ElectronicsStore.Admin.csproj",
         "projectName": "ElectronicsStore.Admin",
-        "projectPath": "D:\\Elec-store3\\ElectronicsStore.Admin\\ElectronicsStore.Admin.csproj",
-        "packagesPath": "C:\\Users\\Thieu\\.nuget\\packages\\",
-        "outputPath": "D:\\Elec-store3\\ElectronicsStore.Admin\\obj\\",
+        "projectPath": "C:\\ASP.NET\\Elec-Store\\ElectronicsStore.Admin\\ElectronicsStore.Admin.csproj",
+        "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
+        "outputPath": "C:\\ASP.NET\\Elec-Store\\ElectronicsStore.Admin\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Thieu\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -25,8 +25,6 @@
           "net8.0"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {

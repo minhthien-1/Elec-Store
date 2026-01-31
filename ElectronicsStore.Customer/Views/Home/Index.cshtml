@@ -113,12 +113,14 @@
         height: 100%;
         transition: 0.4s;
         background: #fff;
+        position: relative; /* Để link phủ kín */
     }
 
         .product-card:hover {
             border-color: var(--accent-red);
             transform: scale(1.03);
             box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            z-index: 2;
         }
 
     /* Nút Mua ngay đặc biệt cho Flash Sale */
@@ -170,6 +172,14 @@
             border-color: var(--accent-red);
             transform: translateY(-3px);
         }
+
+    /* Class tiện ích cho thẻ a bao quanh card */
+    .card-link {
+        text-decoration: none !important;
+        color: inherit !important;
+        display: block;
+        height: 100%;
+    }
 </style>
 
 <section class="section-slider mt-4">
@@ -211,7 +221,7 @@
             </div>
             <div class="col-md-9">
                 <div class="slider-main d-flex align-items-center justify-content-center border shadow-sm rounded-4" style="height: 420px; background: #f0f0f0;">
-                    <h4 class="text-muted">CHÈN CAROUSEL/SLIDER TẠI ĐÀY</h4>
+                    <h4 class="text-muted">CHÈN CAROUSEL/SLIDER TẠI ĐÂY</h4>
                 </div>
             </div>
         </div>
@@ -241,14 +251,16 @@
             @foreach (var item in Model.OrderBy(x => Guid.NewGuid()).Take(4))
             {
                 <div class="col-md-3">
-                    <div class="product-card text-center d-flex flex-column justify-content-between">
-                        <div>
-                            <img src="@item.HinhAnh" class="img-fluid mb-2" style="height: 160px; object-fit: contain;">
-                            <h6 class="fw-bold text-truncate">@item.TenSP</h6>
-                            <p class="text-danger fw-bold mb-0">@item.GiaBan.ToString("N0") đ</p>
+                    <a asp-controller="Product" asp-action="Details" asp-route-id="@item.MaSP" class="card-link">
+                        <div class="product-card text-center d-flex flex-column justify-content-between">
+                            <div>
+                                <img src="@item.HinhAnh" class="img-fluid mb-2" style="height: 160px; object-fit: contain;">
+                                <h6 class="fw-bold text-truncate">@item.TenSP</h6>
+                                <p class="text-danger fw-bold mb-0">@item.GiaBan.ToString("N0") đ</p>
+                            </div>
+                            <button class="btn-buy-now">MUA NGAY</button>
                         </div>
-                        <button class="btn-buy-now">MUA NGAY</button>
-                    </div>
+                    </a>
                 </div>
             }
         </div>
@@ -285,13 +297,15 @@
                     @foreach (var item in prods)
                     {
                         <div class="col-md-3">
-                            <div class="product-card">
-                                <div class="text-center"><img src="@item.HinhAnh" height="150" style="object-fit: contain;"></div>
-                                <div class="mt-3 text-center">
-                                    <h6 class="fw-bold">@item.TenSP</h6>
-                                    <p class="text-danger fw-bold">@item.GiaBan.ToString("N0") đ</p>
+                            <a asp-controller="Product" asp-action="Details" asp-route-id="@item.MaSP" class="card-link">
+                                <div class="product-card">
+                                    <div class="text-center"><img src="@item.HinhAnh" height="150" style="object-fit: contain;"></div>
+                                    <div class="mt-3 text-center">
+                                        <h6 class="fw-bold">@item.TenSP</h6>
+                                        <p class="text-danger fw-bold">@item.GiaBan.ToString("N0") đ</p>
+                                    </div>
                                 </div>
-                            </div>
+                            </a>
                         </div>
                     }
                 }
