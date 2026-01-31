@@ -1,0 +1,10 @@
+﻿@model int
+
+<a href="javascript:void(0)" onclick="openCartGlobal()" class="btn btn-sm text-white position-relative text-decoration-none">
+    <i class="bi bi-cart-fill fs-5"></i> Giỏ hàng
+
+    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+        @Model
+        <span class="visually-hidden">sản phẩm trong giỏ</span>
+    </span>
+</a>

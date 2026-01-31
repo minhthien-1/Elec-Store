@@ -1,0 +1,261 @@
+﻿@model List<ElectronicsStore.API.Models.Entities.GioHang>
+@{
+    ViewData["Title"] = "Giỏ hàng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    decimal totalCart = Model.Sum(x => x.SoLuong * x.SanPham.GiaBan);
+}
+
+<style>
+    /* CSS Giỏ hàng tối giản */
+    .cart-main {
+        background: #fff;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        margin-top: 20px;
+    }
+
+    .cart-header {
+        border-bottom: 1px solid #eee;
+        padding-bottom: 15px;
+        margin-bottom: 20px;
+        font-weight: 700;
+        color: #333;
+        font-size: 1.2rem;
+    }
+
+    /* Item Style */
+    .cart-item {
+        display: flex;
+        align-items: center;
+        border-bottom: 1px solid #f4f4f4;
+        padding: 20px 0;
+    }
+
+        .cart-item:last-child {
+            border-bottom: none;
+        }
+
+    .item-img img {
+        width: 80px;
+        height: 80px;
+        object-fit: contain;
+        border: 1px solid #eee;
+        border-radius: 8px;
+    }
+
+    .item-info {
+        flex: 1;
+        padding-left: 20px;
+    }
+
+    .item-name {
+        font-weight: 600;
+        color: #333;
+        text-decoration: none;
+        display: block;
+        margin-bottom: 5px;
+    }
+
+        .item-name:hover {
+            color: #D32F2F;
+        }
+
+    .item-price {
+        color: #D32F2F;
+        font-weight: 700;
+    }
+
+    .item-qty {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    .qty-badge {
+        background: #f0f0f0;
+        padding: 2px 10px;
+        border-radius: 4px;
+        font-size: 0.9rem;
+    }
+
+    /* Summary Section */
+    .cart-summary {
+        background: #fafafa;
+        padding: 20px;
+        border-radius: 12px;
+        margin-top: 30px;
+    }
+
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+        font-size: 0.95rem;
+    }
+
+    .total-row {
+        border-top: 1px dashed #ccc;
+        padding-top: 15px;
+        margin-top: 10px;
+        font-size: 1.2rem;
+        font-weight: 800;
+        color: #D32F2F;
+    }
+
+    .btn-checkout {
+        background: #D32F2F;
+        color: white;
+        width: 100%;
+        padding: 15px;
+        border-radius: 8px;
+        font-weight: 700;
+        text-transform: uppercase;
+        margin-top: 20px;
+        border: none;
+        transition: 0.3s;
+    }
+
+        .btn-checkout:hover {
+            background: #b71c1c;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+    .btn-remove {
+        color: #999;
+        font-size: 0.85rem;
+        text-decoration: none;
+        cursor: pointer;
+        border: none;
+        background: none;
+        padding: 0;
+    }
+
+        .btn-remove:hover {
+            color: #D32F2F;
+            text-decoration: underline;
+        }
+</style>
+
+<div class="container mb-5">
+    <div class="row">
+        <div class="col-lg-8 offset-lg-2">
+
+            <div class="mb-3 mt-3">
+                <a href="/" class="text-decoration-none text-muted small"><i class="bi bi-chevron-left"></i> Mua thêm sản phẩm khác</a>
+            </div>
+
+            <div class="cart-main">
+                <div class="cart-header d-flex justify-content-between">
+                    <span><i class="bi bi-bag-check me-2 text-danger"></i>Giỏ hàng của bạn</span>
+                    <span class="text-muted small">(@Model.Count sản phẩm)</span>
+                </div>
+
+                @if (Model.Any())
+                {
+                    <div class="cart-list">
+                        @foreach (var item in Model)
+                        {
+                            <div class="cart-item">
+                                <div class="item-img">
+                                    <a href="/Product/Details/@item.MaSP">
+                                        <img src="@item.SanPham.HinhAnh" onerror="this.src='https://via.placeholder.com/80'">
+                                    </a>
+                                </div>
+                                <div class="item-info">
+                                    <a href="/Product/Details/@item.MaSP" class="item-name">@item.SanPham.TenSP</a>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div class="item-price">@item.SanPham.GiaBan.ToString("N0")₫</div>
+
+                                        <form asp-controller="Cart" asp-action="Remove" method="post">
+                                            <input type="hidden" name="productId" value="@item.MaSP" />
+                                            <button type="submit" class="btn-remove"><i class="bi bi-trash"></i> Xóa</button>
+                                        </form>
+                                    </div>
+                                    <div class="item-qty">
+                                        <span class="text-muted small me-2">Số lượng:</span>
+                                        <div class="input-group input-group-sm" style="width: 110px;">
+                                            <button class="btn btn-outline-secondary" type="button"
+                                                    onclick="updateQty(@item.MaSP, -1, @item.SanPham.GiaBan)">
+                                                -
+                                            </button>
+
+                                            <input type="text" class="form-control text-center" value="@item.SoLuong" id="qty-@item.MaSP" readonly>
+
+                                            <button class="btn btn-outline-secondary" type="button"
+                                                    onclick="updateQty(@item.MaSP, 1, @item.SanPham.GiaBan)">
+                                                +
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="cart-summary">
+                        <div class="summary-row">
+                            <span>Tạm tính:</span>
+                            <span>@totalCart.ToString("N0")₫</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Phí vận chuyển:</span>
+                            <span class="text-success">Miễn phí</span>
+                        </div>
+                        <div class="summary-row total-row">
+                            <span>Tổng tiền:</span>
+                            <span id="grand-total">@totalCart.ToString("N0")₫</span>
+                        </div>
+
+                        <button class="btn-checkout">
+                            ĐẶT HÀNG NGAY
+                        </button>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-5">
+                        <img src="https://cdn-icons-png.flaticon.com/512/2038/2038854.png" width="100" class="mb-3 opacity-50">
+                        <h5 class="text-muted">Giỏ hàng đang trống</h5>
+                        <a href="/" class="btn btn-outline-danger mt-3 rounded-pill px-4">Đi dạo cửa hàng</a>
+                    </div>
+                }
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    function updateQty(productId, change, price) {
+        var qtyInput = document.getElementById('qty-' + productId);
+        var currentQty = parseInt(qtyInput.value);
+        var newQty = currentQty + change;
+
+        if (newQty < 1) return; // Không cho giảm dưới 1 (hoặc xử lý xóa tùy bạn)
+
+        // 1. Cập nhật giao diện ngay lập tức cho mượt
+        qtyInput.value = newQty;
+
+        // 2. Gọi AJAX xuống Server cập nhật DB
+        $.ajax({
+            url: '/Cart/UpdateQuantity',
+            type: 'POST',
+            data: { productId: productId, quantity: newQty },
+            success: function (response) {
+                if (response.success) {
+                    // 3. Cập nhật lại Tổng tiền cả giỏ hàng từ Server trả về
+                    // Format tiền tệ Việt Nam
+                    var formattedTotal = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(response.newTotal);
+                    document.getElementById('grand-total').innerText = formattedTotal.replace('₫', '') + '₫';
+                }
+            },
+            error: function () {
+                alert('Lỗi cập nhật giỏ hàng!');
+                qtyInput.value = currentQty; // Hoàn tác nếu lỗi
+            }
+        });
+    }
+</script>

@@ -323,10 +323,7 @@
                         </button>
                     }
 
-                    <span class="btn btn-sm text-white position-relative">
-                        <i class="bi bi-cart"></i> Giỏ hàng
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">0</span>
-                    </span>
+                    @await Component.InvokeAsync("CartWidget")
                 </div>
             </div>
         </div>
@@ -358,7 +355,48 @@
         {
             <text>toastr.error('@TempData["Error"]');</text>
         }
+
+            function openCartGlobal() {
+            // Lấy trạng thái đăng nhập từ Server render ra (true/false)
+            var isLoggedIn = '@User.Identity.IsAuthenticated.ToString().ToLower()';
+
+            if (isLoggedIn === 'true') {
+                // Nếu đã đăng nhập -> Chuyển hướng sang trang Giỏ hàng
+                window.location.href = "/Cart";
+            } else {
+                // Nếu chưa đăng nhập -> Hiện Modal Login
+                var myModal = new bootstrap.Modal(document.getElementById('loginModal'));
+                myModal.show();
+            }
+        }
     </script>
     @await RenderSectionAsync("Scripts", required: false)
+
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title fw-bold">Đăng nhập</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="/Account/Login" method="post">
+                        <div class="mb-3">
+                            <label class="form-label">Email / Tên đăng nhập</label>
+                            <input type="text" name="username" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Mật khẩu</label>
+                            <input type="password" name="password" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn-danger w-100 fw-bold">Đăng nhập để mua hàng</button>
+                    </form>
+                    <div class="text-center mt-3">
+                        <a href="/Account/Register" class="text-decoration-none">Chưa có tài khoản? Đăng ký ngay</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

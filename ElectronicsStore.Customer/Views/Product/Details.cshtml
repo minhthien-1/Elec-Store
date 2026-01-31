@@ -169,9 +169,20 @@
                                 <span class="pro-price">@Model.GiaBan.ToString("N0")₫</span>
                             }
                         </div>
-                        <div class="product-actions row g-3">
-                            <div class="col-6"><button class="btn btn-buynow">MUA NGAY</button></div>
-                            <div class="col-6"><a href="#" class="btn-contact-now">TƯ VẤN</a></div>
+                        <div class="col-6">
+                            <form action="/Cart/AddToCart" method="post" id="addToCartForm">
+                                <input type="hidden" name="productId" value="@Model.MaSP" />
+                                <input type="hidden" name="quantity" value="1" />
+
+                                <button type="button" onclick="checkLoginAndBuy()" class="btn btn-buynow w-100 d-flex flex-column align-items-center">
+                                    <span class="fs-5">ĐẶT HÀNG NGAY</span>
+                                    <span style="font-size: 10px; font-weight: 400;">Giao tận nơi hoặc nhận tại cửa hàng</span>
+                                </button>
+                            </form>
+
+                          
+                        </div>
+                          
                         </div>
                     </div>
                 </div>
@@ -275,7 +286,7 @@
                                                 @review.NguoiDung.TenDayDu.Substring(0, 1).ToUpper()
                                             </div>
                                         </div>
-                                        <div class="flex-grow-1">
+                                        <div class="flex-grow-1">   
                                             <div class="d-flex justify-content-between">
                                                 <h6 class="fw-bold mb-0">@review.NguoiDung.TenDayDu</h6>
                                                 <small class="text-muted">@review.ThemTrongDB.ToString("dd/MM/yyyy HH:mm")</small>
@@ -309,4 +320,18 @@
         </div>
 
     </div>
-</div>
+<script>
+    function checkLoginAndBuy() {
+        // Kiểm tra biến IsAuthenticated từ Server render ra
+        var isLoggedIn = '@User.Identity.IsAuthenticated.ToString().ToLower()';
+
+        if (isLoggedIn === 'true') {
+            // Đã đăng nhập -> Submit form mua hàng
+            document.getElementById('addToCartForm').submit();
+        } else {
+            // Chưa đăng nhập -> Hiện Modal Login
+            var myModal = new bootstrap.Modal(document.getElementById('loginModal'));
+            myModal.show();
+        }
+    }
+</script>
