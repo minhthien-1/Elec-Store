@@ -92,3 +92,13 @@ C:\ASP.NET\Elec-Store\ElectronicsStore.Customer\bin\Debug\net8.0\Microsoft.Ident
 C:\ASP.NET\Elec-Store\ElectronicsStore.Customer\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
 C:\ASP.NET\Elec-Store\ElectronicsStore.Customer\bin\Debug\net8.0\Microsoft.IdentityModel.Tokens.dll
 C:\ASP.NET\Elec-Store\ElectronicsStore.Customer\bin\Debug\net8.0\System.IdentityModel.Tokens.Jwt.dll
+D:\Elec-store3\ElectronicsStore.Customer\obj\Debug\net8.0\ElectronicsStore.Customer.csproj.AssemblyReference.cache
+D:\Elec-store3\ElectronicsStore.Customer\obj\Debug\net8.0\rpswa.dswa.cache.json
+D:\Elec-store3\ElectronicsStore.Customer\obj\Debug\net8.0\ElectronicsStore.Customer.GeneratedMSBuildEditorConfig.editorconfig
+D:\Elec-store3\ElectronicsStore.Customer\obj\Debug\net8.0\ElectronicsStore.Customer.AssemblyInfoInputs.cache
+D:\Elec-store3\ElectronicsStore.Customer\obj\Debug\net8.0\ElectronicsStore.Customer.AssemblyInfo.cs
+D:\Elec-store3\ElectronicsStore.Customer\obj\Debug\net8.0\ElectronicsStore.Customer.csproj.CoreCompileInputs.cache
+D:\Elec-store3\ElectronicsStore.Customer\obj\Debug\net8.0\ElectronicsStore.Customer.MvcApplicationPartsAssemblyInfo.cache
+D:\Elec-store3\ElectronicsStore.Customer\obj\Debug\net8.0\ElectronicsStore.Customer.RazorAssemblyInfo.cache
+D:\Elec-store3\ElectronicsStore.Customer\obj\Debug\net8.0\ElectronicsStore.Customer.RazorAssemblyInfo.cs
+D:\Elec-store3\ElectronicsStore.Customer\obj\Debug\net8.0\ElectronicsStore.Customer.sourcelink.json
