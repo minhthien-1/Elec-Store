@@ -102,3 +102,4 @@ D:\Elec-store3\ElectronicsStore.Customer\obj\Debug\net8.0\ElectronicsStore.Custo
 D:\Elec-store3\ElectronicsStore.Customer\obj\Debug\net8.0\ElectronicsStore.Customer.RazorAssemblyInfo.cache
 D:\Elec-store3\ElectronicsStore.Customer\obj\Debug\net8.0\ElectronicsStore.Customer.RazorAssemblyInfo.cs
 D:\Elec-store3\ElectronicsStore.Customer\obj\Debug\net8.0\ElectronicsStore.Customer.sourcelink.json
+C:\ASP.NET\Elec-Store\ElectronicsStore.Customer\bin\Debug\net8.0\BCrypt.Net-Next.dll

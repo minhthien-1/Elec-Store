@@ -9,6 +9,7 @@ namespace ElectronicsStore.Customer
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
             // --- 1. CẤU HÌNH DATABASE (POSTGRESQL) ---
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -28,6 +29,7 @@ namespace ElectronicsStore.Customer
                     options.Cookie.Name = "ElectronicsStore_Session";
                     // Không đặt ExpireTimeSpan ở đây để ưu tiên Session Cookie của trình duyệt
                 });
+            
 
             var app = builder.Build();
 

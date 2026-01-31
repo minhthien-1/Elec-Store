@@ -51,3 +51,15 @@ C:\ASP.NET\Elec-Store\ElectronicsStore.API\obj\Debug\net8.0\staticwebassets.buil
 C:\ASP.NET\Elec-Store\ElectronicsStore.API\obj\Debug\net8.0\staticwebassets.build.json
 C:\ASP.NET\Elec-Store\ElectronicsStore.API\obj\Debug\net8.0\staticwebassets.build.json
 D:\Elec-store3\ElectronicsStore.API\obj\Debug\net8.0\staticwebassets.build.json
+C:\ASP.NET\Elec-Store\ElectronicsStore.API\obj\Debug\net8.0\staticwebassets.build.json
+C:\ASP.NET\Elec-Store\ElectronicsStore.API\obj\Debug\net8.0\staticwebassets.build.json
+C:\ASP.NET\Elec-Store\ElectronicsStore.API\obj\Debug\net8.0\staticwebassets.build.json
+C:\ASP.NET\Elec-Store\ElectronicsStore.API\obj\Debug\net8.0\staticwebassets.build.json
+C:\ASP.NET\Elec-Store\ElectronicsStore.API\obj\Debug\net8.0\staticwebassets.build.json
+C:\ASP.NET\Elec-Store\ElectronicsStore.API\obj\Debug\net8.0\staticwebassets.build.json
+C:\ASP.NET\Elec-Store\ElectronicsStore.API\obj\Debug\net8.0\staticwebassets.build.json
+C:\ASP.NET\Elec-Store\ElectronicsStore.API\obj\Debug\net8.0\staticwebassets.build.json
+C:\ASP.NET\Elec-Store\ElectronicsStore.API\obj\Debug\net8.0\staticwebassets.build.json
+C:\ASP.NET\Elec-Store\ElectronicsStore.API\obj\Debug\net8.0\staticwebassets.build.json
+C:\ASP.NET\Elec-Store\ElectronicsStore.API\obj\Debug\net8.0\staticwebassets.build.json
+C:\ASP.NET\Elec-Store\ElectronicsStore.API\obj\Debug\net8.0\staticwebassets.build.json

@@ -28,7 +28,7 @@ namespace ElectronicsStore.API.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // 1. Ánh xạ tên bảng (Để khớp chính xác với SQL Supabase của bạn)
+            // 1. Ánh xạ tên bảng
             modelBuilder.Entity<SanPham>().ToTable("SanPham");
             modelBuilder.Entity<DanhMucSanPham>().ToTable("DanhMucSanPham");
             modelBuilder.Entity<NhaSanXuat>().ToTable("NhaSanXuat");
@@ -42,7 +42,7 @@ namespace ElectronicsStore.API.Data
             modelBuilder.Entity<LichSuDonHang>().ToTable("LichSuDonHang");
             modelBuilder.Entity<ThongKeLuotXem>().ToTable("ThongKeLuotXem");
 
-            // 2. Cấu hình Khóa ngoại (Sửa lỗi: DanhMucMaDanhMuc does not exist)
+            // 2. Cấu hình Khóa ngoại
 
             // --- Bảng Sản Phẩm ---
             modelBuilder.Entity<SanPham>()
@@ -83,7 +83,24 @@ namespace ElectronicsStore.API.Data
                 .WithMany(s => s.ChiTietDonHangs)
                 .HasForeignKey(c => c.MaSP);
 
-            // --- Bảng Thống Kê Lượt Xem (Cái này bạn mới gửi nè) ---
+            // --- [FIX LỖI] Bảng Đánh Giá Sản Phẩm ---
+            // Đây là đoạn code quan trọng để sửa lỗi "NguoiDungMaND does not exist"
+            modelBuilder.Entity<DanhGiaSanPham>(entity =>
+            {
+                // Cấu hình khóa ngoại MaND
+                entity.HasOne(d => d.NguoiDung)
+                      .WithMany(u => u.DanhGias) // Đảm bảo class NguoiDung có: public virtual ICollection<DanhGiaSanPham> DanhGias { get; set; }
+                      .HasForeignKey(d => d.MaND)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                // Cấu hình khóa ngoại MaSP
+                entity.HasOne(d => d.SanPham)
+                      .WithMany(s => s.DanhGias) // Đảm bảo class SanPham có: public virtual ICollection<DanhGiaSanPham> DanhGias { get; set; }
+                      .HasForeignKey(d => d.MaSP)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // --- Bảng Thống Kê Lượt Xem ---
             modelBuilder.Entity<ThongKeLuotXem>()
                 .HasOne(t => t.SanPham)
                 .WithMany(s => s.ThongKes)
@@ -91,7 +108,7 @@ namespace ElectronicsStore.API.Data
 
             modelBuilder.Entity<ThongKeLuotXem>()
                 .HasOne(t => t.NguoiDung)
-                .WithMany() // Nếu NguoiDung không có ICollection<ThongKeLuotXem>
+                .WithMany()
                 .HasForeignKey(t => t.MaND);
         }
     }
