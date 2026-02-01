@@ -1,4 +1,5 @@
-﻿[Bb]in/
+﻿# Các thư mục rác cần bỏ qua
+[Bb]in/
 [Oo]bj/
 .vs/
 *.user
