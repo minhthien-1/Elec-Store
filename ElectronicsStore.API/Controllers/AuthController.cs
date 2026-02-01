@@ -2,6 +2,7 @@
 using ElectronicsStore.API.Helpers;
 using ElectronicsStore.API.Models;
 using ElectronicsStore.API.Models.Entities;
+using ElectronicsStore.API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +11,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using ElectronicsStore.API.Services;
 
 namespace ElectronicsStore.API.Controllers
 {
@@ -17,6 +19,7 @@ namespace ElectronicsStore.API.Controllers
     [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
+        private readonly IJwtTokenService _jwtTokenService;
         private readonly ElectronicsStoreDbContext _context;
         private readonly IConfiguration _configuration;
         private readonly ILogger<AuthController> _logger;
@@ -268,31 +271,41 @@ namespace ElectronicsStore.API.Controllers
         }
 
         // ĐĂNG XUẤT 
-        [Authorize]
         [HttpPost("logout")]
-        public ActionResult<object> Logout()
+        [Authorize]  // Thêm dòng này
+        public async Task<IActionResult> Logout()
         {
             try
             {
-                var email = User.FindFirst(ClaimTypes.Email)?.Value;
-                _logger.LogInformation($" User logged out: {email}");
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                if (string.IsNullOrEmpty(userId))
+                    return Unauthorized(new { success = false, message = "User không hợp lệ" });
+
+                var user = await _context.NguoiDungs.FirstOrDefaultAsync(u => u.MaND.ToString() == userId);
+                if (user != null)
+                {
+                    user.RefreshToken = null;
+                    user.RefreshTokenExpiryTime = null;
+                    await _context.SaveChangesAsync();
+                }
 
                 return Ok(new { success = true, message = "Đăng xuất thành công" });
             }
-            catch (Exception ex)
+            catch
             {
-                _logger.LogError($"❌ Error in Logout: {ex.Message}");
-                return BadRequest(new { success = false, message = ex.Message });
+                return Unauthorized(new { success = false, message = "Token không hợp lệ" });
             }
         }
+
 
         // ========== LẤY THÔNG TIN HIỆN TẠI ==========
         /// <summary>
         /// GET: /api/auth/me
         /// Lấy thông tin user hiện tại (cần Authorization)
         /// </summary>
-        [Authorize]
         [HttpGet("me")]
+        [Authorize]
         public async Task<ActionResult<object>> GetCurrentUser()
         {
             try
