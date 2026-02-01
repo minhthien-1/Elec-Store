@@ -1,11 +1,4 @@
-﻿# Visual Studio rác/tạm
-.vs/
-[Bb]in/
+﻿[Bb]in/
 [Oo]bj/
+.vs/
 *.user
-*.suo
-*.userosscache
-*.sln.docstates
-
-# Tệp cấu hình cá nhân
-appsettings.Development.json
