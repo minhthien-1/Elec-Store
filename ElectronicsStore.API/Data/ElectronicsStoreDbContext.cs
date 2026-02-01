@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using ElectronicsStore.API.Models.Entities;
 
 namespace ElectronicsStore.API.Data
@@ -10,7 +11,6 @@ namespace ElectronicsStore.API.Data
         {
         }
 
-        // --- KHAI BÁO CÁC BẢNG (DbSets) ---
         public DbSet<SanPham> SanPhams { get; set; }
         public DbSet<DanhMucSanPham> DanhMucSanPhams { get; set; }
         public DbSet<NhaSanXuat> NhaSanXuats { get; set; }
@@ -83,20 +83,49 @@ namespace ElectronicsStore.API.Data
                 .WithMany(s => s.ChiTietDonHangs)
                 .HasForeignKey(c => c.MaSP);
 
-            // --- [FIX LỖI] Bảng Đánh Giá Sản Phẩm ---
-            // Đây là đoạn code quan trọng để sửa lỗi "NguoiDungMaND does not exist"
+            // --- Bảng Đánh Giá Sản Phẩm ---
             modelBuilder.Entity<DanhGiaSanPham>(entity =>
             {
-                // Cấu hình khóa ngoại MaND
                 entity.HasOne(d => d.NguoiDung)
-                      .WithMany(u => u.DanhGias) // Đảm bảo class NguoiDung có: public virtual ICollection<DanhGiaSanPham> DanhGias { get; set; }
+                      .WithMany(u => u.DanhGias)
                       .HasForeignKey(d => d.MaND)
                       .OnDelete(DeleteBehavior.Cascade);
 
-                // Cấu hình khóa ngoại MaSP
                 entity.HasOne(d => d.SanPham)
-                      .WithMany(s => s.DanhGias) // Đảm bảo class SanPham có: public virtual ICollection<DanhGiaSanPham> DanhGias { get; set; }
+                      .WithMany(s => s.DanhGias)
                       .HasForeignKey(d => d.MaSP)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // --- [CODE FIX LỖI] Cấu hình Lịch Sử Đơn Hàng ---
+            modelBuilder.Entity<LichSuDonHang>(entity =>
+            {
+                // Fix lỗi DonHangMaDH
+                entity.HasOne(ls => ls.DonHang)
+                      .WithMany(dh => dh.LichSuDonHangs)
+                      .HasForeignKey(ls => ls.MaDH)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                // Fix lỗi NguoiDungMaND: Map chính xác vào list 'LichSuDonHangs' trong NguoiDung
+                // Nếu báo đỏ chữ "LichSuDonHangs", hãy đổi thành "LichSuDonHang" (tùy file NguoiDung đặt tên)
+                entity.HasOne(ls => ls.NguoiDung)
+                      .WithMany("LichSuDonHangs") // Dùng chuỗi string cho an toàn nếu bạn không mở được file NguoiDung
+                      .HasForeignKey(ls => ls.MaNguoiCapNhat)
+                      .OnDelete(DeleteBehavior.SetNull);
+            });
+
+            // --- [CODE FIX LỖI] Cấu hình Lịch Sử Thanh Toán ---
+            modelBuilder.Entity<LichSuThanhToan>(entity =>
+            {
+                entity.HasOne(ls => ls.DonHang)
+                      .WithMany(dh => dh.LichSuThanhToans)
+                      .HasForeignKey(ls => ls.MaDH)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                // Map vào list 'LichSuThanhToans' trong NguoiDung
+                entity.HasOne(ls => ls.NguoiDung)
+                      .WithMany("LichSuThanhToans") // Dùng chuỗi string
+                      .HasForeignKey(ls => ls.MaND)
                       .OnDelete(DeleteBehavior.Cascade);
             });
 

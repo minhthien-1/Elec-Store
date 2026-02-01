@@ -12,7 +12,7 @@
 }
 
 <style>
-    /* ... (Giữ nguyên CSS cũ) ... */
+    /* CSS Cũ giữ nguyên */
     :root {
         --accent-red: #E31837;
         --dark-brown: #3E2723;
@@ -28,7 +28,8 @@
         border-radius: 16px;
         padding: 25px;
         box-shadow: 0 2px 15px rgba(0,0,0,0.05);
-        margin-bottom: 20px;
+        margin-bottom: 20px; /* Tạo khoảng cách dưới mỗi box */
+        height: 100%; /* Để các box trên cùng 1 hàng cao bằng nhau */
     }
 
     .main-image {
@@ -69,18 +70,6 @@
         width: 100%;
     }
 
-    .btn-contact-now {
-        background: #2196F3;
-        color: white;
-        border-radius: 8px;
-        font-weight: 700;
-        padding: 12px;
-        display: block;
-        text-align: center;
-        text-decoration: none;
-        width: 100%;
-    }
-
     .section-title {
         font-size: 1.2rem;
         font-weight: 700;
@@ -88,9 +77,11 @@
         padding-left: 15px;
         margin-bottom: 20px;
         text-transform: uppercase;
+        border-bottom: 1px solid #eee; /* Thêm đường kẻ dưới tiêu đề */
+        padding-bottom: 10px;
     }
 
-    /* CSS cho thẻ Card sản phẩm tương tự */
+    /* CSS Card sản phẩm tương tự */
     .similar-card {
         border: 1px solid #eee;
         border-radius: 12px;
@@ -115,14 +106,27 @@
         padding: 10px;
     }
 
-    /* CSS cho Form đánh giá */
+    /* CSS Đánh giá */
     .rating-select {
-        width: 100%; /* Đổi thành 100% để nó dài bằng khung nhập nội dung bên dưới */
-        max-width: 300px; /* (Tùy chọn) Giới hạn độ rộng tối đa cho đẹp nếu màn hình quá to */
-        border-radius: 20px;
-        border: 1px solid #ddd;
-        padding: 8px 15px; /* Tăng padding chút cho thoáng */
+        width: 100%;
+        border-radius: 8px; /* Bo góc vuông vức hơn tí cho hợp form */
+        border: 1px solid #ced4da;
+        padding: 10px;
+        font-weight: 600;
+        color: #E31837; /* Màu chữ đỏ cho nổi */
+    }
+
+    .avatar-circle {
+        width: 50px;
+        height: 50px;
+        background-color: #f0f2f5;
+        color: #333;
         font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        font-size: 1.2rem;
     }
 </style>
 
@@ -169,20 +173,15 @@
                                 <span class="pro-price">@Model.GiaBan.ToString("N0")₫</span>
                             }
                         </div>
-                        <div class="col-6">
+                        <div class="col-md-6 col-12">
                             <form action="/Cart/AddToCart" method="post" id="addToCartForm">
                                 <input type="hidden" name="productId" value="@Model.MaSP" />
                                 <input type="hidden" name="quantity" value="1" />
-
-                                <button type="button" onclick="checkLoginAndBuy()" class="btn btn-buynow w-100 d-flex flex-column align-items-center">
+                                <button type="button" onclick="checkLoginAndBuy()" class="btn btn-buynow d-flex flex-column align-items-center">
                                     <span class="fs-5">ĐẶT HÀNG NGAY</span>
-                                    <span style="font-size: 10px; font-weight: 400;">Giao tận nơi hoặc nhận tại cửa hàng</span>
+                                    <span style="font-size: 11px; font-weight: 400;">Giao tận nơi hoặc nhận tại cửa hàng</span>
                                 </button>
                             </form>
-
-                          
-                        </div>
-                          
                         </div>
                     </div>
                 </div>
@@ -190,146 +189,157 @@
         </div>
 
         <div class="row">
-            <div class="col-lg-8">
-                <div class="white-box h-100">
+            <div class="col-lg-8 mb-4">
+                <div class="white-box">
                     <h4 class="section-title">Đặc điểm nổi bật</h4>
-                    <div class="product-desc-content">@Html.Raw(Model.MoTaChiTiet ?? "Đang cập nhật...")</div>
+                    <div class="product-desc-content p-2">
+                        @Html.Raw(Model.MoTaChiTiet ?? "Đang cập nhật...")
+                    </div>
                 </div>
             </div>
-            <div class="col-lg-4">
-                <div class="white-box h-100">
+
+            <div class="col-lg-4 mb-4">
+                <div class="white-box">
                     <h4 class="section-title">Thông số kỹ thuật</h4>
-                    <div class="specs-content">@Html.Raw(Model.ThongTinKyThuat ?? "Đang cập nhật...")</div>
+                    <div class="specs-content p-2">
+                        @Html.Raw(Model.ThongTinKyThuat ?? "Đang cập nhật...")
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="mt-4">
-            <div class="white-box">
-                <h4 class="section-title">Sản phẩm tương tự </h4>
-                @if (Model.SanPhamTuongTu != null && Model.SanPhamTuongTu.Any())
-                {
-                    <div class="row g-3">
-                        @foreach (var item in Model.SanPhamTuongTu)
-                        {
-                            <div class="col-md-3 col-6">
-                                <a asp-controller="Product" asp-action="Details" asp-route-id="@item.MaSP" class="similar-card p-3">
-                                    <div class="text-center">
-                                        <img src="@item.HinhAnh" class="similar-img" onerror="this.src='https://via.placeholder.com/150'">
-                                    </div>
-                                    <div class="mt-2 text-center">
-                                        <h6 class="fw-bold text-truncate small mb-1">@item.TenSP</h6>
-                                        <p class="text-danger fw-bold mb-0">@item.GiaBan.ToString("N0") đ</p>
-                                    </div>
-                                </a>
-                            </div>
-                        }
-                    </div>
-                }
-                else
-                {
-                    <p class="text-muted text-center">Không có sản phẩm tương tự nào.</p>
-                }
-            </div>
+        <div class="white-box mb-4">
+            <h4 class="section-title">Sản phẩm tương tự</h4>
+            @if (Model.SanPhamTuongTu != null && Model.SanPhamTuongTu.Any())
+            {
+                <div class="row g-3">
+                    @foreach (var item in Model.SanPhamTuongTu)
+                    {
+                        <div class="col-lg-3 col-md-4 col-6">
+                            <a asp-controller="Product" asp-action="Details" asp-route-id="@item.MaSP" class="similar-card p-3">
+                                <div class="text-center">
+                                    <img src="@item.HinhAnh" class="similar-img" onerror="this.src='https://via.placeholder.com/150'">
+                                </div>
+                                <div class="mt-2 text-center">
+                                    <h6 class="fw-bold text-truncate small mb-1">@item.TenSP</h6>
+                                    <p class="text-danger fw-bold mb-0">@item.GiaBan.ToString("N0") đ</p>
+                                </div>
+                            </a>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <p class="text-muted text-center py-3">Chưa có sản phẩm tương tự.</p>
+            }
         </div>
 
-        <div class="mt-4">
-            <div class="white-box">
-                <div class="row">
-                    <div class="col-md-4 border-end">
-                        <h4 class="section-title">Gửi đánh giá của bạn</h4>
-                        @if (User.Identity.IsAuthenticated)
-                        {
-                            <form asp-controller="Product" asp-action="SubmitReview" method="post">
-                                <input type="hidden" name="MaSP" value="@Model.MaSP" />
+        <div class="white-box">
+            <div class="row">
+                <div class="col-md-4 border-end">
+                    <h4 class="section-title">Gửi đánh giá của bạn</h4>
 
-                                <div class="mb-3">
-                                    <label class="form-label fw-bold">Chọn mức độ hài lòng:</label>
-                                    <select name="DemSao" class="form-select rating-select text-warning fw-bold">
-                                        <option value="5">★★★★★ (Tuyệt vời)</option>
-                                        <option value="4">★★★★ (Hài lòng)</option>
-                                        <option value="3">★★★ (Bình thường)</option>
-                                        <option value="2">★★ (Tạm được)</option>
-                                        <option value="1">★ (Không thích)</option>
-                                    </select>
-                                </div>
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <form asp-controller="Product" asp-action="SubmitReview" method="post" class="mt-3">
+                            <input type="hidden" name="MaSP" value="@Model.MaSP" />
 
-                                <div class="mb-3">
-                                    <label class="form-label fw-bold">Nội dung đánh giá:</label>
-                                    <textarea name="NoiDung" class="form-control" rows="4" placeholder="Chia sẻ cảm nhận của bạn về sản phẩm này..." required></textarea>
-                                </div>
-
-                                <button type="submit" class="btn btn-danger w-100 fw-bold">GỬI ĐÁNH GIÁ</button>
-                            </form>
-                        }
-                        else
-                        {
-                            <div class="text-center py-4">
-                                <i class="bi bi-person-lock fs-1 text-muted"></i>
-                                <p class="mt-2">Vui lòng đăng nhập để gửi đánh giá.</p>
-                                <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#loginModal">Đăng nhập ngay</button>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold small text-uppercase text-muted">Mức độ hài lòng</label>
+                                <select name="DemSao" class="form-select rating-select">
+                                    <option value="5" selected>★★★★★ - Tuyệt vời</option>
+                                    <option value="4">★★★★☆ - Hài lòng</option>
+                                    <option value="3">★★★☆☆ - Bình thường</option>
+                                    <option value="2">★★☆☆☆ - Tạm được</option>
+                                    <option value="1">★☆☆☆☆ - Không thích</option>
+                                </select>
                             </div>
-                        }
-                    </div>
 
-                    <div class="col-md-8 ps-md-4">
-                        <h4 class="section-title">Khách hàng nhận xét (@Model.SoLuotDanhGia)</h4>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold small text-uppercase text-muted">Nội dung đánh giá</label>
+                                <textarea name="NoiDung" class="form-control bg-light" rows="5" placeholder="Sản phẩm dùng thế nào? Hãy chia sẻ cảm nhận..." required style="border-radius: 8px;"></textarea>
+                            </div>
 
-                        @if (Model.DanhGias != null && Model.DanhGias.Any())
-                        {
-                            <div style="max-height: 500px; overflow-y: auto; padding-right: 10px;">
-                                @foreach (var review in Model.DanhGias)
-                                {
-                                    <div class="d-flex gap-3 mb-4 border-bottom pb-3">
-                                        <div class="flex-shrink-0">
-                                            <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center text-white fw-bold" style="width: 50px; height: 50px;">
-                                                @review.NguoiDung.TenDayDu.Substring(0, 1).ToUpper()
-                                            </div>
-                                        </div>
-                                        <div class="flex-grow-1">   
-                                            <div class="d-flex justify-content-between">
-                                                <h6 class="fw-bold mb-0">@review.NguoiDung.TenDayDu</h6>
-                                                <small class="text-muted">@review.ThemTrongDB.ToString("dd/MM/yyyy HH:mm")</small>
-                                            </div>
-                                            <div class="text-warning small my-1">
-                                                @for (int i = 0; i < review.DemSao; i++)
-                                                {
-                                                    <i class="bi bi-star-fill"></i>
-                                                }
-                                                @for (int i = review.DemSao; i < 5; i++)
-                                                {
-                                                    <i class="bi bi-star text-muted"></i>
-                                                }
-                                            </div>
-                                            <p class="mb-0 text-dark">@review.NoiDung</p>
+                            <button type="submit" class="btn btn-danger w-100 fw-bold py-2 text-uppercase rounded-pill">
+                                <i class="bi bi-send-fill me-2"></i> Gửi đánh giá
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <div class="text-center py-5 bg-light rounded mt-3">
+                            <i class="bi bi-person-circle fs-1 text-secondary"></i>
+                            <p class="mt-2 fw-bold text-muted">Bạn cần đăng nhập để đánh giá</p>
+                            <button class="btn btn-outline-danger btn-sm px-4 rounded-pill" data-bs-toggle="modal" data-bs-target="#loginModal">
+                                Đăng nhập ngay
+                            </button>
+                        </div>
+                    }
+                </div>
+
+                <div class="col-md-8 ps-md-4 mt-4 mt-md-0">
+                    <h4 class="section-title d-flex justify-content-between align-items-center">
+                        Khách hàng nhận xét
+                        <span class="badge bg-secondary rounded-pill">@Model.SoLuotDanhGia</span>
+                    </h4>
+
+                    @if (Model.DanhGias != null && Model.DanhGias.Any())
+                    {
+                        <div class="review-list mt-3" style="max-height: 500px; overflow-y: auto; padding-right: 5px;">
+                            @foreach (var review in Model.DanhGias)
+                            {
+                                <div class="d-flex gap-3 mb-4 border-bottom pb-3">
+                                    <div class="flex-shrink-0">
+                                        <div class="avatar-circle">
+                                            @review.NguoiDung.TenDayDu.Substring(0, 1).ToUpper()
                                         </div>
                                     </div>
-                                }
-                            </div>
-                        }
-                        else
-                        {
-                            <div class="text-center py-5 text-muted">
-                                <i class="bi bi-chat-square-dots fs-1"></i>
-                                <p class="mt-2">Chưa có đánh giá nào. Hãy là người đầu tiên!</p>
-                            </div>
-                        }
-                    </div>
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <h6 class="fw-bold mb-0 text-dark">@review.NguoiDung.TenDayDu</h6>
+                                            <small class="text-muted" style="font-size: 0.8rem;">
+                                                <i class="bi bi-clock me-1"></i>@review.ThemTrongDB.ToString("dd/MM/yyyy HH:mm")
+                                            </small>
+                                        </div>
+
+                                        <div class="text-warning small my-1">
+                                            @for (int i = 0; i < review.DemSao; i++)
+                                            {
+                                                <i class="bi bi-star-fill"></i>
+                                            }
+                                            @for (int i = review.DemSao; i < 5; i++)
+                                            {
+                                                <i class="bi bi-star text-black-50 opacity-25"></i>
+                                            }
+                                        </div>
+
+                                        <p class="mb-0 text-secondary mt-2" style="font-size: 0.95rem; line-height: 1.5;">@review.NoiDung</p>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <img src="https://cdn-icons-png.flaticon.com/512/4076/4076432.png" width="80" class="opacity-50 mb-3" />
+                            <p class="text-muted">Chưa có đánh giá nào cho sản phẩm này.<br>Hãy là người đầu tiên!</p>
+                        </div>
+                    }
                 </div>
             </div>
         </div>
 
     </div>
+</div>
+
 <script>
     function checkLoginAndBuy() {
-        // Kiểm tra biến IsAuthenticated từ Server render ra
         var isLoggedIn = '@User.Identity.IsAuthenticated.ToString().ToLower()';
-
         if (isLoggedIn === 'true') {
-            // Đã đăng nhập -> Submit form mua hàng
             document.getElementById('addToCartForm').submit();
         } else {
-            // Chưa đăng nhập -> Hiện Modal Login
             var myModal = new bootstrap.Modal(document.getElementById('loginModal'));
             myModal.show();
         }

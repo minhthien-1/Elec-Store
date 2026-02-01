@@ -1,11 +1,5 @@
-﻿# Visual Studio rác/tạm
-.vs/
+﻿# Các thư mục rác cần bỏ qua
 [Bb]in/
 [Oo]bj/
+.vs/
 *.user
-*.suo
-*.userosscache
-*.sln.docstates
-
-# Tệp cấu hình cá nhân
-appsettings.Development.json

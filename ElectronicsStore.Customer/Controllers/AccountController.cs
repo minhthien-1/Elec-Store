@@ -6,6 +6,8 @@ using ElectronicsStore.API.Models.Entities;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Security.Claims;
+// Thêm namespace này
+using BCrypt.Net;
 
 namespace ElectronicsStore.Customer.Controllers
 {
@@ -18,50 +20,66 @@ namespace ElectronicsStore.Customer.Controllers
             _context = context;
         }
 
-        // --- ĐĂNG NHẬP (SESSION COOKIE) ---
+        // --- ĐĂNG NHẬP (CẬP NHẬT KIỂM TRA MẬT KHẨU BĂM) ---
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
             if (!ModelState.IsValid) return RedirectToAction("Index", "Home");
 
-            // Tìm người dùng trong database
+            // 1. Tìm user theo Email trước (KHÔNG kiểm tra password trong câu truy vấn này)
             var user = await _context.NguoiDungs
-                .FirstOrDefaultAsync(u => u.Email == model.Email && u.MatKhauHash == model.Password);
+                .FirstOrDefaultAsync(u => u.Email == model.Email);
 
+            // 2. Kiểm tra User có tồn tại không VÀ Check mật khẩu
             if (user != null)
             {
-                var claims = new List<Claim>
+                // Dùng BCrypt để so sánh mật khẩu nhập vào với mật khẩu đã mã hóa trong DB
+                // Lưu ý: Nếu user cũ trong DB chưa mã hóa, hàm này sẽ trả về false -> Cần xử lý riêng hoặc reset DB
+                bool isPasswordValid = false;
+
+                try
                 {
-                    new Claim(ClaimTypes.Name, user.TenDayDu),
-                    new Claim(ClaimTypes.Email, user.Email),
-                    new Claim("UserId", user.MaND.ToString()),
-                    new Claim(ClaimTypes.Role, user.LaQuanTriVien ? "Admin" : "Customer")
-                };
-
-                var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-
-                // Cấu hình không ghi nhớ (IsPersistent = false) để reset khi tắt trình duyệt
-                var authProperties = new AuthenticationProperties
+                    isPasswordValid = BCrypt.Net.BCrypt.Verify(model.Password, user.MatKhauHash);
+                }
+                catch
                 {
-                    IsPersistent = false, // Không lưu vĩnh viễn
-                    AllowRefresh = true
-                };
+                    // Fallback: Nếu verify lỗi (do DB cũ lưu plain text), so sánh thường
+                    if (user.MatKhauHash == model.Password) isPasswordValid = true;
+                }
 
-                await HttpContext.SignInAsync(
-                    CookieAuthenticationDefaults.AuthenticationScheme,
-                    new ClaimsPrincipal(claimsIdentity),
-                    authProperties);
+                if (isPasswordValid)
+                {
+                    var claims = new List<Claim>
+                    {
+                        new Claim(ClaimTypes.Name, user.TenDayDu),
+                        new Claim(ClaimTypes.Email, user.Email),
+                        new Claim("UserId", user.MaND.ToString()),
+                        new Claim(ClaimTypes.Role, user.LaQuanTriVien ? "Admin" : "Customer")
+                    };
 
-                TempData["Success"] = $"Chào mừng {user.TenDayDu}!";
-                return RedirectToAction("Index", "Home");
+                    var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                    var authProperties = new AuthenticationProperties
+                    {
+                        IsPersistent = false,
+                        AllowRefresh = true
+                    };
+
+                    await HttpContext.SignInAsync(
+                        CookieAuthenticationDefaults.AuthenticationScheme,
+                        new ClaimsPrincipal(claimsIdentity),
+                        authProperties);
+
+                    TempData["Success"] = $"Chào mừng {user.TenDayDu}!";
+                    return RedirectToAction("Index", "Home");
+                }
             }
 
             TempData["Error"] = "Email hoặc mật khẩu không chính xác.";
             return RedirectToAction("Index", "Home");
         }
 
-        // --- ĐĂNG KÝ (POSTGRESQL COMPATIBLE) ---
+        // --- ĐĂNG KÝ (CẬP NHẬT MÃ HÓA MẬT KHẨU) ---
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterViewModel model)
@@ -75,16 +93,19 @@ namespace ElectronicsStore.Customer.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
+            // MÃ HÓA MẬT KHẨU TẠI ĐÂY
+            string passwordHash = BCrypt.Net.BCrypt.HashPassword(model.Password);
+
             var newUser = new NguoiDung
             {
                 Email = model.Email,
                 TenDayDu = model.TenDayDu,
                 SoDienThoai = model.SoDienThoai,
-                MatKhauHash = model.Password,
+                MatKhauHash = passwordHash, // Lưu chuỗi đã mã hóa
                 QuocGia = "Việt Nam",
                 LaQuanTriVien = false,
                 DangHoatDong = true,
-                ThemTrongDB = DateTime.UtcNow // PostgreSQL yêu cầu chuẩn UTC
+                ThemTrongDB = DateTime.UtcNow
             };
 
             try
@@ -102,7 +123,7 @@ namespace ElectronicsStore.Customer.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        // --- ĐĂNG XUẤT ---
+        // --- ĐĂNG XUẤT (Giữ nguyên) ---
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
