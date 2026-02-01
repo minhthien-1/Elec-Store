@@ -1,3 +1,68 @@
+## .NET Build outputs
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+## Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+bld/
+
+## Visual Studio cache
+.vs/
+*.suo
+*.user
+*.userosscache
+
+## Build files
+*.dll
+*.exe
+*.pdb
+*.cache
+
+## NuGet
+*.nupkg
+packages/
+
+## ASP.NET
+project.lock.json
+project.fragment.lock.json
+artifacts/## .NET Build outputs
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+## Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+bld/
+
+## Visual Studio cache
+.vs/
+*.suo
+*.user
+*.userosscache
+
+## Build files
+*.dll
+*.exe
+*.pdb
+*.cache
+
+## NuGet
+*.nupkg
+packages/
+
+## ASP.NET
+project.lock.json
+project.fragment.lock.json
+artifacts/
 ﻿# Visual Studio rác/tạm
 .vs/
 [Bb]in/
@@ -6,6 +71,7 @@
 *.suo
 *.userosscache
 *.sln.docstates
-
+**/bin/
+**/obj/
 # Tệp cấu hình cá nhân
 appsettings.Development.json
