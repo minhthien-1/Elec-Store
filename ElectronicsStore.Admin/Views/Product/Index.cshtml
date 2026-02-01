@@ -15,24 +15,18 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
     <style>
         :root {
-            --primary-color: #FF8C42;
-            --secondary-color: #FF6B35;
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
         }
 
         body {
-            background: #FFF8F0;
+            background: #f5f7fa;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        .navbar {
-            background: linear-gradient(135deg, #FF8C42 0%, #FF6B35 100%);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
         .navbar-brand {
             font-weight: 700;
             font-size: 1.5rem;
-            color: white !important;
         }
 
         .content-wrapper {
@@ -86,7 +80,7 @@
         }
 
         .btn-gradient {
-            background: linear-gradient(135deg, #FF8C42 0%, #FF6B35 100%);
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
             border: none;
             color: white;
             padding: 10px 25px;
@@ -97,7 +91,7 @@
 
         .btn-gradient:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.4);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
             color: white;
         }
 
@@ -129,17 +123,21 @@
 </head>
 
 <body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark">
+    <!-- Navbar (single, styled like login page) -->
+    <nav class="navbar navbar-expand-lg"
+        style="background: linear-gradient(135deg, #FF8C42 0%, #FF6B35 100%); box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#">
+            <a class="navbar-brand" href="@Url.Action("Index", "Product")"
+                style="font-weight:700; font-size:1.5rem; color:white;">
                 <i class="fas fa-store"></i> Electronics Store Admin
             </a>
             <div class="d-flex align-items-center">
                 <span class="text-white me-3">
                     <i class="fas fa-user-circle"></i> @Context.Session.GetString("AdminEmail")
                 </span>
-                <a href="@Url.Action("Logout", "Login")" class="btn btn-light btn-sm">
+                <a href="@Url.Action("Logout", "Login")" class="btn btn-sm"
+                    style="background: #34495e; color: white; border: none; border-radius: 8px; font-weight: 600; padding: 8px 16px; transition: all 0.3s;"
+                    onmouseover="this.style.background='#2c3e50'" onmouseout="this.style.background='#34495e'">
                     <i class="fas fa-sign-out-alt"></i> Đăng Xuất
                 </a>
             </div>
@@ -153,7 +151,8 @@
             <div class="page-header">
                 <div class="d-flex justify-content-between align-items-center">
                     <h1><i class="fas fa-box-open"></i> Quản Lý Sản Phẩm</h1>
-                    <a href="@Url.Action("Create", "Product")" class="btn btn-gradient">
+                    <a href="@Url.Action("Create", "Product")" class="btn"
+                        style="background: linear-gradient(135deg, #FF8C42 0%, #FF6B35 100%); color: white; border: none; padding: 10px 25px; border-radius: 8px; font-weight: 600; transition: all 0.3s;">
                         <i class="fas fa-plus"></i> Thêm Sản Phẩm Mới
                     </a>
                 </div>
@@ -275,11 +274,11 @@
                                     <td class="text-center">
                                         <div class="action-buttons">
                                             <a href="@Url.Action("Edit", "Product", new { id = product.Id })"
-                                                class="btn btn-sm btn-warning">
+                                                class="btn btn-sm btn-gradient">
                                                 <i class="fas fa-edit"></i>
                                             </a>
                                             <button onclick="deleteProduct(@product.Id, '@product.Name')"
-                                                class="btn btn-sm btn-danger">
+                                                class="btn btn-sm btn-secondary">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </div>

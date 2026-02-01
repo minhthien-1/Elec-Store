@@ -142,6 +142,8 @@ namespace ElectronicsStore.Admin.Controllers
                         }
                     };
 
+                    // Lưu vào session để dùng trong Edit
+                    HttpContext.Session.SetString("Products", JsonSerializer.Serialize(sampleProducts));
                     ViewBag.ErrorMessage = "Đang sử dụng dữ liệu mẫu (API chưa kết nối)";
                     return View(sampleProducts);
                 }
@@ -174,6 +176,8 @@ namespace ElectronicsStore.Admin.Controllers
                 };
 
                 ViewBag.ErrorMessage = "Đang sử dụng dữ liệu mẫu (Lỗi: " + ex.Message + ")";
+                // Lưu vào session để dùng trong Edit
+                HttpContext.Session.SetString("Products", JsonSerializer.Serialize(sampleProducts));
                 return View(sampleProducts);
             }
         }
@@ -235,42 +239,34 @@ namespace ElectronicsStore.Admin.Controllers
             //     return RedirectToAction("Index", "Login");
             // }
 
-            try
+            // Lấy dữ liệu từ session của Index
+            var sessionProducts = HttpContext.Session.GetString("Products");
+            if (!string.IsNullOrEmpty(sessionProducts))
             {
-                var apiUrl = _configuration["ApiSettings:BaseUrl"] + $"/api/product/{id}";
-                var response = await _httpClient.GetAsync(apiUrl);
-
-                if (response.IsSuccessStatusCode)
+                var products = JsonSerializer.Deserialize<List<Product>>(sessionProducts, new JsonSerializerOptions
                 {
-                    var result = await response.Content.ReadAsStringAsync();
-                    var product = JsonSerializer.Deserialize<Product>(result, new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    });
+                    PropertyNameCaseInsensitive = true
+                });
 
+                var product = products?.FirstOrDefault(p => p.Id == id);
+                if (product != null)
+                {
                     return View(product);
                 }
-                else
-                {
-                    // Dữ liệu mẫu để test
-                    var sampleProduct = new Product
-                    {
-                        Id = id,
-                        Name = "iPhone 15 Pro Max",
-                        Price = 29990000,
-                        Description = "Điện thoại cao cấp",
-                        Quantity = 50,
-                        Category = "Điện thoại",
-                        ImageUrl = "https://cdn.tgdd.vn/Products/Images/42/305658/iphone-15-pro-max-blue-thumbnew-600x600.jpg"
-                    };
-                    return View(sampleProduct);
-                }
             }
-            catch (Exception ex)
+
+            // Dữ liệu mẫu để test khi không có session
+            var sampleProduct = new Product
             {
-                TempData["ErrorMessage"] = "Có lỗi xảy ra: " + ex.Message;
-                return RedirectToAction("Index");
-            }
+                Id = id,
+                Name = "iPhone 15 Pro Max",
+                Price = 29990000,
+                Description = "Điện thoại cao cấp",
+                Quantity = 50,
+                Category = "Điện thoại",
+                ImageUrl = "https://cdn.tgdd.vn/Products/Images/42/305658/iphone-15-pro-max-blue-thumbnew-600x600.jpg"
+            };
+            return View(sampleProduct);
         }
 
         // POST: Cập nhật sản phẩm
