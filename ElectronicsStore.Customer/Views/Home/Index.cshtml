@@ -6,10 +6,10 @@
     var categories = ViewBag.Categories as List<DanhMucSanPham>;
     var categoryBrands = ViewBag.CategoryBrands as Dictionary<int, List<NhaSanXuat>>;
 
-    // Helper gán icon theo tên
+    // Helper gán icon theo tên danh mục
     string GetCategoryIcon(string name)
     {
-        name = name.ToLower();
+        name = name?.ToLower() ?? "";
         if (name.Contains("laptop")) return "bi-laptop";
         if (name.Contains("điện thoại")) return "bi-phone";
         if (name.Contains("máy ảnh")) return "bi-camera";
@@ -24,8 +24,8 @@
 
 <style>
     :root {
-        --primary-brown: #5D4037; /* Màu nâu chủ đạo */
-        --accent-red: #D32F2F; /* Màu đỏ thương hiệu */
+        --primary-brown: #5D4037;
+        --accent-red: #D32F2F;
         --modern-font: 'Inter', sans-serif;
     }
 
@@ -35,15 +35,16 @@
         color: #333;
     }
 
-    /* --- SIDEBAR & MEGA MENU TỐI GIẢN --- */
+    /* --- SIDEBAR & MEGA MENU --- */
     .category-sidebar {
-        width: 85%;
+        width: 100%;
         background: #fff;
         border-radius: 12px;
         border: 1px solid #eee;
         position: relative;
         z-index: 1000;
         padding: 10px 0;
+        height: 100%;
     }
 
     .category-item {
@@ -55,6 +56,8 @@
         align-items: center;
         justify-content: space-between;
         text-decoration: none;
+        transition: 0.2s;
+        cursor: pointer;
     }
 
         .category-item:hover {
@@ -62,11 +65,15 @@
             color: var(--accent-red) !important;
         }
 
+    .group-hover-trigger {
+        position: relative;
+    }
+
     .mega-menu {
         position: absolute;
         left: 100%;
         top: 0;
-        width: 550px;
+        width: 600px;
         min-height: 100%;
         background: #fff;
         box-shadow: 15px 0 30px rgba(0,0,0,0.05);
@@ -75,9 +82,10 @@
         padding: 25px;
         border: 1px solid #eee;
         border-left: none;
+        z-index: 1050;
     }
 
-    .category-item:hover .mega-menu {
+    .group-hover-trigger:hover .mega-menu {
         display: block;
     }
 
@@ -94,15 +102,15 @@
         display: block;
         color: #555;
         text-decoration: none;
-        padding: 4px 0;
-        font-size: 0.85rem;
+        padding: 6px 0;
+        font-size: 0.9rem;
         transition: 0.2s;
     }
 
         .brand-link:hover {
             color: var(--accent-red) !important;
             font-weight: 600;
-            padding-left: 5px;
+            transform: translateX(5px);
         }
 
     /* --- PRODUCT CARD --- */
@@ -113,7 +121,7 @@
         height: 100%;
         transition: 0.4s;
         background: #fff;
-        position: relative; /* Để link phủ kín */
+        position: relative;
     }
 
         .product-card:hover {
@@ -123,7 +131,6 @@
             z-index: 2;
         }
 
-    /* Nút Mua ngay đặc biệt cho Flash Sale */
     .btn-buy-now {
         background-color: var(--accent-red);
         color: white;
@@ -173,12 +180,16 @@
             transform: translateY(-3px);
         }
 
-    /* Class tiện ích cho thẻ a bao quanh card */
     .card-link {
         text-decoration: none !important;
         color: inherit !important;
         display: block;
         height: 100%;
+    }
+
+    /* Utility for Images */
+    .img-cover {
+        object-fit: cover;
     }
 </style>
 
@@ -191,9 +202,15 @@
                     {
                         @foreach (var cat in categories)
                         {
-                            <div class="category-item">
-                                <span><i class="bi @GetCategoryIcon(cat.TenDanhMuc) me-2"></i> @cat.TenDanhMuc</span>
-                                <i class="bi bi-chevron-right small"></i>
+                            <div class="group-hover-trigger">
+                                <a asp-controller="Product"
+                                   asp-action="Index"
+                                   asp-route-categoryId="@cat.MaDanhMuc"
+                                   class="category-item">
+                                    <span><i class="bi @GetCategoryIcon(cat.TenDanhMuc) me-2"></i> @cat.TenDanhMuc</span>
+                                    <i class="bi bi-chevron-right small"></i>
+                                </a>
+
                                 <div class="mega-menu">
                                     <div class="row">
                                         <div class="col-md-6">
@@ -202,15 +219,31 @@
                                             {
                                                 @foreach (var brand in categoryBrands[cat.MaDanhMuc])
                                                 {
-                                                    <a href="#" class="brand-link">@brand.TenNhaSX.ToUpper()</a>
+                                                    <a asp-controller="Product"
+                                                       asp-action="Index"
+                                                       asp-route-categoryId="@cat.MaDanhMuc"
+                                                       asp-route-brandId="@brand.MaNhaSX"
+                                                       class="brand-link">
+                                                        <i class="bi bi-tag-fill me-2 text-muted small"></i>@brand.TenNhaSX.ToUpper()
+                                                    </a>
                                                 }
+                                            }
+                                            else
+                                            {
+                                                <p class="text-muted small fst-italic">Đang cập nhật thương hiệu...</p>
                                             }
                                         </div>
                                         <div class="col-md-6">
                                             <div class="mega-heading">Mức giá</div>
-                                            <a href="#" class="brand-link">Dưới 15 triệu</a>
-                                            <a href="#" class="brand-link">Từ 15 - 25 triệu</a>
-                                            <a href="#" class="brand-link">Trên 25 triệu</a>
+                                            <a asp-controller="Product" asp-action="Index" asp-route-categoryId="@cat.MaDanhMuc" asp-route-maxPrice="15000000" class="brand-link">
+                                                <i class="bi bi-cash-stack me-2 text-muted small"></i>Dưới 15 triệu
+                                            </a>
+                                            <a asp-controller="Product" asp-action="Index" asp-route-categoryId="@cat.MaDanhMuc" asp-route-minPrice="15000000" asp-route-maxPrice="25000000" class="brand-link">
+                                                <i class="bi bi-cash-stack me-2 text-muted small"></i>Từ 15 - 25 triệu
+                                            </a>
+                                            <a asp-controller="Product" asp-action="Index" asp-route-categoryId="@cat.MaDanhMuc" asp-route-minPrice="25000000" class="brand-link">
+                                                <i class="bi bi-cash-stack me-2 text-muted small"></i>Trên 25 triệu
+                                            </a>
                                         </div>
                                     </div>
                                 </div>
@@ -219,9 +252,36 @@
                     }
                 </div>
             </div>
+
             <div class="col-md-9">
-                <div class="slider-main d-flex align-items-center justify-content-center border shadow-sm rounded-4" style="height: 420px; background: #f0f0f0;">
-                    <h4 class="text-muted">CHÈN CAROUSEL/SLIDER TẠI ĐÂY</h4>
+                <div id="mainCarousel" class="carousel slide slider-main shadow-sm rounded-4 overflow-hidden" data-bs-ride="carousel" style="height: 420px;">
+                    <div class="carousel-indicators">
+                        <button type="button" data-bs-target="#mainCarousel" data-bs-slide-to="0" class="active"></button>
+                        <button type="button" data-bs-target="#mainCarousel" data-bs-slide-to="1"></button>
+                        <button type="button" data-bs-target="#mainCarousel" data-bs-slide-to="2"></button>
+                    </div>
+                    <div class="carousel-inner h-100">
+                        <div class="carousel-item active h-100">
+                            <img src="~/images/banner_laptop.png" class="d-block w-100 h-100 img-cover" alt="Laptop Gaming Sale"
+                                 onerror="this.src='https://via.placeholder.com/900x420?text=Banner+Laptop+Not+Found'">
+                        </div>
+                        <div class="carousel-item h-100">
+                            <img src="~/images/banner_phone.png" class="d-block w-100 h-100 img-cover" alt="Smartphone Flagship"
+                                 onerror="this.src='https://via.placeholder.com/900x420?text=Banner+Phone+Not+Found'">
+                        </div>
+                        <div class="carousel-item h-100">
+                            <img src="~/images/banner_laptop.png" class="d-block w-100 h-100 img-cover" alt="Tech Accessories"
+                                 onerror="this.src='https://via.placeholder.com/900x420?text=Banner+3+Not+Found'">
+                        </div>
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#mainCarousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#mainCarousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -230,7 +290,8 @@
 
 <section class="section-subanner mt-4">
     <div class="container text-center">
-        <img src="https://via.placeholder.com/1200x120?text=Ưu+đãi+đặc+quyền+sinh+viên+HUFLIT" class="w-100 rounded-3 shadow-sm" alt="Sub Banner" />
+        <img src="~/images/banner_sub.png" class="w-100 rounded-3 shadow-sm" alt="Ưu đãi sinh viên"
+             onerror="this.src='https://via.placeholder.com/1200x120?text=Banner+Sub+Not+Found'" />
     </div>
 </section>
 
@@ -238,14 +299,14 @@
     <div class="container p-4 rounded-4 border bg-white shadow-sm">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div class="d-flex align-items-center gap-3">
-                <h2 class="section-heading mb-0 text-danger">FLASHSALE</h2>
+                <h2 class="section-heading mb-0 text-danger"><i class="bi bi-lightning-fill"></i> FLASHSALE</h2>
                 <div class="d-flex gap-2 align-items-center" id="countdown">
                     <span class="time-box" id="h">02</span> :
                     <span class="time-box" id="m">45</span> :
                     <span class="time-box" id="s">12</span>
                 </div>
             </div>
-            <a href="#" class="text-danger fw-bold text-decoration-none">Xem tất cả ></a>
+            <a asp-controller="Product" asp-action="Index" class="text-danger fw-bold text-decoration-none">Xem tất cả ></a>
         </div>
         <div class="row g-4">
             @foreach (var item in Model.OrderBy(x => Guid.NewGuid()).Take(4))
@@ -254,8 +315,8 @@
                     <a asp-controller="Product" asp-action="Details" asp-route-id="@item.MaSP" class="card-link">
                         <div class="product-card text-center d-flex flex-column justify-content-between">
                             <div>
-                                <img src="@item.HinhAnh" class="img-fluid mb-2" style="height: 160px; object-fit: contain;">
-                                <h6 class="fw-bold text-truncate">@item.TenSP</h6>
+                                <img src="@item.HinhAnh" class="img-fluid mb-2" style="height: 160px; object-fit: contain;" onerror="this.src='https://via.placeholder.com/160'">
+                                <h6 class="fw-bold text-truncate" title="@item.TenSP">@item.TenSP</h6>
                                 <p class="text-danger fw-bold mb-0">@item.GiaBan.ToString("N0") đ</p>
                             </div>
                             <button class="btn-buy-now">MUA NGAY</button>
@@ -269,8 +330,14 @@
 
 <section class="section-banners mt-5">
     <div class="container d-flex gap-3">
-        <div class="w-50"><img src="https://via.placeholder.com/600x180?text=Laptop+Gaming+Sale" class="w-100 rounded-3 shadow-sm" /></div>
-        <div class="w-50"><img src="https://via.placeholder.com/600x180?text=Phụ+Kiện+Giá+Rẻ" class="w-100 rounded-3 shadow-sm" /></div>
+        <div class="w-50">
+            <img src="~/images/adv_L.jpg" class="w-100 rounded-3 shadow-sm" alt="Quảng cáo trái"
+                 onerror="this.src='https://via.placeholder.com/600x180?text=Adv+Left+Not+Found'" />
+        </div>
+        <div class="w-50">
+            <img src="~/images/adv_R.jpg" class="w-100 rounded-3 shadow-sm" alt="Quảng cáo phải"
+                 onerror="this.src='https://via.placeholder.com/600x180?text=Adv+Right+Not+Found'" />
+        </div>
     </div>
 </section>
 
@@ -299,15 +366,22 @@
                         <div class="col-md-3">
                             <a asp-controller="Product" asp-action="Details" asp-route-id="@item.MaSP" class="card-link">
                                 <div class="product-card">
-                                    <div class="text-center"><img src="@item.HinhAnh" height="150" style="object-fit: contain;"></div>
+                                    <div class="text-center"><img src="@item.HinhAnh" height="150" style="object-fit: contain;" onerror="this.src='https://via.placeholder.com/150'"></div>
                                     <div class="mt-3 text-center">
-                                        <h6 class="fw-bold">@item.TenSP</h6>
+                                        <h6 class="fw-bold text-truncate" title="@item.TenSP">@item.TenSP</h6>
                                         <p class="text-danger fw-bold">@item.GiaBan.ToString("N0") đ</p>
                                     </div>
                                 </div>
                             </a>
                         </div>
                     }
+                }
+                else
+                {
+                    <div class="col-12 text-center text-muted py-4">
+                        <i class="bi bi-box-seam fs-2"></i>
+                        <p>Đang cập nhật sản phẩm cho danh mục này...</p>
+                    </div>
                 }
             </div>
         </div>
@@ -321,10 +395,12 @@
             @foreach (var c in categoryMapping)
             {
                 <div class="col-md-2 col-6">
-                    <div class="cat-icon-card shadow-sm">
-                        <i class="bi @c.Icon fs-2 text-danger"></i>
-                        <p class="mb-0 mt-2 fw-bold small">@c.Name.Replace(" bán chạy", "")</p>
-                    </div>
+                    <a asp-controller="Product" asp-action="Index" asp-route-categoryId="@c.Id" class="text-decoration-none text-dark">
+                        <div class="cat-icon-card shadow-sm">
+                            <i class="bi @c.Icon fs-2 text-danger"></i>
+                            <p class="mb-0 mt-2 fw-bold small">@c.Name.Replace(" bán chạy", "").Replace(" nổi bật", "").Replace(" chính hãng", "")</p>
+                        </div>
+                    </a>
                 </div>
             }
         </div>
@@ -335,10 +411,10 @@
     <div class="container">
         <div class="section-heading">Trang liên kết</div>
         <div class="row g-3">
-            <div class="col-md-3 p-3 border rounded-3 text-center bg-white shadow-sm">Chính sách bảo hành</div>
-            <div class="col-md-3 p-3 border rounded-3 text-center bg-white shadow-sm">Hệ thống cửa hàng</div>
-            <div class="col-md-3 p-3 border rounded-3 text-center bg-white shadow-sm">Tuyển dụng 2026</div>
-            <div class="col-md-3 p-3 border rounded-3 text-center bg-white shadow-sm">Góp ý khách hàng</div>
+            <div class="col-md-3 p-3 border rounded-3 text-center bg-white shadow-sm cursor-pointer hover-shadow">Chính sách bảo hành</div>
+            <div class="col-md-3 p-3 border rounded-3 text-center bg-white shadow-sm cursor-pointer hover-shadow">Hệ thống cửa hàng</div>
+            <div class="col-md-3 p-3 border rounded-3 text-center bg-white shadow-sm cursor-pointer hover-shadow">Tuyển dụng 2026</div>
+            <div class="col-md-3 p-3 border rounded-3 text-center bg-white shadow-sm cursor-pointer hover-shadow">Góp ý khách hàng</div>
         </div>
     </div>
 </section>
@@ -351,9 +427,12 @@
             {
                 <div class="col-md-4">
                     <div class="p-3 border rounded-4 bg-white shadow-sm h-100">
-                        <div style="height: 180px; background: #eee; border-radius: 12px;" class="mb-3 d-flex align-items-center justify-content-center text-muted">Thumbnail News</div>
+                        <div style="height: 180px; background: #eee; border-radius: 12px; overflow: hidden;" class="mb-3 d-flex align-items-center justify-content-center">
+                            <img src="~/images/news-1.png" class="w-100 h-100 img-cover" alt="Tin tức công nghệ @i"
+                                 onerror="this.src='https://via.placeholder.com/400x180?text=Tin+Tức+@i'">
+                        </div>
                         <h6 class="fw-bold">Hệ thống quản lý Electronics Store tại HUFLIT</h6>
-                        <p class="small text-muted">Đồ án thực tế của sinh viên CNTT khóa 2023...</p>
+                        <p class="small text-muted">Đồ án thực tế của sinh viên CNTT khóa 2023 - Cập nhật công nghệ mới nhất...</p>
                         <a href="#" class="text-danger fw-bold small text-decoration-none">Đọc tiếp -></a>
                     </div>
                 </div>

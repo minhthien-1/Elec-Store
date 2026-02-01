@@ -16,7 +16,88 @@ namespace ElectronicsStore.Customer.Controllers
             _context = context;
         }
 
-        // GET: /Product/Details/5
+        // ---------------------------------------------------------
+        // 1. ACTION INDEX: HIỂN THỊ DANH SÁCH & LỌC SẢN PHẨM
+        // ---------------------------------------------------------
+        public async Task<IActionResult> Index(int? categoryId, int? brandId, decimal? minPrice, decimal? maxPrice, string sortOrder)
+        {
+            // A. Chuẩn bị dữ liệu cho Sidebar / Mega Menu (Để menu không bị trống khi sang trang này)
+            var categories = await _context.DanhMucSanPhams.Where(c => c.TrangThai == true).ToListAsync();
+
+            // Lấy danh sách thương hiệu theo danh mục (để hiển thị trong Mega Menu)
+            // Logic: Lấy tất cả sản phẩm -> Group theo danh mục -> Lấy list hãng sản xuất unique
+            var allActiveProducts = await _context.SanPhams
+                .Include(p => p.NhaSanXuat)
+                .Where(p => p.TrangThai == true)
+                .ToListAsync();
+
+            var categoryBrands = allActiveProducts
+                .Where(p => p.NhaSanXuat != null)
+                .GroupBy(p => p.MaDanhMuc)
+                .ToDictionary(g => g.Key, g => g.Select(p => p.NhaSanXuat).DistinctBy(b => b.MaNhaSX).ToList());
+
+            ViewBag.Categories = categories;
+            ViewBag.CategoryBrands = categoryBrands;
+
+            // B. Truy vấn chính: Lọc sản phẩm
+            var query = _context.SanPhams
+                .Include(p => p.DanhMuc)
+                .Include(p => p.NhaSanXuat)
+                .Where(p => p.TrangThai == true);
+
+            // 1. Lọc theo Danh mục
+            if (categoryId.HasValue)
+            {
+                query = query.Where(p => p.MaDanhMuc == categoryId.Value);
+                // Gửi tên danh mục ra view để hiển thị tiêu đề (VD: "Laptop")
+                var catName = categories.FirstOrDefault(c => c.MaDanhMuc == categoryId.Value)?.TenDanhMuc;
+                ViewBag.FilterTitle = catName;
+            }
+
+            // 2. Lọc theo Thương hiệu
+            if (brandId.HasValue)
+            {
+                query = query.Where(p => p.MaNhaSX == brandId.Value);
+                // Nếu lọc cả danh mục và thương hiệu
+                var brandName = _context.NhaSanXuats.FirstOrDefault(b => b.MaNhaSX == brandId.Value)?.TenNhaSX;
+                ViewBag.FilterTitle = string.IsNullOrEmpty(ViewBag.FilterTitle) ? brandName : $"{ViewBag.FilterTitle} - {brandName}";
+            }
+
+            // 3. Lọc theo Giá
+            if (minPrice.HasValue)
+            {
+                query = query.Where(p => p.GiaBan >= minPrice.Value);
+            }
+
+            if (maxPrice.HasValue)
+            {
+                query = query.Where(p => p.GiaBan <= maxPrice.Value);
+            }
+
+            // 4. Sắp xếp (Optional)
+            switch (sortOrder)
+            {
+                case "price_desc":
+                    query = query.OrderByDescending(p => p.GiaBan);
+                    break;
+                case "price_asc":
+                    query = query.OrderBy(p => p.GiaBan);
+                    break;
+                default:
+                    query = query.OrderByDescending(p => p.ThemTrongDB); // Mặc định mới nhất
+                    break;
+            }
+
+            var products = await query.ToListAsync();
+
+            if (string.IsNullOrEmpty(ViewBag.FilterTitle)) ViewBag.FilterTitle = "Tất cả sản phẩm";
+
+            return View(products);
+        }
+
+        // ---------------------------------------------------------
+        // 2. ACTION DETAILS: CHI TIẾT SẢN PHẨM (Code cũ của bạn)
+        // ---------------------------------------------------------
         public async Task<IActionResult> Details(int id)
         {
             if (id <= 0) return RedirectToAction("Index", "Home");
@@ -34,15 +115,15 @@ namespace ElectronicsStore.Customer.Controllers
             productEntity.SoLuotXem += 1;
             _context.SanPhams.Update(productEntity);
             await _context.SaveChangesAsync();
-            // 3. LẤY SẢN PHẨM TƯƠNG TỰ (Logic thông minh: Vơ vét hết các sp liên quan)
+
+            // 3. LẤY SẢN PHẨM TƯƠNG TỰ
             var similarProducts = await _context.SanPhams
                 .Where(p => p.TrangThai == true
-                            && p.MaSP != id // Trừ chính nó ra
-                                            // Đổi && thành || (HOẶC) để lấy được iPhone (cùng hãng) hoặc Dell (cùng loại)
+                            && p.MaSP != id
                             && (p.MaNhaSX == productEntity.MaNhaSX || p.MaDanhMuc == productEntity.MaDanhMuc))
-                .OrderByDescending(p => p.MaNhaSX == productEntity.MaNhaSX && p.MaDanhMuc == productEntity.MaDanhMuc) // Ưu tiên 1: Giống y chang
-                .ThenByDescending(p => p.MaNhaSX == productEntity.MaNhaSX) // Ưu tiên 2: Cùng Hãng (Apple)
-                .ThenByDescending(p => p.ThemTrongDB) // Ưu tiên 3: Mới nhất
+                .OrderByDescending(p => p.MaNhaSX == productEntity.MaNhaSX && p.MaDanhMuc == productEntity.MaDanhMuc)
+                .ThenByDescending(p => p.MaNhaSX == productEntity.MaNhaSX)
+                .ThenByDescending(p => p.ThemTrongDB)
                 .Take(4)
                 .Select(p => new ProductThumbnailDto
                 {
@@ -80,19 +161,19 @@ namespace ElectronicsStore.Customer.Controllers
                     NguoiDung = new UserDto { TenDayDu = dg.NguoiDung?.TenDayDu ?? "Khách hàng" }
                 }).OrderByDescending(d => d.ThemTrongDB).ToList(),
 
-                // Gán danh sách tương tự vào
                 SanPhamTuongTu = similarProducts
             };
 
             return View(viewModel);
         }
 
-        // POST: Gửi đánh giá
+        // ---------------------------------------------------------
+        // 3. ACTION SUBMIT REVIEW: GỬI ĐÁNH GIÁ (Code cũ của bạn)
+        // ---------------------------------------------------------
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SubmitReview(int MaSP, int DemSao, string NoiDung)
         {
-            // Kiểm tra đăng nhập
             if (!User.Identity.IsAuthenticated)
             {
                 TempData["Error"] = "Bạn cần đăng nhập để đánh giá!";
@@ -101,7 +182,6 @@ namespace ElectronicsStore.Customer.Controllers
 
             try
             {
-                // Lấy UserId từ Claims
                 var userIdClaim = User.FindFirst("UserId")?.Value;
                 if (string.IsNullOrEmpty(userIdClaim)) return RedirectToAction("Index", "Home");
                 int userId = int.Parse(userIdClaim);
@@ -113,13 +193,12 @@ namespace ElectronicsStore.Customer.Controllers
                     DemSao = DemSao,
                     NoiDung = NoiDung,
                     ThemTrongDB = DateTime.UtcNow,
-                    DuocDuyet = true // Tự động duyệt (hoặc để false nếu cần Admin duyệt)
+                    DuocDuyet = true
                 };
 
                 _context.DanhGiaSanPhams.Add(review);
                 await _context.SaveChangesAsync();
 
-                // Cập nhật lại điểm đánh giá trung bình cho sản phẩm (Logic phụ)
                 var product = await _context.SanPhams.Include(p => p.DanhGias).FirstOrDefaultAsync(p => p.MaSP == MaSP);
                 if (product != null && product.DanhGias.Any())
                 {

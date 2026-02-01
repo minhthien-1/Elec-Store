@@ -3,17 +3,22 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
     <title>@ViewData["Title"] - Electronics Store</title>
+
+    <!-- CSS -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
     <style>
+        /* ================= ROOT ================= */
         :root {
             --bg-cream: #f4f4f4;
-            --bar-brown: #3E2723; /* Nâu đậm */
-            --sub-brown: #5D4037; /* Nâu nhạt */
-            --accent-red: #D32F2F; /* Đỏ thương hiệu */
+            --bar-orange: #FF8C42;
+            --sub-orange: #FF6B35;
+            --accent-red: #D32F2F;
             --text-light: #ffffff;
         }
 
@@ -22,266 +27,77 @@
             font-family: 'Inter', sans-serif;
         }
 
-        /* --- HEADER STYLES --- */
+        /* ================= HEADER ================= */
         .header-top {
-            background-color: var(--bar-brown);
+            background-color: var(--bar-orange);
             color: var(--text-light);
             padding: 12px 0;
         }
 
-        .sub-header-top {
-            background-color: var(--sub-brown);
-            color: white;
-            padding: 8px 0;
-            font-size: 0.9rem;
-        }
-
-        /* NÚT DANH MỤC XỊN XÒ */
-        .category-dropdown {
-            position: relative;
-            display: inline-block;
-        }
-
-        .btn-category {
-            background: rgba(255,255,255,0.1);
-            color: white;
-            padding: 8px 20px;
-            border-radius: 50px; /* Bo tròn cực mạnh */
-            border: 1px solid rgba(255,255,255,0.2);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 600;
-        }
-
-        .category-dropdown:hover .btn-category {
-            background: var(--accent-red);
-            border-color: var(--accent-red);
-        }
-
-        /* MENU XỔ XUỐNG (MEGA MENU) */
-        .mega-dropdown-menu {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            width: 800px; /* Độ rộng Mega Menu */
-            background: white;
-            box-shadow: 0 15px 50px rgba(0,0,0,0.15);
-            border-radius: 0 0 20px 20px;
-            display: none;
-            z-index: 9999;
-            padding: 20px;
-            border-top: 3px solid var(--accent-red);
-        }
-
-        .category-dropdown:hover .mega-dropdown-menu {
-            display: block;
-            animation: slideDown 0.3s ease;
-        }
-
-        .nav-item-custom {
-            padding: 10px;
-            color: var(--bar-brown);
+        /* LOGO */
+        .logo-brand {
+            font-weight: 700;
+            font-size: 1.6rem;
+            letter-spacing: 1px;
+            color: #fff;
             text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            border-radius: 8px;
-            transition: 0.2s;
+            padding: 6px 16px;
+            border-radius: 999px;
+            background: linear-gradient( 135deg, var(--sub-orange), var(--bar-orange) );
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
         }
 
-            .nav-item-custom:hover {
-                background: #fff5f5;
-                color: var(--accent-red);
+            .logo-brand span {
+                color: #ffe0b2;
+                margin: 0 2px;
             }
 
-        @@keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
+            .logo-brand:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+                color: #fff;
             }
 
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* SEARCH BAR */
+        /* SEARCH */
         .search-input {
             border-radius: 50px;
             padding-left: 20px;
             border: none;
         }
 
-        /* --- 1. Nút Header (Phương án 1B: Đồng bộ, sang trọng) --- */
+        /* HEADER BUTTON */
         .btn-header-custom {
-            color: rgba(255, 255, 255, 0.9) !important;
-            border: 1px solid rgba(255, 255, 255, 0.3) !important;
-            background: rgba(0, 0, 0, 0.15);
-            transition: all 0.3s ease;
+            color: rgba(255,255,255,0.9);
+            border: 1px solid rgba(255,255,255,0.3);
+            background: rgba(0,0,0,0.15);
+            transition: 0.3s;
         }
 
             .btn-header-custom:hover {
-                background: #fff !important;
-                color: var(--bar-brown) !important; /* Màu nâu của thanh header */
-                border-color: #fff !important;
-                transform: translateY(-2px);
-            }
-
-        /* --- 2. Modal Styles (Phương án 2A & 4B) --- */
-
-        /* Tùy chỉnh Input Group để chứa icon (Có bo viền) */
-        .input-group-custom {
-            border: 1px solid #e0e0e0; /* Viền xám nhạt ban đầu */
-            border-radius: 12px; /* Bo viền mềm mại */
-            overflow: hidden;
-            transition: all 0.3s ease; /* Hiệu ứng tinh tế (4B) */
-        }
-
-            .input-group-custom .input-group-text {
                 background: #fff;
-                border: none;
-                padding-left: 15px;
-                padding-right: 10px;
-            }
-
-            .input-group-custom .form-control {
-                border: none;
-                box-shadow: none !important; /* Bỏ shadow mặc định của Bootstrap */
-                padding-top: 12px;
-                padding-bottom: 12px;
-            }
-
-            /* Hiệu ứng khi Focus vào ô nhập (Phương án 4B: Tinh tế) */
-            .input-group-custom:focus-within {
-                border-color: #a0a0a0; /* Đổi sang màu xám đậm hơn chút */
-                box-shadow: 0 0 0 3px rgba(0,0,0,0.05); /* Shadow cực nhẹ */
-            }
-
-        /* Nút Đăng nhập chính (Hover tinh tế 4B) */
-        .btn-login-main {
-            transition: all 0.3s ease;
-        }
-
-            .btn-login-main:hover {
-                background-color: #b71c1c !important; /* Màu đỏ đậm hơn một chút */
-                border-color: #b71c1c !important;
-            }
-
-        /* --- Các thành phần phụ khác cho giống hình mẫu --- */
-        .hover-underline:hover {
-            text-decoration: underline !important;
-        }
-
-        .cursor-pointer {
-            cursor: pointer;
-        }
-
-        /* Đường kẻ phân cách "Hoặc" */
-        .divider-text::before {
-            content: "";
-            position: absolute;
-            top: 50%;
-            left: 0;
-            width: 100%;
-            height: 1px;
-            background: #e0e0e0;
-            z-index: -1;
-        }
-
-        .social-btn {
-            transition: 0.3s;
-            border-width: 2px;
-        }
-
-            .social-btn:hover {
+                color: var(--bar-orange);
                 transform: translateY(-2px);
             }
-        /* FOOTER */
 
+        /* ================= FOOTER ================= */
         footer {
-            background: linear-gradient(180deg, var(--sub-brown), var(--bar-brown));
+            background: linear-gradient(180deg, var(--sub-orange), var(--bar-orange));
             color: var(--text-light);
         }
 
-        /* Footer top */
         .footer-top {
             border-top: 4px solid var(--accent-red);
         }
 
-            .footer-top h5 {
-                color: #ffccbc; /* Nâu cam nhạt cho tiêu đề */
-                margin-bottom: 15px;
-            }
-
-            .footer-top p {
-                color: #e0e0e0;
-                line-height: 1.6;
-            }
-
-            /* Footer links (nếu sau này có) */
-            .footer-top a {
-                color: #ffe0b2;
-                text-decoration: none;
-                transition: 0.2s;
-            }
-
-                .footer-top a:hover {
-                    color: var(--accent-red);
-                    text-decoration: underline;
-                }
-
-        /* Copyright bar */
         .footer-copyright {
-            background-color: #2b1b18; /* Nâu đậm hơn bar-brown */
+            background-color: #2b1b18;
             color: #d7ccc8;
             border-top: 1px solid rgba(255,255,255,0.1);
             text-align: center;
         }
 
-        /* Hiệu ứng nhẹ khi hover footer */
-        footer:hover {
-            box-shadow: 0 -10px 30px rgba(0,0,0,0.25);
-            transition: 0.3s;
-        }
-    </style>
-</head>
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Electronics Store</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
-    <style>
-        /* CSS Root & Styles giữ nguyên như bản cũ của bạn */
-        :root {
-            --bar-brown: #3E2723;
-            --sub-brown: #5D4037;
-            --accent-red: #D32F2F;
-            --text-light: #ffffff;
-        }
-
-        body {
-            background-color: #f4f4f4;
-            font-family: 'Inter', sans-serif;
-        }
-
-        .header-top {
-            background-color: var(--bar-brown);
-            color: var(--text-light);
-            padding: 12px 0;
-        }
-
-        .search-input {
-            border-radius: 50px;
-            padding-left: 20px;
-            border: none;
-        }
-        /* Tùy chỉnh Toastr cho Cyberpunk */
+        /* ================= TOASTR ================= */
         #toast-container > .toast-success {
             background-color: #2bdce3;
             color: #1a1c2e;
@@ -289,36 +105,43 @@
         }
     </style>
 </head>
+
 <body>
+    <!-- ================= HEADER ================= -->
     <header>
-        <div class="main header-top">
+        <div class="header-top">
             <div class="container d-flex align-items-center justify-content-between">
-                <a href="/" class="logo fw-bold fs-4 text-decoration-none text-reset">
-                    E-STORE
+
+                <!-- LOGO -->
+                <a href="/" class="logo-brand">
+                    E<span>-</span>STORE
                 </a>
 
+                <!-- SEARCH -->
                 <div class="search w-50 mx-4">
-                    <input type="text" placeholder="Bạn tìm gì hôm nay?" class="form-control search-input" />
+                    <input type="text"
+                           placeholder="Bạn tìm gì hôm nay?"
+                           class="form-control search-input" />
                 </div>
 
-                <div class="user-actions d-flex gap-3 align-items-center">
+                <!-- USER ACTION -->
+                <div class="d-flex gap-3 align-items-center">
                     @if (User.Identity.IsAuthenticated)
                     {
-                        <div class="d-flex align-items-center gap-3">
-                            <span class="text-white small fw-bold">
-                                <i class="bi bi-person-check-fill me-1 text-success"></i>
-                                Xin chào, @User.Identity.Name
-                            </span>
+                        <span class="text-white fw-bold small">
+                            <i class="bi bi-person-check-fill text-success me-1"></i>
+                            Xin chào, @User.Identity.Name
+                        </span>
 
-                            <a asp-controller="Account" asp-action="Logout"
-                               class="btn btn-sm btn-outline-danger rounded-pill px-3 fw-bold shadow-sm">
-                                Đăng xuất <i class="bi bi-box-arrow-right"></i>
-                            </a>
-                        </div>
+                        <a asp-controller="Account"
+                           asp-action="Logout"
+                           class="btn btn-sm btn-outline-light rounded-pill fw-bold">
+                            Đăng xuất <i class="bi bi-box-arrow-right"></i>
+                        </a>
                     }
                     else
                     {
-                        <button class="btn btn-outline-light rounded-pill px-4 fw-bold"
+                        <button class="btn btn-header-custom rounded-pill fw-bold px-4"
                                 data-bs-toggle="modal"
                                 data-bs-target="#loginModal">
                             <i class="bi bi-person-circle me-1"></i> Đăng nhập
@@ -331,74 +154,57 @@
         </div>
     </header>
 
-    <main role="main">@RenderBody()</main>
+    <!-- ================= MAIN ================= -->
+    <main role="main">
+        @RenderBody()
+    </main>
 
-    <footer class="mt-5 py-3 border-top text-center bg-white">
-        <p>&copy; 2026 - Electronics Store - Developed by HUFLIT SE Team</p>
+    <!-- ================= FOOTER ================= -->
+    <footer class="mt-5">
+        <div class="footer-top py-4 text-center">
+            <p class="mb-0">&copy; 2026 - Electronics Store</p>
+            <small>Developed by HUFLIT SE Team</small>
+        </div>
     </footer>
 
+    <!-- ================= MODAL ================= -->
     @await Html.PartialAsync("_LoginModal", new ElectronicsStore.Customer.Models.LoginViewModel())
     @await Html.PartialAsync("_RegisterModal", new ElectronicsStore.Customer.Models.RegisterViewModel())
 
+    <!-- ================= SCRIPT ================= -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
     <script>
-        // Cấu hình Toastr
-        toastr.options = { "closeButton": true, "progressBar": true, "positionClass": "toast-bottom-right", "timeOut": "4000" };
+        toastr.options = {
+            closeButton: true,
+            progressBar: true,
+            positionClass: "toast-bottom-right",
+            timeOut: "4000"
+        };
 
-        // Bắt thông báo từ Controller
         @if (TempData["Success"] != null)
         {
-            <text>toastr.success('@TempData["Success"]');</text>
+                <text>toastr.success('@TempData["Success"]');</text>
         }
         @if (TempData["Error"] != null)
         {
-            <text>toastr.error('@TempData["Error"]');</text>
+                <text>toastr.error('@TempData["Error"]');</text>
         }
 
-            function openCartGlobal() {
-            // Lấy trạng thái đăng nhập từ Server render ra (true/false)
+        function openCartGlobal() {
             var isLoggedIn = '@User.Identity.IsAuthenticated.ToString().ToLower()';
 
             if (isLoggedIn === 'true') {
-                // Nếu đã đăng nhập -> Chuyển hướng sang trang Giỏ hàng
                 window.location.href = "/Cart";
             } else {
-                // Nếu chưa đăng nhập -> Hiện Modal Login
-                var myModal = new bootstrap.Modal(document.getElementById('loginModal'));
-                myModal.show();
+                var modal = new bootstrap.Modal(document.getElementById('loginModal'));
+                modal.show();
             }
         }
     </script>
-    @await RenderSectionAsync("Scripts", required: false)
 
-    <div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header border-0">
-                    <h5 class="modal-title fw-bold">Đăng nhập</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form action="/Account/Login" method="post">
-                        <div class="mb-3">
-                            <label class="form-label">Email / Tên đăng nhập</label>
-                            <input type="text" name="username" class="form-control" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Mật khẩu</label>
-                            <input type="password" name="password" class="form-control" required>
-                        </div>
-                        <button type="submit" class="btn btn-danger w-100 fw-bold">Đăng nhập để mua hàng</button>
-                    </form>
-                    <div class="text-center mt-3">
-                        <a href="/Account/Register" class="text-decoration-none">Chưa có tài khoản? Đăng ký ngay</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
