@@ -1,11 +1,29 @@
-﻿# Visual Studio rác/tạm
-.vs/
-[Bb]in/
-[Oo]bj/
+## .NET
+bin/
+obj/
 *.user
 *.suo
-*.userosscache
-*.sln.docstates
+.vs/
+*.cache
+*.dll
+*.exe
+*.pdb
 
-# Tệp cấu hình cá nhân
-appsettings.Development.json
+## Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Bb]in/
+[Oo]bj/
+
+## Visual Studio
+.vs/
+*.suo
+*.user
+
+## NuGet
+*.nupkg
+packages/
+project.lock.json
+artifacts/
