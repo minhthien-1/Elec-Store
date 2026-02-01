@@ -1,0 +1,275 @@
+﻿@model ElectronicsStore.Customer.Models.CheckoutViewModel
+@{
+    ViewData["Title"] = "Thanh toán";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    /* --- FIX LỖI BADGE SỐ LƯỢNG --- */
+
+    /* 1. Tạo khoảng cách cho khung cuộn để badge không bị cắt ở mép trên và phải */
+    .checkout-product-list {
+        padding: 10px 10px 0 0; /* Top Right Bottom Left */
+    }
+
+    /* 2. Căn chỉnh khung chứa ảnh: Cho phép hiển thị đè ra ngoài (overflow visible) */
+    .checkout-item-img-wrapper {
+        margin-right: 15px !important;
+        overflow: visible !important;
+        position: relative;
+    }
+
+    /* 3. Chỉnh lại Badge: Kích thước cố định, tròn trịa, căn giữa số */
+    .qty-badge-custom {
+        width: 24px; /* Chiều rộng cố định */
+        height: 24px; /* Chiều cao cố định */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px !important; /* Cỡ chữ rõ ràng */
+        font-weight: 700;
+        padding: 0 !important; /* Bỏ padding mặc định để số nằm chính giữa */
+        /* Vị trí thủ công thay vì dùng translate-middle để kiểm soát tốt hơn */
+        top: -8px;
+        right: -8px;
+    }
+
+    /* --- CÁC STYLE KHÁC --- */
+
+    /* Nút Đặt hàng màu đỏ nổi bật (Gradient) */
+    .btn-checkout-confirm {
+        background: linear-gradient(180deg, #ff424e, #e31837);
+        color: white;
+        border: none;
+        padding: 15px;
+        border-radius: 8px;
+        font-weight: 800;
+        font-size: 1.3rem;
+        text-transform: uppercase;
+        width: 100%;
+        box-shadow: 0 4px 6px rgba(227, 24, 55, 0.2);
+        transition: all 0.3s ease;
+    }
+
+        .btn-checkout-confirm:hover {
+            background: linear-gradient(180deg, #e31837, #ff424e);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(227, 24, 55, 0.4);
+            color: white;
+        }
+
+    /* Style cho Phương thức thanh toán */
+    .payment-option-card {
+        cursor: pointer;
+        transition: all 0.2s;
+        border: 2px solid #eee;
+    }
+
+    /* Khi radio được check thì đổi màu viền label bao quanh nó */
+    .form-check-input:checked + .payment-option-card {
+        border-color: #e31837;
+        background-color: #fff5f6;
+    }
+
+    .payment-icon-wrapper {
+        width: 40px;
+        text-align: center;
+        font-size: 1.4rem;
+    }
+
+    .payment-text {
+        font-weight: 600;
+        font-size: 1rem;
+        color: #333;
+    }
+</style>
+
+<div class="container py-5">
+    <form asp-action="PlaceOrder" method="post" id="checkoutForm">
+        <div class="row">
+            <div class="col-md-7">
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0 fw-bold text-danger"><i class="bi bi-geo-alt-fill me-2"></i>Thông tin giao hàng</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label small text-muted">Họ và tên</label>
+                                <input asp-for="HoTen" class="form-control" required placeholder="Nhập họ tên người nhận">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small text-muted">Số điện thoại</label>
+                                <input asp-for="SoDienThoai" class="form-control" required placeholder="Nhập số điện thoại">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label small text-muted">Email (để nhận hóa đơn)</label>
+                                <input asp-for="Email" class="form-control" type="email">
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label small text-muted">Tỉnh / Thành</label>
+                                <select class="form-select" id="province" required>
+                                    <option value="">Chọn Tỉnh/Thành</option>
+                                </select>
+                                <input type="hidden" asp-for="TinhThanh" id="provinceName" />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small text-muted">Quận / Huyện</label>
+                                <select class="form-select" id="district" required>
+                                    <option value="">Chọn Quận/Huyện</option>
+                                </select>
+                                <input type="hidden" asp-for="QuanHuyen" id="districtName" />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small text-muted">Phường / Xã</label>
+                                <select class="form-select" id="ward" required>
+                                    <option value="">Chọn Phường/Xã</option>
+                                </select>
+                                <input type="hidden" asp-for="PhuongXa" id="wardName" />
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label small text-muted">Địa chỉ cụ thể</label>
+                                <input asp-for="DiaChiCuThe" class="form-control" required placeholder="Số nhà, tên đường, tòa nhà...">
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label small text-muted">Ghi chú đơn hàng</label>
+                                <textarea asp-for="GhiChu" class="form-control" rows="2" placeholder="Ví dụ: Giao giờ hành chính..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-5">
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0 fw-bold"><i class="bi bi-receipt me-2"></i>Đơn hàng của bạn</h5>
+                    </div>
+                    <div class="card-body">
+
+                        <div class="checkout-product-list mb-3" style="max-height: 300px; overflow-y: auto; overflow-x: visible;">
+                            @foreach (var item in Model.CartItems)
+                            {
+                                <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+                                    <div class="d-flex align-items-center" style="max-width: 80%;">
+
+                                        <div class="checkout-item-img-wrapper">
+                                            <img src="@item.SanPham.HinhAnh" width="60" height="60" style="object-fit: cover;" class="rounded border bg-white" onerror="this.src='https://via.placeholder.com/60'">
+
+                                            <span class="position-absolute badge rounded-pill bg-danger border border-white qty-badge-custom">
+                                                @item.SoLuong
+                                            </span>
+                                        </div>
+
+                                        <div class="ms-2">
+                                            <span class="small fw-bold text-break" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">@item.SanPham.TenSP</span>
+                                        </div>
+                                    </div>
+                                    <span class="text-danger fw-bold small text-nowrap">@((item.SoLuong * item.SanPham.GiaBan).ToString("N0"))₫</span>
+                                </div>
+                            }
+                        </div>
+
+                        <div class="bg-light p-3 rounded mb-3">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Tạm tính:</span>
+                                <span class="fw-bold">@Model.TongTienHang.ToString("N0")₫</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Phí vận chuyển:</span>
+                                @if (Model.PhiVanChuyen == 0)
+                                {
+                                    <span class="text-success fw-bold">Miễn phí</span>
+                                }
+                                else
+                                {
+                                    <span>@Model.PhiVanChuyen.ToString("N0")₫</span>
+                                }
+                            </div>
+                            <hr>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="fw-bold fs-5">Tổng cộng:</span>
+                                <span class="fw-bold fs-3 text-danger">@Model.TongThanhToan.ToString("N0")₫</span>
+                            </div>
+                        </div>
+
+                        <input type="hidden" asp-for="TongTienHang" />
+                        <input type="hidden" asp-for="PhiVanChuyen" />
+
+                        <div class="mt-4">
+                            <h6 class="fw-bold mb-3">Chọn hình thức thanh toán:</h6>
+
+                            <div class="mb-2">
+                                <input class="form-check-input visually-hidden" type="radio" asp-for="HinhThucThanhToan" value="COD" id="paymentCOD" checked>
+                                <label class="form-check-label d-flex align-items-center p-3 rounded payment-option-card w-100" for="paymentCOD">
+                                    <div class="payment-icon-wrapper">
+                                        <i class="bi bi-cash-coin text-success"></i>
+                                    </div>
+                                    <span class="payment-text ms-2">Thanh toán tiền mặt khi nhận hàng (COD)</span>
+                                </label>
+                            </div>
+
+                            <div>
+                                <input class="form-check-input visually-hidden" type="radio" asp-for="HinhThucThanhToan" value="VNPAY" id="paymentVNPAY">
+                                <label class="form-check-label d-flex align-items-center p-3 rounded payment-option-card w-100" for="paymentVNPAY">
+                                    <div class="payment-icon-wrapper">
+                                        <img src="https://cdn.haitrieu.com/wp-content/uploads/2022/10/Icon-VNPAY-QR.png" height="24" alt="VNPay">
+                                    </div>
+                                    <span class="payment-text ms-2">Thanh toán online qua VNPAY (ATM/QR)</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-checkout-confirm mt-4">
+                            ĐẶT HÀNG NGAY
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $.getJSON('https://esgoo.net/api-tinhthanh/1/0.htm', function(data_tinh) {
+            if (data_tinh.error == 0) {
+                $.each(data_tinh.data, function(key_tinh, val_tinh) {
+                    $("#province").append('<option value="' + val_tinh.id + '">' + val_tinh.full_name + '</option>');
+                });
+                $("#province").change(function(e) {
+                    var idtinh = $(this).val();
+                    $("#provinceName").val($("#province option:selected").text());
+                    $.getJSON('https://esgoo.net/api-tinhthanh/2/' + idtinh + '.htm', function(data_quan) {
+                        if (data_quan.error == 0) {
+                            $("#district").html('<option value="">Chọn Quận/Huyện</option>');
+                            $("#ward").html('<option value="">Chọn Phường/Xã</option>');
+                            $.each(data_quan.data, function(key_quan, val_quan) {
+                                $("#district").append('<option value="' + val_quan.id + '">' + val_quan.full_name + '</option>');
+                            });
+                        }
+                    });
+                });
+                $("#district").change(function(e) {
+                    var idquan = $(this).val();
+                    $("#districtName").val($("#district option:selected").text());
+                    $.getJSON('https://esgoo.net/api-tinhthanh/3/' + idquan + '.htm', function(data_phuong) {
+                        if (data_phuong.error == 0) {
+                            $("#ward").html('<option value="">Chọn Phường/Xã</option>');
+                            $.each(data_phuong.data, function(key_phuong, val_phuong) {
+                                $("#ward").append('<option value="' + val_phuong.id + '">' + val_phuong.full_name + '</option>');
+                            });
+                        }
+                    });
+                });
+                $("#ward").change(function(e) {
+                    $("#wardName").val($("#ward option:selected").text());
+                });
+            }
+        });
+    });
+</script>
