@@ -2,11 +2,11 @@
 @{
     ViewData["Title"] = "Giỏ hàng";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    decimal totalCart = Model.Sum(x => x.SoLuong * x.SanPham.GiaBan);
+    decimal totalCart = Model != null ? Model.Sum(x => x.SoLuong * x.SanPham.GiaBan) : 0;
 }
 
 <style>
-    /* CSS Giỏ hàng tối giản */
+    /* CSS Giỏ hàng */
     .cart-main {
         background: #fff;
         padding: 30px;
@@ -32,9 +32,9 @@
         padding: 20px 0;
     }
 
-        .cart-item:last-child {
-            border-bottom: none;
-        }
+    .cart-item:last-child {
+        border-bottom: none;
+    }
 
     .item-img img {
         width: 80px;
@@ -57,9 +57,9 @@
         margin-bottom: 5px;
     }
 
-        .item-name:hover {
-            color: #D32F2F;
-        }
+    .item-name:hover {
+        color: #D32F2F;
+    }
 
     .item-price {
         color: #D32F2F;
@@ -115,13 +115,16 @@
         margin-top: 20px;
         border: none;
         transition: 0.3s;
+        display: block;
+        text-align: center;
+        text-decoration: none;
     }
 
-        .btn-checkout:hover {
-            background: #b71c1c;
-            color: white;
-            transform: translateY(-2px);
-        }
+    .btn-checkout:hover {
+        background: #b71c1c;
+        color: white;
+        transform: translateY(-2px);
+    }
 
     .btn-remove {
         color: #999;
@@ -133,27 +136,35 @@
         padding: 0;
     }
 
-        .btn-remove:hover {
-            color: #D32F2F;
-            text-decoration: underline;
-        }
+    .btn-remove:hover {
+        color: #D32F2F;
+        text-decoration: underline;
+    }
 </style>
 
 <div class="container mb-5">
     <div class="row">
         <div class="col-lg-8 offset-lg-2">
 
-            <div class="mb-3 mt-3">
-                <a href="/" class="text-decoration-none text-muted small"><i class="bi bi-chevron-left"></i> Mua thêm sản phẩm khác</a>
+            
+
+            <div class="d-flex justify-content-between align-items-center mb-3 mt-3">
+                <a href="/" class="text-decoration-none text-muted small">
+                    <i class="bi bi-chevron-left"></i> Mua thêm sản phẩm khác
+                </a>
+
+                <a href="/Order/History" class="btn btn-primary btn-sm rounded-pill px-3 shadow-sm">
+                    <i class="bi bi-clock-history me-2"></i>Đơn hàng đã mua
+                </a>
             </div>
 
             <div class="cart-main">
                 <div class="cart-header d-flex justify-content-between">
                     <span><i class="bi bi-bag-check me-2 text-danger"></i>Giỏ hàng của bạn</span>
-                    <span class="text-muted small">(@Model.Count sản phẩm)</span>
+                    <span class="text-muted small">(@(Model != null ? Model.Count : 0) sản phẩm)</span>
                 </div>
 
-                @if (Model.Any())
+                @if (Model != null && Model.Any())
                 {
                     <div class="cart-list">
                         @foreach (var item in Model)
@@ -209,9 +220,9 @@
                             <span id="grand-total">@totalCart.ToString("N0")₫</span>
                         </div>
 
-                        <button class="btn-checkout">
+                        <a href="/Checkout/Index" class="btn-checkout">
                             ĐẶT HÀNG NGAY
-                        </button>
+                        </a>
                     </div>
                 }
                 else
@@ -234,7 +245,7 @@
         var currentQty = parseInt(qtyInput.value);
         var newQty = currentQty + change;
 
-        if (newQty < 1) return; // Không cho giảm dưới 1 (hoặc xử lý xóa tùy bạn)
+        if (newQty < 1) return; // Không cho giảm dưới 1
 
         // 1. Cập nhật giao diện ngay lập tức cho mượt
         qtyInput.value = newQty;

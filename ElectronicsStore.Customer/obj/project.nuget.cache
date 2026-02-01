@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "CwwnyMzTdM0=",
+  "dgSpecHash": "tu010LCm+Uo=",
   "success": true,
-  "projectFilePath": "C:\\ASP.NET\\Elec-Store\\ElectronicsStore.Customer\\ElectronicsStore.Customer.csproj",
+  "projectFilePath": "C:\\C#\\Elec-Store\\ElectronicsStore.Customer\\ElectronicsStore.Customer.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Admin\\.nuget\\packages\\bcrypt.net-next\\4.0.3\\bcrypt.net-next.4.0.3.nupkg.sha512",
     "C:\\Users\\Admin\\.nuget\\packages\\microsoft.aspnetcore.authentication.jwtbearer\\8.0.2\\microsoft.aspnetcore.authentication.jwtbearer.8.0.2.nupkg.sha512",

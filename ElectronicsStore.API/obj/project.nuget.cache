@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "ZvZMO5gqTKo=",
+  "dgSpecHash": "O1HGbbWwVOU=",
   "success": true,
-  "projectFilePath": "C:\\ASP.NET\\Elec-Store\\ElectronicsStore.API\\ElectronicsStore.API.csproj",
+  "projectFilePath": "C:\\C#\\Elec-Store\\ElectronicsStore.API\\ElectronicsStore.API.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Admin\\.nuget\\packages\\bcrypt.net-next\\4.0.3\\bcrypt.net-next.4.0.3.nupkg.sha512",
     "C:\\Users\\Admin\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",

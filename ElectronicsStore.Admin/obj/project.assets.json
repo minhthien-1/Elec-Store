@@ -14,11 +14,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\ASP.NET\\Elec-Store\\ElectronicsStore.Admin\\ElectronicsStore.Admin.csproj",
+      "projectUniqueName": "C:\\C#\\Elec-Store\\ElectronicsStore.Admin\\ElectronicsStore.Admin.csproj",
       "projectName": "ElectronicsStore.Admin",
-      "projectPath": "C:\\ASP.NET\\Elec-Store\\ElectronicsStore.Admin\\ElectronicsStore.Admin.csproj",
+      "projectPath": "C:\\C#\\Elec-Store\\ElectronicsStore.Admin\\ElectronicsStore.Admin.csproj",
       "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
-      "outputPath": "C:\\ASP.NET\\Elec-Store\\ElectronicsStore.Admin\\obj\\",
+      "outputPath": "C:\\C#\\Elec-Store\\ElectronicsStore.Admin\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

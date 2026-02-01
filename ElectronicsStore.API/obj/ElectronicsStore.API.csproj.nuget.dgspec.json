@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\ASP.NET\\Elec-Store\\ElectronicsStore.API\\ElectronicsStore.API.csproj": {}
+    "C:\\C#\\Elec-Store\\ElectronicsStore.API\\ElectronicsStore.API.csproj": {}
   },
   "projects": {
-    "C:\\ASP.NET\\Elec-Store\\ElectronicsStore.API\\ElectronicsStore.API.csproj": {
+    "C:\\C#\\Elec-Store\\ElectronicsStore.API\\ElectronicsStore.API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\ASP.NET\\Elec-Store\\ElectronicsStore.API\\ElectronicsStore.API.csproj",
+        "projectUniqueName": "C:\\C#\\Elec-Store\\ElectronicsStore.API\\ElectronicsStore.API.csproj",
         "projectName": "ElectronicsStore.API",
-        "projectPath": "C:\\ASP.NET\\Elec-Store\\ElectronicsStore.API\\ElectronicsStore.API.csproj",
+        "projectPath": "C:\\C#\\Elec-Store\\ElectronicsStore.API\\ElectronicsStore.API.csproj",
         "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
-        "outputPath": "C:\\ASP.NET\\Elec-Store\\ElectronicsStore.API\\obj\\",
+        "outputPath": "C:\\C#\\Elec-Store\\ElectronicsStore.API\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
