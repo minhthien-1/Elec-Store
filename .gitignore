@@ -6,6 +6,7 @@
 *.suo
 *.userosscache
 *.sln.docstates
-
+**/bin/
+**/obj/
 # Tệp cấu hình cá nhân
 appsettings.Development.json
