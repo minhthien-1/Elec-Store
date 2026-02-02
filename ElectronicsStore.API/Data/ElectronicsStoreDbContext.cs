@@ -10,7 +10,7 @@ namespace ElectronicsStore.API.Data
             : base(options)
         {
         }
-
+        public DbSet<AdminUser> AdminUsers { get; set; }
         public DbSet<SanPham> SanPhams { get; set; }
         public DbSet<DanhMucSanPham> DanhMucSanPhams { get; set; }
         public DbSet<NhaSanXuat> NhaSanXuats { get; set; }
@@ -29,6 +29,7 @@ namespace ElectronicsStore.API.Data
             base.OnModelCreating(modelBuilder);
 
             // 1. Ánh xạ tên bảng
+            modelBuilder.Entity<AdminUser>().ToTable("NguoiDungs");
             modelBuilder.Entity<SanPham>().ToTable("SanPham");
             modelBuilder.Entity<DanhMucSanPham>().ToTable("DanhMucSanPham");
             modelBuilder.Entity<NhaSanXuat>().ToTable("NhaSanXuat");

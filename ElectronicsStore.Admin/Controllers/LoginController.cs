@@ -35,67 +35,79 @@ namespace ElectronicsStore.Admin.Controllers
         {
             try
             {
-                // Chuẩn bị dữ liệu gửi đến API
+                // 1. Chuẩn bị dữ liệu gửi đến API (Phải khớp với LoginRequest ở API)
                 var loginData = new
                 {
-                    email = email,
-                    password = password
+                    Email = email,
+                    MatKhau = password // Ghi đúng tên thuộc tính theo LoginRequest của API
                 };
 
                 var json = JsonSerializer.Serialize(loginData);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-                // Gọi API đăng nhập (thay đổi URL theo API của bạn)
-                var apiUrl = _configuration["ApiSettings:BaseUrl"] + "/api/auth/login";
+                // 2. Gọi API đăng nhập (URL lấy từ appsettings.json của Admin)
+                var apiUrl = _configuration["ApiSettings:BaseUrl"] + "/api/auth/admin-login";
                 var response = await _httpClient.PostAsync(apiUrl, content);
+
+                var resultString = await response.Content.ReadAsStringAsync();
 
                 if (response.IsSuccessStatusCode)
                 {
-                    var result = await response.Content.ReadAsStringAsync();
-                    var loginResponse = JsonSerializer.Deserialize<LoginResponse>(result);
+                    using var doc = JsonDocument.Parse(resultString);
+                    var root = doc.RootElement;
 
-                    // Lưu token vào session
-                    if (loginResponse != null && !string.IsNullOrEmpty(loginResponse.Token))
+                    if (root.GetProperty("success").GetBoolean())
                     {
-                        HttpContext.Session.SetString("AdminToken", loginResponse.Token);
-                        HttpContext.Session.SetString("AdminEmail", email);
+                        var user = root.GetProperty("user");
+                        var tokenObj = root.GetProperty("token");
 
-                        TempData["SuccessMessage"] = "Đăng nhập thành công!";
-                        return RedirectToAction("Index", "Product");
+                        string accessToken = tokenObj.GetProperty("accessToken").GetString();
+                        bool isQuanTri = user.GetProperty("laQuanTriVien").GetBoolean();
+
+                        if (isQuanTri)
+                        {
+                            HttpContext.Session.SetString("AdminToken", accessToken);
+                            HttpContext.Session.SetString("AdminName", user.GetProperty("tenDayDu").GetString());
+
+                            return RedirectToAction("Index", "Product");
+                        }
+                    }
+                }
+
+                // Nếu không thành công, cố gắng lấy message từ API để debug
+                try
+                {
+                    using var doc = JsonDocument.Parse(resultString);
+                    var root = doc.RootElement;
+                    if (root.TryGetProperty("message", out var msg))
+                    {
+                        ViewBag.ErrorMessage = msg.GetString();
                     }
                     else
                     {
-                        ViewBag.ErrorMessage = "Không nhận được token từ server!";
-                        return View();
+                        ViewBag.ErrorMessage = $"Lỗi: {(int)response.StatusCode} - {response.ReasonPhrase}";
                     }
                 }
-                else
+                catch
                 {
-                    ViewBag.ErrorMessage = "Email hoặc mật khẩu không đúng!";
-                    return View();
+                    ViewBag.ErrorMessage = $"Lỗi: {(int)response.StatusCode} - {response.ReasonPhrase}";
                 }
+
+                return View();
             }
             catch (Exception ex)
             {
-                ViewBag.ErrorMessage = "Có lỗi xảy ra: " + ex.Message;
+                ViewBag.ErrorMessage = "Lỗi kết nối đến Server: " + ex.Message;
                 return View();
             }
         }
 
-        // Đăng xuất
+        [HttpGet]
         public IActionResult Logout()
         {
-            HttpContext.Session.Clear();
-            TempData["SuccessMessage"] = "Đăng xuất thành công!";
-            return RedirectToAction("Index", "Login");
+            HttpContext.Session.Clear(); // Xóa sạch session khi đăng xuất
+            return RedirectToAction("Index");
         }
     }
 
-    // Model để nhận response từ API
-    public class LoginResponse
-    {
-        public string? Token { get; set; }
-        public string? Email { get; set; }
-        public string? Role { get; set; }
-    }
 }
