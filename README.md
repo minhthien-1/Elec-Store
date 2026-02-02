@@ -12,3 +12,5 @@ Ngày phát hành: 07/15(đại miễn đủ số)
 OTP: 123456(đại miễn đủ số)
 
 Trang lịch sử đơn hàng nằm trong trang giỏ hàng
+
+https://sandbox.vnpayment.vn/apis/vnpay-demo/
