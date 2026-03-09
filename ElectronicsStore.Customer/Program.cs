@@ -1,6 +1,11 @@
-﻿using ElectronicsStore.API.Data;
-using Microsoft.EntityFrameworkCore;
+﻿using System.Text;
+using ElectronicsStore.API.Data;
+using ElectronicsStore.Customer.Service.Payment;
+using ElectronicsStore.Customer.Service.Pricing;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.EntityFrameworkCore;
+
+
 
 namespace ElectronicsStore.Customer
 {
@@ -8,6 +13,9 @@ namespace ElectronicsStore.Customer
     {
         public static void Main(string[] args)
         {
+            Console.InputEncoding = Encoding.UTF8;
+            Console.OutputEncoding = Encoding.UTF8;
+
             var builder = WebApplication.CreateBuilder(args);
             AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
@@ -29,7 +37,10 @@ namespace ElectronicsStore.Customer
                     options.Cookie.Name = "ElectronicsStore_Session";
                     // Không đặt ExpireTimeSpan ở đây để ưu tiên Session Cookie của trình duyệt
                 });
-            
+
+           // Đăng ký 2 Factory vào hệ thống
+builder.Services.AddScoped<PricingStrategyFactory>();
+builder.Services.AddScoped<PaymentFactory>();
 
             var app = builder.Build();
 
