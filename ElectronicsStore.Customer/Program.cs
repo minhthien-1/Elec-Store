@@ -31,6 +31,8 @@ namespace ElectronicsStore.Customer
                     options.Cookie.Name = "ElectronicsStore_Session";
                 });
 
+            builder.Services.AddHttpClient();
+
             var app = builder.Build();
 
             // --- 3. CẤU HÌNH PIPELINE (MIDDLEWARE) ---
@@ -107,6 +109,8 @@ namespace ElectronicsStore.Customer
             // // =====================================================
 
             app.Run();
+            builder.Services.AddHttpClient<ProductApiService>();
         }
+        
     }
 }
