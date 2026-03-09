@@ -120,6 +120,8 @@ builder.Services.AddScoped<PaymentFactory>();
             // // =====================================================
 
             app.Run();
+            builder.Services.AddHttpClient<ProductApiService>();
         }
+        
     }
 }
