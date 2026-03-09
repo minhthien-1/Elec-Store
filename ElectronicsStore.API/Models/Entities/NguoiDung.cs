@@ -22,6 +22,8 @@ namespace ElectronicsStore.API.Models.Entities
         [Required]
         [StringLength(255)]
         public string MatKhauHash { get; set; } = string.Empty;
+        public string? RefreshToken { get; set; }
+        public DateTime? RefreshTokenExpiryTime { get; set; }
 
         [StringLength(500)]
         public string? DiaChiChiTiet { get; set; }

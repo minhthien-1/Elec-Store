@@ -2,6 +2,7 @@
 using ElectronicsStore.API.Helpers;
 using ElectronicsStore.API.Models;
 using ElectronicsStore.API.Models.Entities;
+using ElectronicsStore.API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +11,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using ElectronicsStore.API.Services;
 
 namespace ElectronicsStore.API.Controllers
 {
@@ -17,6 +19,7 @@ namespace ElectronicsStore.API.Controllers
     [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
+        private readonly IJwtTokenService _jwtTokenService;
         private readonly ElectronicsStoreDbContext _context;
         private readonly IConfiguration _configuration;
         private readonly ILogger<AuthController> _logger;
@@ -163,7 +166,7 @@ namespace ElectronicsStore.API.Controllers
 
                 // Tìm user theo email (case-insensitive)
                 var emailLower = request.Email.ToLower().Trim();
-                var user = await _context.NguoiDungs
+                var user = await _context.AdminUsers
                     .AsNoTracking()
                     .FirstOrDefaultAsync(u => u.Email.ToLower() == emailLower);
 
@@ -181,13 +184,15 @@ namespace ElectronicsStore.API.Controllers
                 }
 
                 // Verify password
+                // Kiểm tra kỹ dòng này trong hàm AdminLogin của bạn
                 bool isPasswordValid = BCrypt.Net.BCrypt.Verify(request.MatKhau, user.MatKhauHash);
+
                 if (!isPasswordValid)
                 {
-                    _logger.LogWarning($"Login attempt with wrong password: {request.Email}");
-                    return Unauthorized(new { success = false, message = "Email hoặc mật khẩu không chính xác" });
+                    // Bạn có thể thêm debug ở đây để chắc chắn
+                    Console.WriteLine("--- DEBUG: So sanh THAT BAI");
+                    return Unauthorized(new { success = false, message = "Mật khẩu không chính xác" });
                 }
-
                 var token = GenerateJwtToken(user);
                 var refreshToken = GenerateRefreshToken();
 
@@ -237,7 +242,7 @@ namespace ElectronicsStore.API.Controllers
                 if (string.IsNullOrEmpty(email))
                     return Unauthorized(new { success = false, message = "Token không hợp lệ" });
 
-                var user = await _context.NguoiDungs
+                var user = await _context.AdminUsers
                     .AsNoTracking()
                     .FirstOrDefaultAsync(u => u.Email == email);
 
@@ -268,31 +273,41 @@ namespace ElectronicsStore.API.Controllers
         }
 
         // ĐĂNG XUẤT 
-        [Authorize]
         [HttpPost("logout")]
-        public ActionResult<object> Logout()
+        [Authorize]  // Thêm dòng này
+        public async Task<IActionResult> Logout()
         {
             try
             {
-                var email = User.FindFirst(ClaimTypes.Email)?.Value;
-                _logger.LogInformation($" User logged out: {email}");
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                if (string.IsNullOrEmpty(userId))
+                    return Unauthorized(new { success = false, message = "User không hợp lệ" });
+
+                var user = await _context.NguoiDungs.FirstOrDefaultAsync(u => u.MaND.ToString() == userId);
+                if (user != null)
+                {
+                    user.RefreshToken = null;
+                    user.RefreshTokenExpiryTime = null;
+                    await _context.SaveChangesAsync();
+                }
 
                 return Ok(new { success = true, message = "Đăng xuất thành công" });
             }
-            catch (Exception ex)
+            catch
             {
-                _logger.LogError($"❌ Error in Logout: {ex.Message}");
-                return BadRequest(new { success = false, message = ex.Message });
+                return Unauthorized(new { success = false, message = "Token không hợp lệ" });
             }
         }
+
 
         // ========== LẤY THÔNG TIN HIỆN TẠI ==========
         /// <summary>
         /// GET: /api/auth/me
         /// Lấy thông tin user hiện tại (cần Authorization)
         /// </summary>
-        [Authorize]
         [HttpGet("me")]
+        [Authorize]
         public async Task<ActionResult<object>> GetCurrentUser()
         {
             try
@@ -337,7 +352,7 @@ namespace ElectronicsStore.API.Controllers
 
         #region Helper Methods
 
-        private string GenerateJwtToken(NguoiDung user)
+        private string GenerateJwtToken(AdminUser user)
         {
             var jwtSettings = _configuration.GetSection("JwtSettings");
             var key = new SymmetricSecurityKey(
@@ -372,7 +387,58 @@ namespace ElectronicsStore.API.Controllers
                 return Convert.ToBase64String(randomNumber);
             }
         }
+        [HttpPost("admin-login")]
+        public async Task<ActionResult<object>> AdminLogin([FromBody] LoginRequest request)
+        {
+            var emailLower = request.Email.ToLower().Trim();
 
+            // 1. Tìm đúng người dùng trong bảng Admin (NguoiDungs)
+            var user = await _context.AdminUsers
+                .FirstOrDefaultAsync(u => u.Email.ToLower() == emailLower && u.LaQuanTriVien == true);
+
+            if (user == null)
+            {
+                return Unauthorized(new { success = false, message = "Tài khoản Admin không tồn tại" });
+            }
+
+            // 2. SO SÁNH BCRYPT CHUẨN (Bỏ phần if == "123456" đi vì nó gây lỗi bảo mật)
+            try
+            {
+                _logger.LogInformation($"AdminLogin attempt for {emailLower}");
+                _logger.LogDebug($"Stored hash length: {user.MatKhauHash?.Length}");
+                if (!string.IsNullOrEmpty(user.MatKhauHash) && user.MatKhauHash.Length > 6)
+                    _logger.LogDebug($"Stored hash prefix: {user.MatKhauHash.Substring(0, 6)}...");
+
+                bool isValid = BCrypt.Net.BCrypt.Verify(request.MatKhau, user.MatKhauHash);
+                _logger.LogInformation($"BCrypt verify result: {isValid}");
+
+                if (!isValid)
+                {
+                    _logger.LogWarning($"Admin login failed: invalid password for {emailLower}");
+                    return Unauthorized(new { success = false, message = "Mật khẩu không chính xác" });
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error during password verification: {ex.Message}");
+                return StatusCode(500, new { success = false, message = "Lỗi khi kiểm tra mật khẩu" });
+            }
+
+            var token = GenerateJwtToken(user);
+
+            // Trả về thêm laQuanTriVien để phía Admin Web dễ kiểm tra
+            return Ok(new
+            {
+                success = true,
+                token = new { accessToken = token },
+                user = new
+                {
+                    tenDayDu = user.TenDayDu,
+                    email = user.Email,
+                    laQuanTriVien = user.LaQuanTriVien
+                }
+            });
+        }
         private ClaimsPrincipal? GetClaimsFromExpiredToken(string token)
         {
             try
