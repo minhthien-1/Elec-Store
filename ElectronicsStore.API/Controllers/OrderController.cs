@@ -2,6 +2,8 @@
 using ElectronicsStore.API.Data;
 using ElectronicsStore.API.Models.Entities;
 using Microsoft.EntityFrameworkCore;
+using ElectronicsStore.API.Observers;
+using ElectronicsStore.API.Commands;
 
 namespace ElectronicsStore.API.Controllers
 {
@@ -10,10 +12,12 @@ namespace ElectronicsStore.API.Controllers
     public class OrderController : ControllerBase
     {
         private readonly ElectronicsStoreDbContext _context;
+        private readonly OrderSubject _subject;
 
-        public OrderController(ElectronicsStoreDbContext context)
+        public OrderController(ElectronicsStoreDbContext context, OrderSubject subject)
         {
             _context = context;
+            _subject = subject;
         }
 
         // GET: /api/order/{maND}
@@ -227,20 +231,21 @@ namespace ElectronicsStore.API.Controllers
                 };
 
                 donHang.ChiTietDonHangs = chiTietList;
-                _context.DonHangs.Add(donHang);
 
-                // Add order history
+                // add history
                 var lichSu = new LichSuDonHang
                 {
-                    MaDH = donHang.MaDH,
                     TrangThaiCu = null,
                     TrangThaiMoi = "Chờ xác nhận",
                     LyDo = "Đơn hàng vừa được tạo",
                     NgayCapNhat = DateTime.Now
                 };
-                _context.LichSuDonHangs.Add(lichSu);
 
-                await _context.SaveChangesAsync();
+                donHang.LichSuDonHangs = new List<LichSuDonHang> { lichSu };
+
+                var command = new CreateOrderCommand(_context, donHang, _subject);
+
+                await command.ExecuteAsync();
 
                 return Created($"api/order/detail/{donHang.MaDH}", new
                 {
