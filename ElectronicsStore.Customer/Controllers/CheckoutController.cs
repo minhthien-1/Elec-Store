@@ -2,18 +2,36 @@
 using ElectronicsStore.API.Models.Entities;
 using ElectronicsStore.Customer.Models;
 using ElectronicsStore.Customer.Service;
+using ElectronicsStore.Customer.Service.Pricing;
+using ElectronicsStore.Customer.Service.Payment;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace ElectronicsStore.Customer.Controllers
 {
     public class CheckoutController : Controller
     {
         private readonly ElectronicsStoreDbContext _context;
+        // SỬA: Dùng PricingStrategyFactory thay vì IPricingStrategy trực tiếp
+        private readonly PricingStrategyFactory _pricingFactory; 
+        private readonly PaymentFactory _paymentFactory;
+        private readonly ILogger<CheckoutController> _logger;
 
-        public CheckoutController(ElectronicsStoreDbContext context)
+        // Inject các dịch vụ qua Constructor
+        public CheckoutController(
+            ElectronicsStoreDbContext context,
+            PricingStrategyFactory pricingFactory, // SỬA Ở ĐÂY
+            PaymentFactory paymentFactory,
+            ILogger<CheckoutController> logger)
         {
             _context = context;
+            _pricingFactory = pricingFactory;      // SỬA Ở ĐÂY
+            _paymentFactory = paymentFactory;
+            _logger = logger;
         }
 
         // GET: Hiển thị trang thanh toán
@@ -23,19 +41,29 @@ namespace ElectronicsStore.Customer.Controllers
             if (userIdClaim == null) return RedirectToAction("Login", "Account");
             int userId = int.Parse(userIdClaim.Value);
 
-            var cartItems = await _context.GioHangs.Include(g => g.SanPham).Where(g => g.MaND == userId).ToListAsync();
+            var cartItems = await _context.GioHangs
+                .Include(g => g.SanPham)
+                .Where(g => g.MaND == userId)
+                .ToListAsync();
+
             if (!cartItems.Any()) return RedirectToAction("Index", "Cart");
 
             var user = await _context.NguoiDungs.FindAsync(userId);
 
             decimal tongTienHang = cartItems.Sum(x => x.SoLuong * x.SanPham.GiaBan);
-            decimal phiShip = tongTienHang >= 1000000 ? 0 : 30000;
+            
+            // DÙNG FACTORY ĐỂ LẤY STRATEGY VÀ TÍNH TOÁN HIỂN THỊ LÊN VIEW
+            var pricingStrategy = _pricingFactory.CreateStrategy(tongTienHang);
+            decimal phiShip = pricingStrategy.CalculateShippingFee(tongTienHang);
+            decimal tienGiamGia = pricingStrategy.CalculateDiscount(tongTienHang);
 
             var model = new CheckoutViewModel
             {
                 CartItems = cartItems,
                 TongTienHang = tongTienHang,
                 PhiVanChuyen = phiShip,
+                // Nếu CheckoutViewModel của bạn có thuộc tính TienGiamGia, hãy gán nó ở đây:
+                // TienGiamGia = tienGiamGia, 
                 HoTen = user?.TenDayDu,
                 SoDienThoai = user?.SoDienThoai,
                 Email = user?.Email,
@@ -49,34 +77,64 @@ namespace ElectronicsStore.Customer.Controllers
         [HttpPost]
         public async Task<IActionResult> PlaceOrder(CheckoutViewModel model)
         {
-            var userId = int.Parse(User.FindFirst("UserId").Value);
-            var cartItems = await _context.GioHangs.Include(g => g.SanPham).Where(g => g.MaND == userId).ToListAsync();
+            _logger.LogInformation("\n================ BẮT ĐẦU XỬ LÝ ĐẶT HÀNG ================");
+
+            var userIdClaim = User.FindFirst("UserId");
+            if (userIdClaim == null) return RedirectToAction("Login", "Account");
+            int userId = int.Parse(userIdClaim.Value);
+
+            var cartItems = await _context.GioHangs
+                .Include(g => g.SanPham)
+                .Where(g => g.MaND == userId)
+                .ToListAsync();
 
             if (!cartItems.Any()) return RedirectToAction("Index", "Cart");
 
-            // 1. Tạo Đơn Hàng Mới
+            // LOG: Thông tin khách hàng
+            _logger.LogInformation($"[CONTROLLER] ---> Khách hàng ID: {userId} | Người nhận: {model.HoTen}");
+            _logger.LogInformation($"[CONTROLLER] ---> Địa chỉ: {model.DiaChiCuThe}, {model.PhuongXa}, {model.QuanHuyen}, {model.TinhThanh}");
+
+            // 1. BẢO MẬT: Tính lại tổng tiền từ Database
+            decimal actualTongTienHang = cartItems.Sum(x => x.SoLuong * x.SanPham.GiaBan);
+            _logger.LogInformation($"[CONTROLLER] ---> Tổng tiền trong giỏ: {actualTongTienHang:N0}đ");
+
+            // 2. SỬ DỤNG PRICING FACTORY & STRATEGY
+            var pricingStrategy = _pricingFactory.CreateStrategy(actualTongTienHang);
+            _logger.LogInformation($"[FACTORY PATTERN] ---> Đã tự động phân loại và chọn chiến lược: {pricingStrategy.GetStrategyName()}");
+
+            decimal phiShip = pricingStrategy.CalculateShippingFee(actualTongTienHang);
+            decimal tienGiamGia = pricingStrategy.CalculateDiscount(actualTongTienHang);
+            decimal tongThanhToan = actualTongTienHang + phiShip - tienGiamGia;
+
+            _logger.LogInformation($"[STRATEGY PATTERN] ---> Kết quả tính toán:");
+            _logger.LogInformation($"                     + Phí Ship: {phiShip:N0}đ");
+            _logger.LogInformation($"                     + Tiền được giảm: -{tienGiamGia:N0}đ");
+            _logger.LogInformation($"                     + TỔNG PHẢI TRẢ: {tongThanhToan:N0}đ");
+
             var order = new DonHang
             {
-                MaDonHangGoc = DateTime.Now.Ticks.ToString(), // Mã tạm
+                MaDonHangGoc = DateTime.Now.Ticks.ToString(),
                 MaND = userId,
                 NgayTaoDon = DateTime.UtcNow,
-                TongGiaTruocGiam = model.TongTienHang,
-                PhiVanChuyen = model.TongTienHang >= 1000000 ? 0 : 30000,
-                TongGiaSauGiam = model.TongThanhToan,
+                TongGiaTruocGiam = actualTongTienHang,
+                PhiVanChuyen = phiShip,
+                TienGiamGia = tienGiamGia,          // Đã thêm Tiền Giảm Giá
+                TongGiaSauGiam = tongThanhToan,     // Tổng thanh toán thực tế
                 TrangThaiDon = "Chờ xác nhận",
                 TrangThaiThanhToan = "Chưa thanh toán",
                 PhuongThucThanhToan = model.HinhThucThanhToan,
-                // Ghép địa chỉ đầy đủ
                 DiaChiGiaoHang = $"{model.DiaChiCuThe}, {model.PhuongXa}, {model.QuanHuyen}, {model.TinhThanh}",
-                ThanhPhoPhuong = $"{model.PhuongXa}, {model.QuanHuyen}, {model.TinhThanh}", // Lưu phần hành chính riêng
+                ThanhPhoPhuong = $"{model.PhuongXa}, {model.QuanHuyen}, {model.TinhThanh}",
                 SodTLienHe = model.SoDienThoai,
                 GhiChu = model.GhiChu
             };
 
             _context.DonHangs.Add(order);
-            await _context.SaveChangesAsync(); // Lưu để sinh MaDH
+            await _context.SaveChangesAsync();
 
-            // 2. Lưu Chi Tiết Đơn Hàng
+            _logger.LogInformation($"[CONTROLLER] ---> Đã lưu Đơn hàng #{order.MaDH} thành công.");
+
+            // Lưu chi tiết đơn hàng
             foreach (var item in cartItems)
             {
                 _context.ChiTietDonHangs.Add(new ChiTietDonHang
@@ -89,7 +147,7 @@ namespace ElectronicsStore.Customer.Controllers
                 });
             }
 
-            // 3. Ghi Lịch Sử Đơn Hàng (Bắt đầu)
+            // Ghi lịch sử đơn hàng
             _context.LichSuDonHangs.Add(new LichSuDonHang
             {
                 MaDH = order.MaDH,
@@ -97,43 +155,22 @@ namespace ElectronicsStore.Customer.Controllers
                 TrangThaiMoi = "Chờ xác nhận",
                 NgayCapNhat = DateTime.UtcNow,
                 LyDo = "Khách hàng tạo đơn mới",
-                MaNguoiCapNhat = userId // Khách tự tạo
+                MaNguoiCapNhat = userId
             });
 
-            // 4. Xóa Giỏ hàng
+            // Xóa giỏ hàng
             _context.GioHangs.RemoveRange(cartItems);
             await _context.SaveChangesAsync();
 
-            // 5. Điều hướng thanh toán
-            if (model.HinhThucThanhToan == "VNPAY")
-            {
-                string vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-                string vnp_TmnCode = "WYBQPSHN";
-                string vnp_HashSecret = "QK4DHXARPHOYTV1R3E3HU176A6QIDMAH";
+            // 3. SỬ DỤNG PAYMENT FACTORY: Tạo hình thức thanh toán
+            _logger.LogInformation($"[FACTORY PATTERN] ---> Khách hàng chọn thanh toán qua: {model.HinhThucThanhToan}");
+            var paymentStrategy = _paymentFactory.Create(model.HinhThucThanhToan);
+            string redirectUrl = paymentStrategy.GeneratePaymentUrl(order, HttpContext);
 
-                // QUAN TRỌNG: Sửa PORT 44371 thành port máy bạn
-                string vnp_Returnurl = "https://localhost:44371/Checkout/PaymentCallback";
+            _logger.LogInformation($"[CONTROLLER] ---> Chuyển hướng tới URL: {redirectUrl}");
+            _logger.LogInformation("================ KẾT THÚC XỬ LÝ ========================\n");
 
-                VnPayLibrary vnpay = new VnPayLibrary();
-                vnpay.AddRequestData("vnp_Version", "2.1.0");
-                vnpay.AddRequestData("vnp_Command", "pay");
-                vnpay.AddRequestData("vnp_TmnCode", vnp_TmnCode);
-                vnpay.AddRequestData("vnp_Amount", ((long)order.TongGiaSauGiam * 100).ToString());
-                vnpay.AddRequestData("vnp_CreateDate", DateTime.Now.ToString("yyyyMMddHHmmss"));
-                vnpay.AddRequestData("vnp_CurrCode", "VND");
-                vnpay.AddRequestData("vnp_IpAddr", "127.0.0.1");
-                vnpay.AddRequestData("vnp_Locale", "vn");
-                vnpay.AddRequestData("vnp_OrderInfo", "Thanh toan don hang #" + order.MaDH);
-                vnpay.AddRequestData("vnp_OrderType", "other");
-                vnpay.AddRequestData("vnp_ReturnUrl", vnp_Returnurl);
-                vnpay.AddRequestData("vnp_TxnRef", order.MaDH.ToString());
-
-                string paymentUrl = vnpay.CreateRequestUrl(vnp_Url, vnp_HashSecret);
-                return Redirect(paymentUrl);
-            }
-
-            // SỬA: Truyền orderId sang trang Success cho trường hợp COD
-            return RedirectToAction("Success", new { orderId = order.MaDH });
+            return Redirect(redirectUrl);
         }
 
         // Callback VNPay
@@ -143,10 +180,9 @@ namespace ElectronicsStore.Customer.Controllers
             if (response.Count > 0)
             {
                 string vnp_HashSecret = "QK4DHXARPHOYTV1R3E3HU176A6QIDMAH";
-                var vnpayData = response;
                 VnPayLibrary vnpay = new VnPayLibrary();
 
-                foreach (var s in vnpayData)
+                foreach (var s in response)
                 {
                     if (!string.IsNullOrEmpty(s.Key) && s.Key.StartsWith("vnp_"))
                     {
@@ -154,24 +190,21 @@ namespace ElectronicsStore.Customer.Controllers
                     }
                 }
 
-                string orderId = vnpayData["vnp_TxnRef"];
-                string vnp_ResponseCode = vnpayData["vnp_ResponseCode"];
-                string vnp_SecureHash = vnpayData["vnp_SecureHash"];
-                long vnp_Amount = Convert.ToInt64(vnpayData["vnp_Amount"]) / 100;
+                string orderId = response["vnp_TxnRef"];
+                string vnp_ResponseCode = response["vnp_ResponseCode"];
+                string vnp_SecureHash = response["vnp_SecureHash"];
+                long vnp_Amount = Convert.ToInt64(response["vnp_Amount"]) / 100;
 
                 bool checkSignature = vnpay.ValidateSignature(vnp_SecureHash, vnp_HashSecret);
 
                 if (checkSignature)
                 {
-                    if (vnp_ResponseCode == "00") // Thành công
+                    if (vnp_ResponseCode == "00")
                     {
                         var order = await _context.DonHangs.FindAsync(int.Parse(orderId));
                         if (order != null)
                         {
-                            // Cập nhật trạng thái
                             order.TrangThaiThanhToan = "Đã thanh toán (VNPay)";
-
-                            // Ghi lịch sử thanh toán (Quan trọng)
                             _context.LichSuThanhToans.Add(new LichSuThanhToan
                             {
                                 MaDH = order.MaDH,
@@ -179,26 +212,18 @@ namespace ElectronicsStore.Customer.Controllers
                                 SoTienThanhToan = vnp_Amount,
                                 PhuongThuc = "VNPay",
                                 TrangThaiGD = "Thành công",
-                                MaThamChieu = vnp_SecureHash.Substring(0, 20), // Lưu một phần mã hash làm tham chiếu
+                                MaThamChieu = vnp_SecureHash.Substring(0, Math.Min(20, vnp_SecureHash.Length)),
                                 NgayThanhToan = DateTime.UtcNow
                             });
-
                             await _context.SaveChangesAsync();
                         }
-                        // SỬA: Truyền orderId sang trang Success
                         return RedirectToAction("Success", new { orderId = orderId });
-                    }
-                    else // Thất bại
-                    {
-                        // Ghi log thất bại nếu cần (Tùy chọn)
-                        return View("Failure");
                     }
                 }
             }
-            return View("Failure");
+            return RedirectToAction("Failure");
         }
 
-        // SỬA: Nhận tham số orderId và đẩy vào ViewBag
         public IActionResult Success(int? orderId)
         {
             ViewBag.OrderId = orderId;
