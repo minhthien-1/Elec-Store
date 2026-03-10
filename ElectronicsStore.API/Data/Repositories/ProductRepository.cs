@@ -17,7 +17,7 @@ namespace ElectronicsStore.API.Data.Repositories
             // SỬA TẠI ĐÂY: .Single() trả về trực tiếp đối tượng Product hoặc null
             var response = await _client
                 .From<Product>()
-                .Where(x => x.Id == id)
+                .Where(x => x.MaSP == id)
                 .Single();
             
             return response; // Không dùng .Model ở đây nữa
@@ -27,7 +27,7 @@ namespace ElectronicsStore.API.Data.Repositories
         {
             await _client
                 .From<Product>()
-                .Where(x => x.Id == id)
+                .Where(x => x.MaSP == id)
                 .Delete();
         }
 
@@ -36,7 +36,7 @@ namespace ElectronicsStore.API.Data.Repositories
         {
             var response = await _client
                 .From<Product>()
-                .Where(x => x.Category == category)
+                .Where(x => x.MaDanhMuc == int.Parse(category))
                 .Get();
                 
             return response.Models ?? new List<Product>();
@@ -46,7 +46,7 @@ namespace ElectronicsStore.API.Data.Repositories
         {
             var response = await _client
                 .From<Product>()
-                .Where(x => x.Stock <= threshold)
+                .Where(x => x.SoLuongTonKho <= threshold)
                 .Get();
                 
             return response.Models ?? new List<Product>();

@@ -4,66 +4,84 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ElectronicsStore.API.Controllers
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class ProductsController : ControllerBase
-    {
-        private readonly IProductRepository _productRepository;
+ [ApiController]
+[Route("api/[controller]")]
+public class ProductsController : ControllerBase
+{
+    private readonly IProductRepository _productRepository;
 
-        public ProductsController(IProductRepository productRepository)
+    public ProductsController(IProductRepository productRepository)
+    {
+        _productRepository = productRepository;
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetAll()
+    {
+        try 
         {
-            _productRepository = productRepository;
+            var products = await _productRepository.GetAllAsync();
+            // Mapping sang anonymous object để đồng bộ camelCase với view
+            var result = products.Select(p => new {
+                maSP = p.MaSP,
+                tenSP = p.TenSP,
+                giaBan = p.GiaBan,
+                soLuongTonKho = p.SoLuongTonKho,
+                maDanhMuc = p.MaDanhMuc,
+                hinhAnh = p.HinhAnh
+            });
+            return Ok(result);
         }
-
-        [HttpGet]
-        public async Task<IActionResult> GetAll()
+        catch (Exception ex)
         {
-     try 
-    {
-        // 1. Gọi qua Repository (Để hiện chữ [REPOSITORY] trong Terminal)
-        var products = await _productRepository.GetAllAsync();
+            return BadRequest(new { message = "Lỗi khi lấy danh sách", details = ex.Message });
+        }
+    }
 
-        // 2. Chắt lọc dữ liệu (Để tránh lỗi JSON cồng kềnh của Supabase)
-        var result = products.Select(p => new {
-            maSP = p.Id,
-            tenSP = p.Name,
-            giaBan = p.Price,
-            soLuongTonKho = p.Stock,
-            danhMuc = p.Category,
-            hinhAnh = p.HinhAnh,
-            // Bạn có thể thêm các trường khác nếu Model Product của bạn có nhé
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById(int id)
+    {
+        var p = await _productRepository.GetByIdAsync(id);
+        if (p == null) return NotFound(new { message = "Không tìm thấy sản phẩm" });
+
+        // Trả về cùng cấu trúc với GetAll để frontend không bị lỗi "undefined"
+        return Ok(new {
+            maSP = p.MaSP,
+            tenSP = p.TenSP,
+            giaBan = p.GiaBan,
+            soLuongTonKho = p.SoLuongTonKho,
+            maDanhMuc = p.MaDanhMuc,
+            hinhAnh = p.HinhAnh
         });
-
-        return Ok(result);
     }
-    catch (Exception ex)
+
+    [HttpPost]
+    public async Task<IActionResult> Create([FromBody] Product product)
     {
-        return BadRequest(new { message = "Lỗi hệ thống", details = ex.Message });
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+        
+        var result = await _productRepository.AddAsync(product);
+        return CreatedAtAction(nameof(GetById), new { id = result.MaSP }, result);
     }
-        }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
-        {
-            var product = await _productRepository.GetByIdAsync(id);
-            if (product == null) return NotFound(new { message = "Không tìm thấy sản phẩm" });
-            return Ok(product);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Create([FromBody] Product product) // Thêm [FromBody] để Swagger bắt dữ liệu tốt hơn
-        {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-            
-            var result = await _productRepository.AddAsync(product);
-            return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
-        {
-            await _productRepository.DeleteAsync(id);
-            return NoContent();
-        }
+    // Bổ sung hàm Update
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(int id, [FromBody] Product product)
+    {
+        if (id != product.MaSP) return BadRequest(new { message = "ID không khớp" });
+        
+        await _productRepository.UpdateAsync(product);
+        return Ok(new { message = "Cập nhật thành công" });
     }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var product = await _productRepository.GetByIdAsync(id);
+        if (product == null) return NotFound();
+
+        await _productRepository.DeleteAsync(id);
+        return NoContent();
+    }
+}
 }
