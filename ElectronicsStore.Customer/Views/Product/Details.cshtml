@@ -5,20 +5,39 @@
     ViewData["Title"] = Model.tenSP;
     Layout = "~/Views/Shared/_Layout.cshtml";
 
-    // Tính toán phần trăm giảm giá
+    // Tính toán phần trăm giảm giá an toàn với kiểu decimal
     int percentDiscount = 0;
-    if (Model.giaGiamGia.HasValue && Model.giaBan > 0)
+    decimal giaBan = Model.giaBan;
+    decimal? giaGiamGia = Model.giaGiamGia;
+
+    if (giaGiamGia.HasValue && giaGiamGia.Value > 0 && giaBan > 0)
     {
-        percentDiscount = (int)((1 - (Model.giaGiamGia.Value / Model.giaBan)) * 100);
+        percentDiscount = (int)((1 - (giaGiamGia.Value / giaBan)) * 100);
     }
 }
 
-@* Giữ nguyên toàn bộ phần <style> cũ của bạn *@
 <style>
-    /* ... Copy paste toàn bộ CSS cũ vào đây ... */
+    /* ... Copy paste toàn bộ CSS cũ của bạn vào đây nếu có ... */
+    
+    /* CSS bổ sung để hình ảnh hiển thị đẹp và không bị méo */
+    .main-image {
+        max-width: 100%;
+        height: 400px;
+        object-fit: contain; /* Giữ nguyên tỉ lệ ảnh, không bị kéo dãn */
+        transition: transform 0.3s ease;
+    }
+    .main-image:hover {
+        transform: scale(1.05); /* Hiệu ứng zoom nhẹ khi rê chuột */
+    }
+    .white-box {
+        background-color: #fff;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    }
 </style>
 
-<div class="product-detail-page">
+<div class="product-detail-page bg-light pb-5">
     <div class="container py-4">
 
         <nav aria-label="breadcrumb" class="mb-3">
@@ -28,46 +47,58 @@
             </ol>
         </nav>
 
-        <div class="white-box">
+        <div class="white-box mb-4">
             <div class="row">
-                <div class="col-lg-5 col-md-12 mb-4 text-center">
+                <div class="col-lg-5 col-md-12 mb-4 text-center align-self-center">
                     <img src="@Model.hinhAnh" class="main-image" alt="@Model.tenSP" onerror="this.src='https://via.placeholder.com/600'">
                 </div>
+                
                 <div class="col-lg-7 col-md-12 col-12 product-info">
                     <div class="info-wrapper">
-                        <div class="product-name"><h1>@Model.tenSP</h1></div>
-                        <div class="product-sku mb-2">
+                        <div class="product-name"><h1 class="fs-3 fw-bold mb-3">@Model.tenSP</h1></div>
+                        <div class="product-sku mb-3 pb-2 border-bottom">
                             <span class="text-muted small">Mã sản phẩm: <strong class="text-danger">@Model.maSP</strong></span>
-                            <span class="text-muted small ms-3">Tình trạng: Còn hàng</span>
+                            <span class="text-muted small ms-4">
+                                Tình trạng: 
+                                @if(Model.soLuongTonKho > 0)
+                                {
+                                    <strong class="text-success">Còn hàng</strong>
+                                }
+                                else
+                                {
+                                    <strong class="text-danger">Hết hàng</strong>
+                                }
+                            </span>
                         </div>
                         
                         <div class="product-rating mb-3">
                             <span class="text-warning">
                                 <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-half"></i>
                             </span>
-                            <span class="small text-muted ms-2">(Dữ liệu từ API)</span>
+                            <span class="small text-primary ms-2">(Xem đánh giá từ API)</span>
                         </div>
 
                         <div class="product-price mb-4">
-                            @if (Model.giaGiamGia.HasValue && Model.giaGiamGia > 0)
+                            @if (giaGiamGia.HasValue && giaGiamGia > 0)
                             {
-                                <span class="pro-price">@Model.giaGiamGia.Value.ToString("N0")₫</span>
-                                <del class="text-muted ms-2">@Model.giaBan.ToString("N0")₫</del>
-                                <span class="pro-percent">-@percentDiscount%</span>
+                                <span class="pro-price text-danger fs-2 fw-bold">@giaGiamGia.Value.ToString("N0")₫</span>
+                                <del class="text-muted ms-3 fs-5">@giaBan.ToString("N0")₫</del>
+                                <span class="badge bg-danger ms-2 pro-percent align-middle fs-6">-@percentDiscount%</span>
                             }
                             else
                             {
-                                <span class="pro-price">@Model.giaBan.ToString("N0")₫</span>
+                                <span class="pro-price text-danger fs-2 fw-bold">@giaBan.ToString("N0")₫</span>
                             }
                         </div>
 
-                        <div class="col-md-6 col-12">
+                        <div class="col-md-6 col-12 mt-4">
                             <form action="/Cart/AddToCart" method="post" id="addToCartForm">
                                 <input type="hidden" name="productId" value="@Model.maSP" />
                                 <input type="hidden" name="quantity" value="1" />
-                                <button type="button" onclick="checkLoginAndBuy()" class="btn btn-buynow d-flex flex-column align-items-center">
-                                    <span class="fs-5">ĐẶT HÀNG NGAY</span>
-                                    <span style="font-size: 11px; font-weight: 400;">Giao tận nơi hoặc nhận tại cửa hàng</span>
+                                
+                                <button type="button" onclick="checkLoginAndBuy()" class="btn btn-danger btn-buynow w-100 py-2 d-flex flex-column align-items-center rounded-3">
+                                    <span class="fs-5 fw-bold">ĐẶT HÀNG NGAY</span>
+                                    <span style="font-size: 12px; font-weight: 400;">Giao tận nơi hoặc nhận tại cửa hàng</span>
                                 </button>
                             </form>
                         </div>
@@ -78,42 +109,68 @@
 
         <div class="row">
             <div class="col-lg-8 mb-4">
-                <div class="white-box">
-                    <h4 class="section-title">Đặc điểm nổi bật</h4>
+                <div class="white-box h-100">
+                    <h4 class="section-title border-bottom pb-2 mb-3 fs-5 fw-bold">Đặc điểm nổi bật</h4>
                     <div class="product-desc-content p-2">
-                        @* API trả về MoTa nên ta dùng moTa *@
-                        @Html.Raw(Model.moTa ?? "Đang cập nhật nội dung từ API...")
+                        @if (!string.IsNullOrEmpty(Model.moTa))
+                        {
+                            @Html.Raw(Model.moTa)
+                        }
+                        else
+                        {
+                            <p class="text-muted fst-italic">Sản phẩm hiện chưa có mô tả chi tiết từ nhà sản xuất.</p>
+                        }
                     </div>
                 </div>
             </div>
 
             <div class="col-lg-4 mb-4">
-                <div class="white-box">
-                    <h4 class="section-title">Thông số kỹ thuật</h4>
+                <div class="white-box h-100">
+                    <h4 class="section-title border-bottom pb-2 mb-3 fs-5 fw-bold">Thông số kỹ thuật</h4>
                     <div class="specs-content p-2">
-                        <p class="small text-muted">Hệ thống đang đồng bộ thông số từ API...</p>
+                        <table class="table table-sm table-striped table-bordered mb-0">
+                            <tbody>
+                                <tr>
+                                    <td class="text-muted py-2" style="width: 40%;">Mã sản phẩm</td>
+                                    <td class="text-end fw-medium py-2">@Model.maSP</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted py-2">Danh mục</td>
+                                    <td class="text-end fw-medium py-2">@(ViewBag.CategoryName ?? "Chưa cập nhật")</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted py-2">Tồn kho</td>
+                                    <td class="text-end fw-medium py-2">@Model.soLuongTonKho</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
         </div>
 
-        @* Tạm thời ẩn phần Sản phẩm tương tự và Đánh giá nếu API chưa trả về List này *@
-        <div class="white-box">
-             <p class="text-center text-muted">Tính năng bình luận và sản phẩm tương tự đang được nâng cấp qua API.</p>
+        <div class="white-box mt-2">
+             <p class="text-center text-muted mb-0">Tính năng bình luận và sản phẩm tương tự đang được nâng cấp qua API.</p>
         </div>
     </div>
 </div>
 
 <script>
     function checkLoginAndBuy() {
+        // Kiểm tra trạng thái đăng nhập từ C# truyền xuống
         var isLoggedIn = '@User.Identity.IsAuthenticated.ToString().ToLower()';
+        
         if (isLoggedIn === 'true') {
+            // Thay đổi giao diện nút để người dùng biết hệ thống đang xử lý
+            const btn = document.querySelector('.btn-buynow');
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> ĐANG XỬ LÝ...';
+            btn.disabled = true; // Chống click nhiều lần
+            
             document.getElementById('addToCartForm').submit();
         } else {
-            alert("Vui lòng đăng nhập để mua hàng!");
-            // Hoặc hiện Modal nếu bạn đã có: 
-            // var myModal = new bootstrap.Modal(document.getElementById('loginModal'));
-            // myModal.show();
+            alert("Vui lòng đăng nhập để thực hiện mua sắm bạn nhé!");
+            // Mở comment dòng dưới nếu bạn muốn tự động chuyển hướng sang trang Login
+            // window.location.href = '/Account/Login?returnUrl=' + window.location.pathname;
         }
     }
 </script>

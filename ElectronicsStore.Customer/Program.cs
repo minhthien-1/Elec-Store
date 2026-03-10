@@ -4,7 +4,8 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using ElectronicsStore.Customer.Decorator;
 using ElectronicsStore.AbstractFactory;
 using ElectronicsStore.AbstractFactory.Factories;
-using ElectronicsStore.Customer.Services; // Đảm bảo có using này
+using ElectronicsStore.Customer.Services; 
+using ElectronicsStore.Customer.Service;// Đảm bảo có using này
 
 namespace ElectronicsStore.Customer
 {
@@ -23,24 +24,21 @@ namespace ElectronicsStore.Customer
             // --- 2. CẤU HÌNH SERVICES & HTTPCLIENT ---
             builder.Services.AddControllersWithViews();
 
-            builder.Services.AddHttpClient("Default", client =>
-            {
-                client.BaseAddress = new Uri("http://localhost:5145");
-            });
-            // QUAN TRỌNG: Đăng ký ProductApiService VÀ xử lý SSL cùng lúc tại đây
-            builder.Services.AddHttpClient<ProductApiService>(client => 
-            {
-                client.BaseAddress = new Uri("http://localhost:5145");
-            })
-            .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
-            {
-                // 1. Chấp nhận mọi chứng chỉ (nếu lỡ bị nhảy sang https)
-                ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true,
-                
-                // 2. CẤM TỰ ĐỘNG CHUYỂN HƯỚNG (Ngăn việc bị bắt sang https)
-                AllowAutoRedirect = false 
-            });
-
+           // Đăng ký Service với cấu hình chuẩn
+// Đăng ký Service theo cách tường minh nhất
+builder.Services.AddHttpClient<IProductApiService, ProductApiService>()
+    .ConfigureHttpClient(client => 
+    {
+        client.BaseAddress = new Uri("http://localhost:5145/api/");
+    })
+    .ConfigurePrimaryHttpMessageHandler(() => 
+    {
+        return new HttpClientHandler
+        {
+            ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true,
+            AllowAutoRedirect = false 
+        };
+    });
             // --- 3. CẤU HÌNH ĐĂNG NHẬP ---
             builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options =>
