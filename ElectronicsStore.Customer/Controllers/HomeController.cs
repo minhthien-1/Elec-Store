@@ -1,37 +1,42 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using ElectronicsStore.Customer.Models; // BẮT BUỘC: Dùng Model của dự án Customer
-using System.Net.Http.Json;
+using ElectronicsStore.Customer.Models;
+using ElectronicsStore.Customer.Services; // Đảm bảo đúng Namespace của Service bạn đã viết
 
 namespace ElectronicsStore.Customer.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly HttpClient _httpClient;
+        // Sử dụng Service thay vì dùng HttpClient trực tiếp để code sạch hơn
+        private readonly IProductApiService _productApiService;
 
-        public HomeController(IHttpClientFactory httpClientFactory)
+        public HomeController(IProductApiService productApiService)
         {
-            _httpClient = httpClientFactory.CreateClient();
-            // Đã sửa lại đường dẫn cho khớp 100% với ProductController (thêm https và /api/)
-            _httpClient.BaseAddress = new Uri("http://localhost:5145/api/"); 
+            _productApiService = productApiService;
         }
 
         public async Task<IActionResult> Index()
         {
             try
             {
-                // ĐÃ SỬA: Ép kiểu dữ liệu API trả về thành List<ProductViewModel>
-                var products = await _httpClient.GetFromJsonAsync<List<ProductViewModel>>("products");
+                // 1. Lấy danh sách sản phẩm từ Service
+                var products = await _productApiService.GetAllProductsAsync();
+
+                // 2. Lấy danh mục để hiển thị Sidebar (Sửa lỗi Sidebar trắng)
+                ViewBag.Categories = await _productApiService.GetCategoriesAsync();
 
                 if (products == null || !products.Any())
                 {
-                    return Content("Kết nối API thành công nhưng không có dữ liệu!");
+                    // Nếu không có sản phẩm, vẫn trả về View với danh sách trống thay vì dùng Content
+                    return View(new List<ProductViewModel>());
                 }
 
                 return View(products);
             }
             catch (Exception ex)
             {
-                return Content("Lỗi khi gọi API: " + ex.Message);
+                // Log lỗi ra console để debug cho dễ
+                Console.WriteLine($"Lỗi API: {ex.Message}");
+                return View(new List<ProductViewModel>());
             }
         }
     }

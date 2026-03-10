@@ -1,35 +1,41 @@
-﻿using ElectronicsStore.Customer.Models.ViewModels;
+﻿using ElectronicsStore.Customer.Models; // Sử dụng Model của Customer
+using System.Net.Http.Json;
 
 namespace ElectronicsStore.Customer.Services
 {
-    public class ProductApiService
+    public class ProductApiService : IProductApiService 
     {
         private readonly HttpClient _httpClient;
 
         public ProductApiService(HttpClient httpClient)
         {
             _httpClient = httpClient;
-            // Địa chỉ API của bạn (Ví dụ: https://localhost:7000)
-            // Nhớ kiểm tra port của project API trong launchSettings.json
-            _httpClient.BaseAddress = new Uri("http://localhost:5145");
         }
 
-        public async Task<ProductDetailViewModel?> GetProductByIdAsync(int id)
+        public async Task<List<ProductViewModel>> GetAllProductsAsync()
         {
-            try
-            {
-                // Gọi vào endpoint GET: /api/product/{id}
-                var response = await _httpClient.GetAsync($"/api/products/{id}");
-
-                if (response.IsSuccessStatusCode)
-                {
-                    return await response.Content.ReadFromJsonAsync<ProductDetailViewModel>();
-                }
-                return null;
+            try {
+                // Không cần ghi full localhost vì đã cấu hình BaseAddress ở Program.cs rồi
+                return await _httpClient.GetFromJsonAsync<List<ProductViewModel>>("products") ?? new List<ProductViewModel>();
+            } catch {
+                return new List<ProductViewModel>();
             }
-            catch
-            {
-                
+        }
+
+        public async Task<List<CategoryViewModel>> GetCategoriesAsync()
+        {
+            try {
+                return await _httpClient.GetFromJsonAsync<List<CategoryViewModel>>("categories") ?? new List<CategoryViewModel>();
+            } catch {
+                return new List<CategoryViewModel>();
+            }
+        }
+
+        public async Task<ProductViewModel> GetProductByIdAsync(int id)
+        {
+            try {
+                return await _httpClient.GetFromJsonAsync<ProductViewModel>($"products/{id}");
+            } catch {
                 return null;
             }
         }
