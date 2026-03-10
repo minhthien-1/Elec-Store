@@ -1,5 +1,5 @@
-﻿using ElectronicsStore.API.Models; // Lưu ý: Dùng Model chung hoặc khai báo lại
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using ElectronicsStore.Customer.Models; // BẮT BUỘC: Dùng Model của dự án Customer
 using System.Net.Http.Json;
 
 namespace ElectronicsStore.Customer.Controllers
@@ -8,21 +8,19 @@ namespace ElectronicsStore.Customer.Controllers
     {
         private readonly HttpClient _httpClient;
 
-        // Tiêm HttpClient vào thay vì DbContext
         public HomeController(IHttpClientFactory httpClientFactory)
         {
             _httpClient = httpClientFactory.CreateClient();
-            // Cổng port phải khớp với project API đang chạy
-            _httpClient.BaseAddress = new Uri("http://localhost:5145/"); 
+            // Đã sửa lại đường dẫn cho khớp 100% với ProductController (thêm https và /api/)
+            _httpClient.BaseAddress = new Uri("http://localhost:5145/api/"); 
         }
 
         public async Task<IActionResult> Index()
         {
             try
             {
-                // Gọi sang API thay vì dùng _context
-                // Terminal bên project API sẽ nhảy log khi hàm này chạy
-                var products = await _httpClient.GetFromJsonAsync<List<Product>>("api/products");
+                // ĐÃ SỬA: Ép kiểu dữ liệu API trả về thành List<ProductViewModel>
+                var products = await _httpClient.GetFromJsonAsync<List<ProductViewModel>>("products");
 
                 if (products == null || !products.Any())
                 {

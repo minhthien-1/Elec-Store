@@ -1,68 +1,24 @@
-﻿@using ElectronicsStore.API.Models.Entities
-@model IEnumerable<SanPham>
+﻿@using ElectronicsStore.Customer.Models
+@model IEnumerable<ProductViewModel>
 
 @{
     ViewData["Title"] = ViewBag.FilterTitle ?? "Tất cả sản phẩm";
     Layout = "~/Views/Shared/_Layout.cshtml";
 
-    var categories = ViewBag.Categories as List<DanhMucSanPham>;
-    var categoryBrands = ViewBag.CategoryBrands as Dictionary<int, List<NhaSanXuat>>;
+    // Vì API hiện tại chưa trả về Categories/Brands, ta tạm thời để trống 
+    // để tránh lỗi null. Sau này ta sẽ bổ sung API lấy danh mục sau.
+    var categories = ViewBag.Categories as List<dynamic>; 
 }
 
 <style>
-    /* CSS Riêng cho trang danh sách */
-    .filter-sidebar {
-        background: #fff;
-        border-radius: 12px;
-        border: 1px solid #eee;
-        padding: 20px;
-    }
-
-    .filter-group-title {
-        font-weight: 700;
-        margin-bottom: 10px;
-        display: block;
-        color: #333;
-        font-size: 0.95rem;
-    }
-
-    .filter-link {
-        display: block;
-        color: #555;
-        text-decoration: none;
-        padding: 5px 0;
-        font-size: 0.9rem;
-        transition: 0.2s;
-    }
-
-    .filter-link:hover {
-        color: #D32F2F;
-        transform: translateX(5px);
-    }
-
-    .product-card {
-        border: 1px solid #eee;
-        border-radius: 12px;
-        padding: 15px;
-        background: #fff;
-        transition: 0.3s;
-        height: 100%;
-        position: relative;
-    }
-
-    .product-card:hover {
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        border-color: #D32F2F;
-        transform: translateY(-3px);
-    }
-
-    .sort-select {
-        border: 1px solid #ddd;
-        border-radius: 20px;
-        padding: 5px 15px;
-        font-size: 0.9rem;
-        outline: none;
-    }
+    /* ... Giữ nguyên toàn bộ phần CSS của bạn ... */
+    .filter-sidebar { background: #fff; border-radius: 12px; border: 1px solid #eee; padding: 20px; }
+    .filter-group-title { font-weight: 700; margin-bottom: 10px; display: block; color: #333; font-size: 0.95rem; }
+    .filter-link { display: block; color: #555; text-decoration: none; padding: 5px 0; font-size: 0.9rem; transition: 0.2s; }
+    .filter-link:hover { color: #D32F2F; transform: translateX(5px); }
+    .product-card { border: 1px solid #eee; border-radius: 12px; padding: 15px; background: #fff; transition: 0.3s; height: 100%; position: relative; }
+    .product-card:hover { box-shadow: 0 5px 15px rgba(0,0,0,0.1); border-color: #D32F2F; transform: translateY(-3px); }
+    .sort-select { border: 1px solid #ddd; border-radius: 20px; padding: 5px 15px; font-size: 0.9rem; outline: none; }
 </style>
 
 <div class="container py-4">
@@ -76,57 +32,13 @@
     <div class="row">
         <div class="col-lg-3 mb-4">
             <div class="filter-sidebar shadow-sm">
-                
                 <div class="mb-4">
-                    <span class="filter-group-title text-uppercase border-bottom pb-2 mb-3">Danh mục sản phẩm</span>
-                    @if (categories != null)
-                    {
-                        @foreach (var cat in categories)
-                        {
-                            <a href="/Product?categoryId=@cat.MaDanhMuc" class="filter-link">
-                                <i class="bi bi-chevron-right small text-muted me-1"></i> @cat.TenDanhMuc
-                            </a>
-                        }
-                    }
-                </div>
-
-                <div class="mb-4">
-                    <span class="filter-group-title text-uppercase border-bottom pb-2 mb-3">Thương hiệu</span>
-                    @{
-                        // Lấy tất cả thương hiệu unique từ ViewBag
-                        var allBrands = new List<NhaSanXuat>();
-                        if(categoryBrands != null) {
-                            foreach(var list in categoryBrands.Values) {
-                                allBrands.AddRange(list);
-                            }
-                            allBrands = allBrands.DistinctBy(b => b.MaNhaSX).ToList();
-                        }
-                    }
-
-                    @if (allBrands.Any())
-                    {
-                        @foreach (var brand in allBrands.Take(10)) // Lấy 10 hãng tiêu biểu
-                        {
-                            // Giữ lại categoryId nếu đang ở trang danh mục
-                            var currentCatId = Context.Request.Query["categoryId"];
-                            <a href="/Product?categoryId=@currentCatId&brandId=@brand.MaNhaSX" class="filter-link">
-                                <i class="bi bi-tag me-2 text-muted"></i> @brand.TenNhaSX
-                            </a>
-                        }
-                    }
-                </div>
-
-                <div class="mb-4">
-                    <span class="filter-group-title text-uppercase border-bottom pb-2 mb-3">Mức giá</span>
-                    @{ var catId = Context.Request.Query["categoryId"]; }
-                    <a href="/Product?categoryId=@catId&maxPrice=10000000" class="filter-link">Dưới 10 triệu</a>
-                    <a href="/Product?categoryId=@catId&minPrice=10000000&maxPrice=20000000" class="filter-link">Từ 10 - 20 triệu</a>
-                    <a href="/Product?categoryId=@catId&minPrice=20000000&maxPrice=30000000" class="filter-link">Từ 20 - 30 triệu</a>
-                    <a href="/Product?categoryId=@catId&minPrice=30000000" class="filter-link">Trên 30 triệu</a>
+                    <span class="filter-group-title text-uppercase border-bottom pb-2 mb-3">Thông báo</span>
+                    <p class="small text-muted">Hệ thống đang chuyển sang API. Một số bộ lọc sẽ sớm hoạt động trở lại.</p>
                 </div>
 
                 <a href="/Product" class="btn btn-outline-danger w-100 rounded-pill btn-sm">
-                    <i class="bi bi-arrow-counterclockwise"></i> Xóa bộ lọc
+                    <i class="bi bi-arrow-counterclockwise"></i> Tải lại danh sách
                 </a>
             </div>
         </div>
@@ -134,15 +46,6 @@
         <div class="col-lg-9">
             <div class="d-flex justify-content-between align-items-center mb-4 bg-white p-3 rounded shadow-sm border">
                 <h5 class="fw-bold mb-0 text-danger">@ViewBag.FilterTitle <span class="text-muted small fw-normal">(@Model.Count() sản phẩm)</span></h5>
-                
-                <div class="d-flex align-items-center">
-                    <span class="me-2 small text-muted">Sắp xếp:</span>
-                    <select class="sort-select" onchange="location = this.value;">
-                        <option value="@GetSortLink("")">Mới nhất</option>
-                        <option value="@GetSortLink("price_asc")">Giá tăng dần</option>
-                        <option value="@GetSortLink("price_desc")">Giá giảm dần</option>
-                    </select>
-                </div>
             </div>
 
             @if (Model != null && Model.Any())
@@ -151,36 +54,31 @@
                     @foreach (var item in Model)
                     {
                         <div class="col-md-4 col-6">
-                            <a href="/Product/Details/@item.MaSP" class="text-decoration-none text-dark">
+                            @* Sử dụng maSP thay vì MaSP *@
+                            <a href="/Product/Details/@item.maSP" class="text-decoration-none text-dark">
                                 <div class="product-card h-100 d-flex flex-column">
                                     <div class="text-center mb-3">
-                                        <img src="@item.HinhAnh" class="img-fluid" style="height: 180px; object-fit: contain;" onerror="this.src='https://via.placeholder.com/180'">
+                                        @* Sử dụng hinhAnh thay vì HinhAnh *@
+                                        <img src="@item.hinhAnh" class="img-fluid" style="height: 180px; object-fit: contain;" onerror="this.src='https://via.placeholder.com/180'">
                                     </div>
                                     <div class="flex-grow-1 d-flex flex-column">
-                                        <h6 class="fw-bold text-truncate mb-1" title="@item.TenSP">@item.TenSP</h6>
+                                        @* Sử dụng tenSP thay vì TenSP *@
+                                        <h6 class="fw-bold text-truncate mb-1" title="@item.tenSP">@item.tenSP</h6>
                                         
                                         <div class="mb-2 small">
                                             <span class="text-warning">
-                                                @for (int i = 1; i <= 5; i++)
-                                                {
-                                                    <i class="bi @(i <= Math.Round(item.DanhGiaXepHang) ? "bi-star-fill" : "bi-star")"></i>
-                                                }
+                                                <i class="bi bi-star-fill"></i>
+                                                <i class="bi bi-star-fill"></i>
+                                                <i class="bi bi-star-fill"></i>
+                                                <i class="bi bi-star-fill"></i>
+                                                <i class="bi bi-star-half"></i>
                                             </span>
-                                            <span class="text-muted">(@item.SoLuotDanhGia)</span>
+                                            <span class="text-muted">(API)</span>
                                         </div>
 
                                         <div class="mt-auto">
-                                            @if (item.GiaGiamGia.HasValue && item.GiaGiamGia > 0)
-                                            {
-                                                <div class="d-flex align-items-center gap-2">
-                                                    <span class="fw-bold text-danger fs-5">@item.GiaGiamGia.Value.ToString("N0")₫</span>
-                                                    <del class="text-muted small">@item.GiaBan.ToString("N0")₫</del>
-                                                </div>
-                                            }
-                                            else
-                                            {
-                                                <span class="fw-bold text-danger fs-5">@item.GiaBan.ToString("N0")₫</span>
-                                            }
+                                            @* Sử dụng giaBan thay vì GiaBan *@
+                                            <span class="fw-bold text-danger fs-5">@item.giaBan.ToString("N0")₫</span>
                                         </div>
                                     </div>
                                 </div>
@@ -192,35 +90,10 @@
             else
             {
                 <div class="text-center py-5 bg-white rounded border">
-                    <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" width="100" class="opacity-50 mb-3" />
-                    <h5 class="text-muted">Không tìm thấy sản phẩm nào!</h5>
-                    <p class="text-muted small">Thử thay đổi bộ lọc hoặc tìm kiếm từ khóa khác.</p>
-                    <a href="/Product" class="btn btn-danger rounded-pill px-4 mt-2">Xem tất cả sản phẩm</a>
+                    <h5 class="text-muted">Không tìm thấy sản phẩm nào từ API!</h5>
+                    <a href="/Product" class="btn btn-danger rounded-pill px-4 mt-2">Thử lại</a>
                 </div>
             }
         </div>
     </div>
 </div>
-
-@functions {
-    // Helper để giữ lại các tham số lọc cũ khi đổi Sort
-    string GetSortLink(string sortOrder)
-    {
-        var request = Context.Request;
-        var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(request.QueryString.Value);
-        
-        // Xóa param sortOrder cũ nếu có
-        var items = query.SelectMany(x => x.Value, (col, value) => new KeyValuePair<string, string>(col.Key, value)).ToList();
-        items.RemoveAll(x => x.Key == "sortOrder");
-
-        // Build lại query string
-        var qBuilder = new System.Text.StringBuilder("?");
-        foreach (var item in items)
-        {
-            qBuilder.Append($"{item.Key}={item.Value}&");
-        }
-        qBuilder.Append($"sortOrder={sortOrder}");
-        
-        return request.Path + qBuilder.ToString();
-    }
-}

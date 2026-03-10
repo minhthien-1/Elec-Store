@@ -11,7 +11,7 @@ namespace ElectronicsStore.Customer.Services
             _httpClient = httpClient;
             // Địa chỉ API của bạn (Ví dụ: https://localhost:7000)
             // Nhớ kiểm tra port của project API trong launchSettings.json
-            _httpClient.BaseAddress = new Uri("https://localhost:7000");
+            _httpClient.BaseAddress = new Uri("http://localhost:5145");
         }
 
         public async Task<ProductDetailViewModel?> GetProductByIdAsync(int id)
@@ -19,7 +19,7 @@ namespace ElectronicsStore.Customer.Services
             try
             {
                 // Gọi vào endpoint GET: /api/product/{id}
-                var response = await _httpClient.GetAsync($"/api/product/{id}");
+                var response = await _httpClient.GetAsync($"/api/products/{id}");
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -29,6 +29,7 @@ namespace ElectronicsStore.Customer.Services
             }
             catch
             {
+                
                 return null;
             }
         }
