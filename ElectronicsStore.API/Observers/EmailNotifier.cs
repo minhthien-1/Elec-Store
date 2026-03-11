@@ -1,11 +1,15 @@
 ﻿using ElectronicsStore.API.Models.Entities;
-using ElectronicsStore.API.Observers;
 
-public class EmailNotifier : IOrderObserver
+namespace ElectronicsStore.API.Observers
 {
-    public Task OnOrderCreated(DonHang order)
+    public class EmailNotifier : IOrderObserver
     {
-        Console.WriteLine($"Send email for order {order.MaDH}");
-        return Task.CompletedTask;
+        public Task OnOrderCreated(DonHang order)
+        {
+            Console.WriteLine("[Observer] EmailNotifier triggered");
+            Console.WriteLine($"Sending email for order {order.MaDH}");
+
+            return Task.CompletedTask;
+        }
     }
 }

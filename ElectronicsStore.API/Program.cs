@@ -17,10 +17,10 @@ namespace ElectronicsStore.API
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container
-            builder.Services.AddSingleton<OrderSubject>();
             builder.Services.AddScoped<IOrderObserver, EmailNotifier>();
             builder.Services.AddScoped<IOrderObserver, InventoryService>();
             builder.Services.AddControllers();
+            builder.Services.AddScoped<OrderSubject>();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(options =>
             {
