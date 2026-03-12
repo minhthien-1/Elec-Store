@@ -1,5 +1,7 @@
 using Supabase.Postgrest.Attributes;
 using Supabase.Postgrest.Models;
+using ElectronicsStore.API.Models.Entities;
+using ElectronicsStore.API.Models;
 
 // 1. Phải có attribute Table và viết ĐÚNG CHỮ HOA THƯỜNG như trong SQL
 [Table("SanPham")]
@@ -44,4 +46,8 @@ public class Product : BaseModel
 
     [Column("SoLuotXem")]
     public int SoLuotXem { get; set; }
+    
+    // Thuộc tính này sẽ tự động Join bảng nhờ Supabase
+    [Reference(typeof(NhaSanXuatModel))] 
+    public NhaSanXuatModel? NhaSanXuat { get; set; }
 }

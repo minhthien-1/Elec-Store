@@ -4,9 +4,8 @@
     ViewData["Title"] = "Trang chủ | Electronics Store";
     
     // Lấy dữ liệu từ ViewBag với ép kiểu dynamic để linh hoạt
-    var categories = ViewBag.Categories as List<dynamic>;
-    var categoryBrands = ViewBag.CategoryBrands as Dictionary<int, List<dynamic>>;
-
+   var categories = ViewBag.Categories as List<CategoryViewModel>;
+var categoryBrands = ViewBag.CategoryBrands as Dictionary<int, List<BrandViewModel>>;
     // Helper: Ánh xạ Icon thông minh hơn
     string GetCategoryIcon(string name)
     {
@@ -207,6 +206,8 @@
     .card-link { text-decoration: none !important; color: inherit !important; }
 </style>
 
+
+
 <section class="mt-4">
     <div class="container">
         <div class="row g-3">
@@ -217,8 +218,8 @@
                         @foreach (var cat in categories)
                         {
                             <div class="group-hover-trigger">
-                                <a asp-controller="Product" asp-action="Index" asp-route-categoryId="@cat.MaDanhMuc" class="category-item">
-                                    <span><i class="bi @GetCategoryIcon(cat.TenDanhMuc) me-3 fs-5"></i> @cat.TenDanhMuc</span>
+                                <a asp-controller="Product" asp-action="Index" asp-route-categoryId="@cat.maDanhMuc" class="category-item">
+                                    <span><i class="bi @GetCategoryIcon(cat.tenDanhMuc) me-3 fs-5"></i> @cat.tenDanhMuc</span>
                                     <i class="bi bi-chevron-right small opacity-50"></i>
                                 </a>
 
@@ -227,13 +228,13 @@
                                         <div class="col-7">
                                             <span class="mega-heading">Thương hiệu phổ biến</span>
                                             <div class="row">
-                                                @if (categoryBrands != null && categoryBrands.ContainsKey(cat.MaDanhMuc))
+                                                @if (categoryBrands != null && categoryBrands.ContainsKey(cat.maDanhMuc))
                                                 {
-                                                    @foreach (var brand in categoryBrands[cat.MaDanhMuc])
+                                                    @foreach (var brand in categoryBrands[cat.maDanhMuc])
                                                     {
                                                         <div class="col-6">
-                                                            <a asp-controller="Product" asp-action="Index" asp-route-categoryId="@cat.MaDanhMuc" asp-route-brandId="@brand.MaNhaSX" class="brand-link">
-                                                                @brand.TenNhaSX
+                                                            <a asp-controller="Product" asp-action="Index" asp-route-categoryId="@cat.maDanhMuc" asp-route-brandId="@brand.maNhaSX" class="brand-link">
+                                                                @brand.tenNhaSX
                                                             </a>
                                                         </div>
                                                     }

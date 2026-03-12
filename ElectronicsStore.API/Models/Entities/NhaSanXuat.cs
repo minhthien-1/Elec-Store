@@ -1,6 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace ElectronicsStore.API.Models.Entities
 {
+    [Table("NhaSanXuat")] // Đây là Table của EF Core
     public class NhaSanXuat
     {
         [Key]
@@ -24,7 +27,6 @@ namespace ElectronicsStore.API.Models.Entities
         public DateTime ThemTrongDB { get; set; } = DateTime.Now;
         public DateTime? SuaDoi { get; set; }
 
-        // Navigation
         public virtual ICollection<SanPham> SanPhams { get; set; } = new List<SanPham>();
     }
 }

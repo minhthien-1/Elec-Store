@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using ElectronicsStore.Customer.Models; // Dùng Model bạn mới tạo
+using ElectronicsStore.Customer.Models; 
 using System.Net.Http.Json;
 
 namespace ElectronicsStore.Customer.Controllers
@@ -11,49 +11,74 @@ namespace ElectronicsStore.Customer.Controllers
         public ProductController()
         {
             _httpClient = new HttpClient();
-            // CHÚ Ý: Đổi số 7001 thành Port API của bạn
             _httpClient.BaseAddress = new Uri("http://localhost:5145/api/"); 
         }
 
-        // 1. ACTION INDEX: Lấy danh sách từ API
-        public async Task<IActionResult> Index(int? categoryId, int? brandId, decimal? minPrice, decimal? maxPrice, string sortOrder)
+    public async Task<IActionResult> Index(int? categoryId, int? brandId, decimal? minPrice, decimal? maxPrice, string sortOrder)
+{
+    try
+    {
+        // A. LẤY DANH MỤC
+        var categories = new List<CategoryViewModel>();
+        try 
         {
-            try
+            var catResponse = await _httpClient.GetFromJsonAsync<CategoryApiResponse>("category");
+            if (catResponse != null && catResponse.data != null)
             {
-                // Gọi API lấy sản phẩm (Hiện tại API của bạn mới chỉ có GetAll cơ bản)
-                // Sau này bạn có thể truyền thêm query string: products?categoryId=1...
-                var products = await _httpClient.GetFromJsonAsync<List<ProductViewModel>>("products");
+                categories = catResponse.data;
+            }
+        } 
+        catch (Exception ex) 
+        { 
+            // GẮN LỖI VÀO VIEWBAG ĐỂ ĐẨY RA GIAO DIỆN
+            ViewBag.ErrorCategory = "Lỗi API Danh mục: " + ex.Message; 
+        }
+        ViewBag.Categories = categories;
 
-                // Giữ lại logic hiển thị tiêu đề cho View
-                ViewBag.FilterTitle = "Tất cả sản phẩm"; 
-                
-                return View(products);
-            }
-            catch
-            {
-                return View(new List<ProductViewModel>());
-            }
+        // B. LẤY SẢN PHẨM
+        var products = new List<ProductViewModel>();
+        try 
+        {
+            products = await _httpClient.GetFromJsonAsync<List<ProductViewModel>>("products") ?? new List<ProductViewModel>();
+        }
+        catch (Exception ex)
+        {
+            ViewBag.ErrorProduct = "Lỗi API Sản phẩm: " + ex.Message;
         }
 
-        // 2. ACTION DETAILS: Lấy chi tiết từ API
+        // C. TẠO MEGA MENU
+        var categoryBrands = products
+            .Where(p => p.nhaSanXuat != null)
+            .GroupBy(p => p.maDanhMuc)
+            .ToDictionary(
+                g => g.Key, 
+                g => g.Select(p => p.nhaSanXuat!).DistinctBy(b => b.maNhaSX).ToList()
+            );
+        
+        ViewBag.CategoryBrands = categoryBrands;
+        ViewBag.FilterTitle = "Tất cả sản phẩm"; 
+        
+        return View(products);
+    }
+    catch (Exception ex)
+    {
+        ViewBag.ErrorGeneral = "Lỗi hệ thống: " + ex.Message;
+        return View(new List<ProductViewModel>());
+    }
+}
         public async Task<IActionResult> Details(int id)
         {
             try
             {
-                // Kiểm tra xem port 5145 có đúng là port API đang chạy không
                 var product = await _httpClient.GetFromJsonAsync<ProductViewModel>($"products/{id}");
-                
                 if (product == null) return NotFound();
-
                 return View(product);
             }
             catch (Exception ex)
             {
-                // In lỗi ra Console để Thien dễ debug nếu nó nhảy vào đây
-                Console.WriteLine("Lỗi gọi API: " + ex.Message);
+                Console.WriteLine("Lỗi gọi API Details: " + ex.Message);
                 return RedirectToAction("Index");
             }
-            
         }
     }
 }

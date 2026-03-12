@@ -8,19 +8,25 @@ namespace ElectronicsStore.API.Data.Repositories
     {
         public ProductRepository(Client client) : base(client) { }
 
-        // Bạn không cần viết lại GetAllAsync, AddAsync, UpdateAsync 
-        // vì BaseRepository đã có virtual/abstract thực hiện rồi. 
-        // Trừ khi bạn muốn thay đổi logic đặc biệt cho Product.
+        public override async Task<IEnumerable<Product>> GetAllAsync()
+        {
+            // Đã xóa .Select() vì [Reference] trong Model đã tự động lấy data hãng rồi
+            var response = await _client
+                .From<Product>()
+                .Get();
+            
+            return response.Models ?? new List<Product>();
+        }
 
         public override async Task<Product?> GetByIdAsync(int id)
         {
-            // SỬA TẠI ĐÂY: .Single() trả về trực tiếp đối tượng Product hoặc null
+            // Đã xóa .Select() ở đây luôn
             var response = await _client
                 .From<Product>()
                 .Where(x => x.MaSP == id)
                 .Single();
             
-            return response; // Không dùng .Model ở đây nữa
+            return response;
         }
 
         public override async Task DeleteAsync(int id)
