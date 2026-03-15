@@ -22,8 +22,12 @@ namespace ElectronicsStore.API.Commands
 
         public async Task ExecuteAsync()
         {
+            Console.WriteLine("COMMAND PATTERN RUNNING");
+
             _context.DonHangs.Add(_donHang);
             await _context.SaveChangesAsync();
+
+            Console.WriteLine($"Order {_donHang.MaDH} created");
 
             await _subject.NotifyOrderCreated(_donHang);
         }

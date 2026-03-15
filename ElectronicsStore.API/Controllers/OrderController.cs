@@ -152,6 +152,7 @@ namespace ElectronicsStore.API.Controllers
         [HttpPost("create")]
         public async Task<ActionResult<object>> CreateOrder([FromBody] CreateOrderRequest request)
         {
+
             try
             {
                 var user = await _context.NguoiDungs.FindAsync(request.MaND);
@@ -184,7 +185,7 @@ namespace ElectronicsStore.API.Controllers
                         GiaTaiThoiDiem = sanPham.GiaBan,
                         GiamGiaCungChiTiet = item.GiamGia ?? 0,
                         ThanhTien = thanhTien,
-                        NgayThem = DateTime.Now
+                        NgayThem = DateTime.UtcNow
                     };
                     chiTietList.Add(chiTiet);
                 }
@@ -196,7 +197,7 @@ namespace ElectronicsStore.API.Controllers
                     var promo = await _context.MaKhuyenMais
                         .FirstOrDefaultAsync(p => p.MaCode.ToLower() == request.MaKhuyenMai.ToLower());
 
-                    if (promo != null && promo.TrangThai && promo.NgayBatDau <= DateTime.Now && promo.NgayKetThuc >= DateTime.Now)
+                    if (promo != null && promo.TrangThai && promo.NgayBatDau <= DateTime.UtcNow && promo.NgayKetThuc >= DateTime.UtcNow)
                     {
                         if (promo.KieuGiam == "PhanTram")
                             tienGiamGia = (tongGia * promo.GiaTriGiam.GetValueOrDefault()) / 100;
@@ -211,12 +212,12 @@ namespace ElectronicsStore.API.Controllers
                     }
                 }
 
-                var maDonHang = $"DH-{DateTime.Now:yyyyMMddHHmmss}";
+                var maDonHang = $"DH-{DateTime.UtcNow:yyyyMMddHHmmss}";
                 var donHang = new DonHang
                 {
                     MaDonHangGoc = maDonHang,
                     MaND = request.MaND,
-                    NgayTaoDon = DateTime.Now,
+                    NgayTaoDon = DateTime.UtcNow,
                     TongGiaTruocGiam = tongGia,
                     PhiVanChuyen = request.PhiVanChuyen ?? 0,
                     TienGiamGia = tienGiamGia,
@@ -227,7 +228,7 @@ namespace ElectronicsStore.API.Controllers
                     ThanhPhoPhuong = request.ThanhPhoPhuong,
                     SodTLienHe = request.SoDTLienHe,
                     GhiChu = request.GhiChu,
-                    NgayCapNhat = DateTime.Now
+                    NgayCapNhat = DateTime.UtcNow
                 };
 
                 donHang.ChiTietDonHangs = chiTietList;
@@ -238,10 +239,13 @@ namespace ElectronicsStore.API.Controllers
                     TrangThaiCu = null,
                     TrangThaiMoi = "Chờ xác nhận",
                     LyDo = "Đơn hàng vừa được tạo",
-                    NgayCapNhat = DateTime.Now
+                    NgayCapNhat = DateTime.UtcNow
                 };
 
                 donHang.LichSuDonHangs = new List<LichSuDonHang> { lichSu };
+
+                Console.WriteLine("===== ORDER CONTROLLER =====");
+                Console.WriteLine($"Creating order for user {request.MaND}");
 
                 var command = new CreateOrderCommand(_context, donHang, _subject);
 
@@ -277,7 +281,7 @@ namespace ElectronicsStore.API.Controllers
 
                 var trangThaiCu = donHang.TrangThaiDon;
                 donHang.TrangThaiDon = "Đã xác nhận";
-                donHang.NgayCapNhat = DateTime.Now;
+                donHang.NgayCapNhat = DateTime.UtcNow;
 
                 var lichSu = new LichSuDonHang
                 {
@@ -285,7 +289,7 @@ namespace ElectronicsStore.API.Controllers
                     TrangThaiCu = trangThaiCu,
                     TrangThaiMoi = "Đã xác nhận",
                     LyDo = "Admin đã xác nhận đơn hàng",
-                    NgayCapNhat = DateTime.Now
+                    NgayCapNhat = DateTime.UtcNow
                 };
 
                 _context.DonHangs.Update(donHang);
@@ -312,7 +316,7 @@ namespace ElectronicsStore.API.Controllers
 
                 donHang.TrangThaiThanhToan = "Đã thanh toán";
                 donHang.PhuongThucThanhToan = request.PhuongThucThanhToan;
-                donHang.NgayCapNhat = DateTime.Now;
+                donHang.NgayCapNhat = DateTime.UtcNow;
 
                 var lichSuTT = new LichSuThanhToan
                 {
@@ -321,7 +325,7 @@ namespace ElectronicsStore.API.Controllers
                     SoTienThanhToan = donHang.TongGiaSauGiam,
                     PhuongThuc = request.PhuongThucThanhToan,
                     TrangThaiGD = "Thành công",
-                    NgayThanhToan = DateTime.Now
+                    NgayThanhToan = DateTime.UtcNow
                 };
 
                 _context.DonHangs.Update(donHang);
@@ -351,7 +355,7 @@ namespace ElectronicsStore.API.Controllers
 
                 var trangThaiCu = donHang.TrangThaiDon;
                 donHang.TrangThaiDon = "Đã hủy";
-                donHang.NgayCapNhat = DateTime.Now;
+                donHang.NgayCapNhat = DateTime.UtcNow;
 
                 var lichSu = new LichSuDonHang
                 {
@@ -359,7 +363,7 @@ namespace ElectronicsStore.API.Controllers
                     TrangThaiCu = trangThaiCu,
                     TrangThaiMoi = "Đã hủy",
                     LyDo = request.LyDoHuy,
-                    NgayCapNhat = DateTime.Now
+                    NgayCapNhat = DateTime.UtcNow
                 };
 
                 _context.DonHangs.Update(donHang);

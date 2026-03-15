@@ -13,10 +13,14 @@ namespace ElectronicsStore.API.Observers
 
         public async Task NotifyOrderCreated(DonHang order)
         {
+            Console.WriteLine("SUBJECT: Notifying observers...");
+
             foreach (var observer in _observers)
             {
                 await observer.OnOrderCreated(order);
             }
+
+            Console.WriteLine("SUBJECT: All observers finished");
         }
     }
 }
