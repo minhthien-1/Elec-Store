@@ -1,82 +1,51 @@
-﻿using System.Diagnostics;
-using ElectronicsStore.API.Data;
-using ElectronicsStore.API.Models.Entities;
+﻿using Microsoft.AspNetCore.Mvc;
 using ElectronicsStore.Customer.Models;
-
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore; // Cần thiết để sử dụng .ToListAsync()
+using ElectronicsStore.Customer.Services; 
 
 namespace ElectronicsStore.Customer.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
-        private readonly ElectronicsStoreDbContext _context; // Khai báo DbContext để dùng trong Controller
+        private readonly IProductApiService _productApiService;
 
-        // Tiêm cả Logger và DbContext vào thông qua Constructor
-        public HomeController(ILogger<HomeController> logger, ElectronicsStoreDbContext context)
+        public HomeController(IProductApiService productApiService)
         {
-            _logger = logger;
-            _context = context;
+            _productApiService = productApiService;
         }
 
         public async Task<IActionResult> Index()
         {
-
-
             try
             {
-                // Kiểm tra xem Web có "chạm" vào được DB không
-                bool canConnect = await _context.Database.CanConnectAsync();
-                if (!canConnect)
-                {
-                    return Content("Lỗi: Không thể kết nối tới server Supabase. Hãy kiểm tra Port 6543 hoặc Mật khẩu.");
-                }
+                // 1. Lấy danh sách sản phẩm từ Service
+                var products = await _productApiService.GetAllProductsAsync() ?? new List<ProductViewModel>();
 
-                var products = await _context.SanPhams.ToListAsync();
-                // Lấy danh sách danh mục để làm menu bên trái
-                var categories = await _context.DanhMucSanPhams
-                                   .Where(c => c.TrangThai == true)
-                                   .ToListAsync();
+                // 2. Lấy danh mục để hiển thị Sidebar 
+                var categories = await _productApiService.GetCategoriesAsync();
                 ViewBag.Categories = categories;
-                var categoryBrands = await _context.SanPhams
-        .Include(p => p.NhaSanXuat)
-        .Where(p => p.MaNhaSX != null)
-        .GroupBy(p => p.MaDanhMuc)
-        .Select(g => new {
-            MaDanhMuc = g.Key,
-            Brands = g.Select(p => p.NhaSanXuat).Distinct().ToList()
-        })
-        .ToDictionaryAsync(x => x.MaDanhMuc, x => x.Brands);
 
+                // 3. BỔ SUNG LOGIC MEGA MENU (Gom nhóm thương hiệu theo danh mục)
+                var categoryBrands = products
+                    .Where(p => p.nhaSanXuat != null) // Nhớ đảm bảo ProductViewModel của bạn có thuộc tính nhaSanXuat nhé
+                    .GroupBy(p => p.maDanhMuc)
+                    .ToDictionary(
+                        g => g.Key, 
+                        g => g.Select(p => p.nhaSanXuat!).DistinctBy(b => b.maNhaSX).ToList()
+                    );
+                
+                // Đẩy ra View để vòng lặp categoryBrands không bị rỗng
                 ViewBag.CategoryBrands = categoryBrands;
-
-                // Nếu DB có dữ liệu nhưng products rỗng, báo lỗi dữ liệu
-                if (products == null || !products.Any())
-                {
-                    return Content("Kết nối thành công nhưng bảng SanPham không có dữ liệu!");
-                }
 
                 return View(products);
             }
             catch (Exception ex)
             {
-                // Hiện lỗi thật sự lên trình duyệt để soi
-                return Content("Lỗi kết nối cụ thể: " + ex.Message + " | Inner: " + ex.InnerException?.Message);
+                // Log lỗi ra console để debug
+                Console.WriteLine($"Lỗi API tại HomeController: {ex.Message}");
+                ViewBag.Categories = new List<CategoryViewModel>();
+                ViewBag.CategoryBrands = new Dictionary<int, List<BrandViewModel>>();
+                return View(new List<ProductViewModel>());
             }
-        }
-
-
-
-        public IActionResult Privacy()
-        {
-            return View();
-        }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
     }
 }

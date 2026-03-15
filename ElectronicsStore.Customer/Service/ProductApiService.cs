@@ -1,35 +1,63 @@
-﻿using ElectronicsStore.Customer.Models.ViewModels;
+﻿using ElectronicsStore.Customer.Models; 
+using System.Net.Http.Json;
 
 namespace ElectronicsStore.Customer.Services
 {
-    public class ProductApiService
+    public class ProductApiService : IProductApiService 
     {
         private readonly HttpClient _httpClient;
 
         public ProductApiService(HttpClient httpClient)
         {
             _httpClient = httpClient;
-            // Địa chỉ API của bạn (Ví dụ: https://localhost:7000)
-            // Nhớ kiểm tra port của project API trong launchSettings.json
-            _httpClient.BaseAddress = new Uri("https://localhost:7000");
         }
 
-        public async Task<ProductDetailViewModel?> GetProductByIdAsync(int id)
+        public async Task<List<ProductViewModel>> GetAllProductsAsync()
         {
-            try
+            try 
             {
-                // Gọi vào endpoint GET: /api/product/{id}
-                var response = await _httpClient.GetAsync($"/api/product/{id}");
-
-                if (response.IsSuccessStatusCode)
-                {
-                    return await response.Content.ReadFromJsonAsync<ProductDetailViewModel>();
-                }
-                return null;
+                return await _httpClient.GetFromJsonAsync<List<ProductViewModel>>("products") ?? new List<ProductViewModel>();
+            } 
+            catch (Exception ex)
+            {
+                Console.WriteLine("Lỗi gọi API Products: " + ex.Message);
+                return new List<ProductViewModel>();
             }
-            catch
+        }
+
+        public async Task<List<CategoryViewModel>> GetCategoriesAsync()
+        {
+            try 
             {
-                return null;
+                // 1. Dùng CategoryApiResponse (Cái Hộp) để hứng JSON
+                var response = await _httpClient.GetFromJsonAsync<CategoryApiResponse>("category");
+                
+                // 2. Bóc lấy phần danh sách bên trong chữ 'data'
+                if (response != null && response.data != null) 
+                {
+                    return response.data;
+                }
+                
+                return new List<CategoryViewModel>();
+            } 
+            catch (Exception ex) 
+            {
+                // In ra để biết nếu nó còn lỗi thì nó chửi câu gì
+                Console.WriteLine("Lỗi bóc JSON Category: " + ex.Message);
+                return new List<CategoryViewModel>();
+            }
+        }
+
+        public async Task<ProductViewModel> GetProductByIdAsync(int id)
+        {
+            try 
+            {
+                return await _httpClient.GetFromJsonAsync<ProductViewModel>($"products/{id}");
+            } 
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Lỗi gọi API Product Details ({id}): " + ex.Message);
+                return null!;
             }
         }
     }
