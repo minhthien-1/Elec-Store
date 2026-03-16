@@ -6,6 +6,7 @@ using ElectronicsStore.AbstractFactory;
 using ElectronicsStore.AbstractFactory.Factories;
 using ElectronicsStore.Customer.Services; 
 using ElectronicsStore.Customer.Service;// Đảm bảo có using này
+using ElectronicsStore.Customer.Service.Payment;
 
 namespace ElectronicsStore.Customer
 {
@@ -39,6 +40,9 @@ builder.Services.AddHttpClient<IProductApiService, ProductApiService>()
             AllowAutoRedirect = false 
         };
     });
+
+    builder.Services.AddScoped<ElectronicsStore.Customer.Service.Pricing.PricingStrategyFactory>();
+    builder.Services.AddScoped<PaymentFactory>();
             // --- 3. CẤU HÌNH ĐĂNG NHẬP ---
             builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options =>

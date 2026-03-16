@@ -10,8 +10,8 @@ namespace ElectronicsStore.Customer.Service.Payment
             Console.WriteLine($"[PAYMENT - VNPAY] ---> Mã giao dịch (TxnRef): {order.MaDH} | Số tiền (Amount): {order.TongGiaSauGiam:N0}đ");
 
             string vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-            string vnp_TmnCode = "WYBQPSHN";
-            string vnp_HashSecret = "QK4DHXARPHOYTV1R3E3HU176A6QIDMAH";
+            string vnp_TmnCode = "3UT94R0E";
+            string vnp_HashSecret = "7BGOEAARKIS3HSKTON23Q794R1EDMSXA";
 
             // Lấy scheme và host động thay vì hard-code localhost:44371
             var request = httpContext.Request;

@@ -5,13 +5,14 @@
     ViewData["Title"] = ViewBag.FilterTitle ?? "Tất cả sản phẩm";
     Layout = "~/Views/Shared/_Layout.cshtml";
 
-    // Vì API hiện tại chưa trả về Categories/Brands, ta tạm thời để trống 
-    // để tránh lỗi null. Sau này ta sẽ bổ sung API lấy danh mục sau.
-    var categories = ViewBag.Categories as List<dynamic>; 
+    // Lấy dữ liệu an toàn từ ViewBag
+    var categories = ViewBag.Categories as List<CategoryViewModel>; 
+    // Dùng IEnumerable<dynamic> để bắt linh hoạt đối tượng Nhà sản xuất
+    var categoryBrandsMap = ViewBag.CategoryBrands as Dictionary<int, List<dynamic>>; 
 }
 
 <style>
-    /* ... Giữ nguyên toàn bộ phần CSS của bạn ... */
+    /* CSS Cũ của bạn giữ nguyên */
     .filter-sidebar { background: #fff; border-radius: 12px; border: 1px solid #eee; padding: 20px; }
     .filter-group-title { font-weight: 700; margin-bottom: 10px; display: block; color: #333; font-size: 0.95rem; }
     .filter-link { display: block; color: #555; text-decoration: none; padding: 5px 0; font-size: 0.9rem; transition: 0.2s; }
@@ -25,27 +26,63 @@
     <nav aria-label="breadcrumb" class="mb-4">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="/" class="text-decoration-none text-muted">Trang chủ</a></li>
-            <li class="breadcrumb-item active" aria-current="page">@ViewBag.FilterTitle</li>
+            <li class="breadcrumb-item active text-danger fw-bold" aria-current="page">@ViewBag.FilterTitle</li>
         </ol>
     </nav>
 
     <div class="row">
         <div class="col-lg-3 mb-4">
             <div class="filter-sidebar shadow-sm">
-                <div class="mb-4">
-                    <span class="filter-group-title text-uppercase border-bottom pb-2 mb-3">Thông báo</span>
-                    <p class="small text-muted">Hệ thống đang chuyển sang API. Một số bộ lọc sẽ sớm hoạt động trở lại.</p>
-                </div>
+                @if (categories != null && categories.Any())
+                {
+                    <div class="mb-4">
+                        <span class="filter-group-title text-uppercase border-bottom pb-2 mb-3">
+                            <i class="bi bi-list-ul me-2"></i> Danh mục sản phẩm
+                        </span>
+                        <ul class="list-unstyled">
+                            @foreach (var cat in categories)
+                            {
+                                <li class="mb-3">
+                                    <a href="/Product?categoryId=@cat.maDanhMuc" class="filter-link fw-bold @(Context.Request.Query["categoryId"] == cat.maDanhMuc.ToString() ? "text-danger" : "text-dark")">
+                                        @cat.tenDanhMuc
+                                    </a>
 
-                <a href="/Product" class="btn btn-outline-danger w-100 rounded-pill btn-sm">
-                    <i class="bi bi-arrow-counterclockwise"></i> Tải lại danh sách
+                                    @if (categoryBrandsMap != null && categoryBrandsMap.ContainsKey(cat.maDanhMuc))
+                                    {
+                                        <ul class="list-unstyled ms-3 mt-1 border-start ps-2">
+                                            @foreach (var brand in categoryBrandsMap[cat.maDanhMuc])
+                                            {
+                                                <li>
+                                                    <a href="/Product?categoryId=@cat.maDanhMuc&brandId=@brand.maNhaSX" 
+                                                       class="filter-link small @(Context.Request.Query["brandId"] == brand.maNhaSX.ToString() && Context.Request.Query["categoryId"] == cat.maDanhMuc.ToString() ? "text-danger fw-bold" : "")">
+                                                        - @brand.tenNhaSX
+                                                    </a>
+                                                </li>
+                                            }
+                                        </ul>
+                                    }
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                }
+                else
+                {
+                    <div class="mb-4">
+                        <span class="filter-group-title text-uppercase border-bottom pb-2 mb-3">Thông báo</span>
+                        <p class="small text-muted text-danger">@ViewBag.ErrorCategory</p>
+                    </div>
+                }
+
+                <a href="/Product" class="btn btn-outline-danger w-100 rounded-pill btn-sm fw-bold">
+                    <i class="bi bi-arrow-counterclockwise"></i> XÓA BỘ LỌC
                 </a>
             </div>
         </div>
 
         <div class="col-lg-9">
             <div class="d-flex justify-content-between align-items-center mb-4 bg-white p-3 rounded shadow-sm border">
-                <h5 class="fw-bold mb-0 text-danger">@ViewBag.FilterTitle <span class="text-muted small fw-normal">(@Model.Count() sản phẩm)</span></h5>
+                <h5 class="fw-bold mb-0 text-danger">Kết quả: <span class="text-dark">@Model.Count() sản phẩm</span></h5>
             </div>
 
             @if (Model != null && Model.Any())
@@ -54,15 +91,12 @@
                     @foreach (var item in Model)
                     {
                         <div class="col-md-4 col-6">
-                            @* Sử dụng maSP thay vì MaSP *@
                             <a href="/Product/Details/@item.maSP" class="text-decoration-none text-dark">
                                 <div class="product-card h-100 d-flex flex-column">
                                     <div class="text-center mb-3">
-                                        @* Sử dụng hinhAnh thay vì HinhAnh *@
                                         <img src="@item.hinhAnh" class="img-fluid" style="height: 180px; object-fit: contain;" onerror="this.src='https://via.placeholder.com/180'">
                                     </div>
                                     <div class="flex-grow-1 d-flex flex-column">
-                                        @* Sử dụng tenSP thay vì TenSP *@
                                         <h6 class="fw-bold text-truncate mb-1" title="@item.tenSP">@item.tenSP</h6>
                                         
                                         <div class="mb-2 small">
@@ -73,11 +107,10 @@
                                                 <i class="bi bi-star-fill"></i>
                                                 <i class="bi bi-star-half"></i>
                                             </span>
-                                            <span class="text-muted">(API)</span>
+                                            <span class="text-muted">(Đánh giá)</span>
                                         </div>
 
                                         <div class="mt-auto">
-                                            @* Sử dụng giaBan thay vì GiaBan *@
                                             <span class="fw-bold text-danger fs-5">@item.giaBan.ToString("N0")₫</span>
                                         </div>
                                     </div>
@@ -89,9 +122,11 @@
             }
             else
             {
-                <div class="text-center py-5 bg-white rounded border">
-                    <h5 class="text-muted">Không tìm thấy sản phẩm nào từ API!</h5>
-                    <a href="/Product" class="btn btn-danger rounded-pill px-4 mt-2">Thử lại</a>
+                <div class="text-center py-5 bg-white rounded border shadow-sm">
+                    <i class="bi bi-box-seam text-muted" style="font-size: 4rem;"></i>
+                    <h5 class="text-muted mt-3">Không tìm thấy sản phẩm nào!</h5>
+                    <p class="text-muted">Rất tiếc, hiện tại không có sản phẩm thuộc hãng này.</p>
+                    <a href="/Product" class="btn btn-danger rounded-pill px-4 mt-2 fw-bold">Quay lại Tất cả Sản phẩm</a>
                 </div>
             }
         </div>

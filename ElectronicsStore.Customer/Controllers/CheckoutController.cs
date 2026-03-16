@@ -179,7 +179,7 @@ namespace ElectronicsStore.Customer.Controllers
             var response = Request.Query;
             if (response.Count > 0)
             {
-                string vnp_HashSecret = "QK4DHXARPHOYTV1R3E3HU176A6QIDMAH";
+                string vnp_HashSecret = "7BGOEAARKIS3HSKTON23Q794R1EDMSXA";
                 VnPayLibrary vnpay = new VnPayLibrary();
 
                 foreach (var s in response)
