@@ -1,0 +1,227 @@
+@model List<ElectronicsStore.Admin.Controllers.VoucherAdminViewModel>
+@{
+    ViewData["Title"] = "Quản Lý Voucher";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<!-- Stats -->
+<div class="row">
+    <div class="col-md-4">
+        <div class="stats-card">
+            <div class="d-flex align-items-center">
+                <div class="stats-icon" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+                    <i class="fas fa-tags"></i>
+                </div>
+                <div class="ms-3">
+                    <div class="text-muted" style="font-size:0.8rem;">Tổng Voucher</div>
+                    <div style="font-size:1.6rem; font-weight:700;">@Model.Count</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stats-card">
+            <div class="d-flex align-items-center">
+                <div class="stats-icon" style="background: linear-gradient(135deg, #43e97b, #38f9d7);">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="ms-3">
+                    <div class="text-muted" style="font-size:0.8rem;">Đang Hoạt Động</div>
+                    <div style="font-size:1.6rem; font-weight:700;">@Model.Count(v => v.trangThai)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stats-card">
+            <div class="d-flex align-items-center">
+                <div class="stats-icon" style="background: linear-gradient(135deg, #f093fb, #f5576c);">
+                    <i class="fas fa-fire"></i>
+                </div>
+                <div class="ms-3">
+                    <div class="text-muted" style="font-size:0.8rem;">Tổng Lượt Dùng</div>
+                    <div style="font-size:1.6rem; font-weight:700;">@Model.Sum(v => v.soLuotSuDung ?? 0)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Table Card -->
+<div class="table-card">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h5 class="fw-bold mb-0" style="color:#2d3748;"><i class="fas fa-list me-2" style="color:#FF8C42;"></i>Danh Sách
+            Voucher</h5>
+            <a href="@Url.Action("Create", "Voucher")" class="btn btn-orange">
+                <i class="fas fa-plus me-1"></i> Thêm Voucher Mới
+            </a>
+        </div>
+
+        @if (!Model.Any())
+        {
+            <div class="text-center py-5">
+                <i class="fas fa-tags" style="font-size:3rem; color:#e2e8f0;"></i>
+                <p class="text-muted mt-3">Chưa có voucher nào. <a href="@Url.Action("Create", "Voucher")">Tạo ngay</a></p>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover" id="voucherTable">
+                    <thead>
+                        <tr>
+                            <th>Mã Code</th>
+                            <th>Tên Chiến Dịch</th>
+                            <th>Kiểu Giảm</th>
+                            <th>Giá Trị</th>
+                            <th>Đơn Tối Thiểu</th>
+                            <th>Lượt Dùng</th>
+                            <th>Hết Hạn</th>
+                            <th>Trạng Thái</th>
+                            <th class="text-center">Thao Tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var v in Model)
+                        {
+                            <tr>
+                                <td><span class="voucher-code">@v.maCode</span></td>
+                                <td>
+                                    <strong>@v.tenChienDich</strong>
+                                    @if (!string.IsNullOrEmpty(v.moTa))
+                                    {
+                                        <br>
+                                        <small class="text-muted">@v.moTa</small>
+                                    }
+                                </td>
+                                <td>
+                                    @if (v.kieuGiam == "PhanTram")
+                                    {
+                                        <span class="badge bg-primary">% Phần Trăm</span>
+                                    }
+                                    else
+                                    {
+
+                                        <span class="badge bg-warning text-dark">💵 Tiền Mặt</span>
+                                    }
+                                </td>
+                                <td>
+                                    <strong class="text-danger">
+                                        @if (v.kieuGiam == "PhanTram")
+                                        {
+                                            @($"-{v.giaTriGiam}%")
+                                            if (v.giaTriGiamToiDa.HasValue)
+                                            {
+
+                                                <br>
+                                                <small class="text-muted">Tối đa @v.giaTriGiamToiDa?.ToString("N0")đ</small>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            @($"-{v.giaTriGiam?.ToString("N0")}đ")
+                                        }
+                                    </strong>
+                                </td>
+                                <td>
+                                    @(v.giaTriDonHangToiThieu.HasValue
+                                        ? v.giaTriDonHangToiThieu?.ToString("N0") + "đ"
+                                        : "Không giới hạn")
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary">
+                                        @(v.soLuotSuDung ?? 0)
+                                        @(v.gioiHanSoLuotSuDung.HasValue ? "/ " + v.gioiHanSoLuotSuDung : "")
+                                    </span>
+                                </td>
+                                <td>
+                                    @if (v.ngayKetThuc.HasValue)
+                                    {
+                                        var expired = v.ngayKetThuc < DateTime.Now;
+                                        <small class="@(expired ? "text-danger" : "text-muted")">
+                                            @v.ngayKetThuc?.ToString("dd/MM/yyyy")
+                                            @if (expired)
+                                            {
+                                                <span> (Hết hạn)</span>
+                                            }
+                                        </small>
+                                    }
+                                    else
+                                    {
+
+                                        <small class="text-success">Không hết hạn</small>
+                                    }
+                                </td>
+                                <td>
+                                    @if (v.trangThai)
+                                    {
+                                        <span class="badge bg-success">Hoạt động</span>
+                                    }
+                                    else
+                                    {
+
+                                        <span class="badge bg-secondary">Tắt</span>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    <a href="@Url.Action("Edit", "Voucher", new { id = v.maKM })" class="btn btn-sm btn-edit me-1">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button onclick="deleteVoucher(@v.maKM, '@v.maCode')" class="btn btn-sm btn-secondary">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+
+    <!-- Delete Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title fw-bold">Xác Nhận Xóa</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Bạn có chắc muốn xóa voucher <strong id="voucherCode"></strong>?</p>
+                    <p class="text-danger mb-0"><i class="fas fa-exclamation-triangle"></i> Hành động này không thể hoàn
+                        tác!</p>
+                    </div>
+                    <div class="modal-footer border-0">
+                        <button class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                        <button class="btn btn-danger" id="confirmDelete">Xóa</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @section Scripts {
+            <script>
+                $(document).ready(function () {
+                    $('#voucherTable').DataTable({
+                        language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json' },
+                        pageLength: 10
+                    });
+                });
+
+                let idToDelete = null;
+                function deleteVoucher(id, code) {
+                    idToDelete = id;
+                    document.getElementById('voucherCode').textContent = code;
+                    new bootstrap.Modal(document.getElementById('deleteModal')).show();
+                }
+                document.getElementById('confirmDelete').addEventListener('click', async function () {
+                    if (idToDelete) {
+                        const res = await fetch(`/Voucher/Delete/${idToDelete}`, { method: 'POST' });
+                        const result = await res.json();
+                        if (result.success) location.reload();
+                        else alert('Lỗi: ' + result.message);
+                    }
+                });
+            </script>
+        }

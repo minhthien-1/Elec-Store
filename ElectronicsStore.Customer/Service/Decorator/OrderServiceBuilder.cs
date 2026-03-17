@@ -2,7 +2,6 @@ namespace ElectronicsStore.Customer.Decorator
 {
     /// <summary>
     /// Builder helper - Giúp chain nhiều decorator dễ dàng hơn
-    /// Sử dụng trong Controller hoặc Service layer
     /// </summary>
     public class OrderServiceBuilder
     {
@@ -27,22 +26,13 @@ namespace ElectronicsStore.Customer.Decorator
             return this;
         }
 
+        /// <summary>Thêm voucher từ DB (PhanTram hoặc TienCoThuc)</summary>
+        public OrderServiceBuilder WithVoucher(string maCode, string kieuGiam, decimal giaTriGiam, decimal? giaTriGiamToiDa = null)
+        {
+            _service = new VoucherDecorator(_service, maCode, kieuGiam, giaTriGiam, giaTriGiamToiDa);
+            return this;
+        }
+
         public IOrderService Build() => _service;
     }
-
-    // -------------------------------------------------------------------------
-    // USAGE EXAMPLE (trong CartController.cs hoặc CheckoutController.cs):
-    // -------------------------------------------------------------------------
-    //
-    //  var order = new OrderServiceBuilder("Laptop Dell XPS 15", 30_000_000m)
-    //                  .WithGiftWrap()
-    //                  .WithMemberDiscount("Gold")
-    //                  .Build();
-    //
-    //  ViewBag.TotalPrice   = order.GetTotalPrice();   // 27.050.000 VNĐ
-    //  ViewBag.Description  = order.GetDescription();
-    //  // Output: "Laptop Dell XPS 15 (Giá gốc: 30.000.000 VNĐ)
-    //  //          + Gói quà (+50.000 VNĐ)
-    //  //          + Giảm giá Gold (10%: -3.000.000 VNĐ)"
-    // -------------------------------------------------------------------------
 }

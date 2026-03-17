@@ -28,7 +28,7 @@ namespace ElectronicsStore.Customer.Controllers
                     if (catResponse != null && catResponse.data != null)
                         categories = catResponse.data;
                 }
-                catch (Exception ex) { ViewBag.ErrorCategory = "Lỗi API Danh mục: " + ex.Message; }
+                catch (Exception ex) { ViewBag.ErrorCategory = "Loi API Danh muc: " + ex.Message; }
                 ViewBag.Categories = categories;
 
                 var products = new List<ProductViewModel>();
@@ -36,7 +36,7 @@ namespace ElectronicsStore.Customer.Controllers
                 {
                     products = await _httpClient.GetFromJsonAsync<List<ProductViewModel>>("products") ?? new List<ProductViewModel>();
                 }
-                catch (Exception ex) { ViewBag.ErrorProduct = "Lỗi API Sản phẩm: " + ex.Message; }
+                catch (Exception ex) { ViewBag.ErrorProduct = "Loi API San pham: " + ex.Message; }
 
                 var categoryBrands = products
                     .Where(p => p.nhaSanXuat != null)
@@ -47,12 +47,12 @@ namespace ElectronicsStore.Customer.Controllers
                     );
 
                 ViewBag.CategoryBrands = categoryBrands;
-                ViewBag.FilterTitle = "Tất cả sản phẩm";
+                ViewBag.FilterTitle = "Tat ca san pham";
                 return View(products);
             }
             catch (Exception ex)
             {
-                ViewBag.ErrorGeneral = "Lỗi hệ thống: " + ex.Message;
+                ViewBag.ErrorGeneral = "Loi he thong: " + ex.Message;
                 return View(new List<ProductViewModel>());
             }
         }
@@ -64,76 +64,127 @@ namespace ElectronicsStore.Customer.Controllers
                 var product = await _httpClient.GetFromJsonAsync<ProductViewModel>($"products/{id}");
                 if (product == null) return NotFound();
 
-                // ══════════════════════════════════════════════════════
+                // Lay danh sach voucher dang hoat dong de hien thi dropdown
+                var vouchers = new List<VoucherViewModel>();
+                try
+                {
+                    var voucherResponse = await _httpClient.GetFromJsonAsync<VoucherListResponse>("promotion");
+                    if (voucherResponse?.data != null)
+                        vouchers = voucherResponse.data;
+                }
+                catch { }
+                ViewBag.Vouchers = vouchers;
+
                 // DECORATOR PATTERN
-                // Mục đích: Cộng dồn dịch vụ vào đơn hàng (gói quà,
-                // giảm giá) mà không sửa class gốc
-                // ══════════════════════════════════════════════════════
                 Console.WriteLine("\n========== DECORATOR PATTERN ==========");
-                Console.WriteLine($"Sản phẩm: {product.tenSP} | Giá gốc: {product.giaBan:N0} VNĐ");
+                Console.WriteLine($"San pham: {product.tenSP} | Gia goc: {product.giaBan:N0} VND");
 
-                // Chỉ gói quà
                 var orderGiftWrap = new OrderServiceBuilder(product.tenSP, product.giaBan)
-                                        .WithGiftWrap()
-                                        .Build();
+                                        .WithGiftWrap().Build();
                 Console.WriteLine(orderGiftWrap.GetDescription());
-                Console.WriteLine($"=> Tổng tiền: {orderGiftWrap.GetTotalPrice():N0} VNĐ\n");
+                Console.WriteLine($"=> Tong tien: {orderGiftWrap.GetTotalPrice():N0} VND\n");
 
-                // Gói quà + Giảm giá Gold
                 var orderGold = new OrderServiceBuilder(product.tenSP, product.giaBan)
-                                    .WithGiftWrap()
-                                    .WithMemberDiscount("Gold")
-                                    .Build();
+                                    .WithGiftWrap().WithMemberDiscount("Gold").Build();
                 Console.WriteLine(orderGold.GetDescription());
-                Console.WriteLine($"=> Tổng tiền: {orderGold.GetTotalPrice():N0} VNĐ\n");
+                Console.WriteLine($"=> Tong tien: {orderGold.GetTotalPrice():N0} VND\n");
 
-                // Chỉ Giảm giá Platinum
                 var orderPlatinum = new OrderServiceBuilder(product.tenSP, product.giaBan)
-                                        .WithMemberDiscount("Platinum")
-                                        .Build();
+                                        .WithMemberDiscount("Platinum").Build();
                 Console.WriteLine(orderPlatinum.GetDescription());
-                Console.WriteLine($"=> Tổng tiền: {orderPlatinum.GetTotalPrice():N0} VNĐ");
+                Console.WriteLine($"=> Tong tien: {orderPlatinum.GetTotalPrice():N0} VND");
 
-                // ══════════════════════════════════════════════════════
                 // ABSTRACT FACTORY PATTERN
-                // Mục đích: Cùng 1 sản phẩm nhưng CustomerFactory và
-                // AdminFactory tạo ra object với thông tin khác nhau.
-                // Customer thấy thông tin đẹp để mua hàng,
-                // Admin thấy thông tin quản lý để nhập kho.
-                // ══════════════════════════════════════════════════════
                 Console.WriteLine("\n========== ABSTRACT FACTORY PATTERN ==========");
-                Console.WriteLine($"Cùng sản phẩm MaSP={id}, 2 factory tạo ra object khác nhau:\n");
-
-                // Customer Factory: tạo object hiển thị cho khách mua hàng
                 var customerFactory = StoreFactoryProvider.GetFactory("customer");
                 var customerProduct = customerFactory.CreateElectronicProduct("phone");
                 customerProduct.MaSP = product.maSP;
                 customerProduct.TenSP = product.tenSP;
                 customerProduct.GiaBan = product.giaBan;
-                Console.WriteLine("[CUSTOMER FACTORY] Khách hàng thấy:");
-                Console.WriteLine(customerProduct.GetDisplayInfo());
+                Console.WriteLine("[CUSTOMER FACTORY] " + customerProduct.GetDisplayInfo());
 
-                Console.WriteLine();
-
-                // Admin Factory: tạo object dùng cho quản trị
                 var adminFactory = StoreFactoryProvider.GetFactory("admin");
                 var adminProduct = adminFactory.CreateElectronicProduct("phone");
                 adminProduct.MaSP = product.maSP;
                 adminProduct.TenSP = product.tenSP;
                 adminProduct.GiaBan = product.giaBan;
-                Console.WriteLine("[ADMIN FACTORY] Admin thấy:");
-                Console.WriteLine(adminProduct.GetDisplayInfo());
-
+                Console.WriteLine("[ADMIN FACTORY]    " + adminProduct.GetDisplayInfo());
                 Console.WriteLine("========================================\n");
-                // ══════════════════════════════════════════════════════
 
                 return View(product);
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Lỗi gọi API Details: " + ex.Message);
+                Console.WriteLine("Loi goi API Details: " + ex.Message);
                 return RedirectToAction("Index");
             }
         }
+
+        // POST: Khach chon voucher tu dropdown -> tinh gia -> ghi Terminal
+        [HttpPost]
+        public async Task<IActionResult> ApplyVoucher(int productId, string maCode, decimal giaGoc)
+        {
+            try
+            {
+                var response = await _httpClient.GetFromJsonAsync<VoucherValidateResponse>(
+                    $"promotion/validate/{maCode}?tongGia={giaGoc}");
+
+                if (response == null)
+                    return Json(new { success = false, message = "Khong the validate voucher" });
+
+                // DECORATOR PATTERN voi Voucher tu DB
+                Console.WriteLine("\n========== DECORATOR + VOUCHER TU DB ==========");
+                Console.WriteLine($"Khach chon voucher: [{maCode}]");
+
+                var orderWithVoucher = new OrderServiceBuilder($"San pham #{productId}", giaGoc)
+                                           .WithVoucher(maCode, response.kieuGiam, response.giaTriGiam, response.giaTriGiamToiDa)
+                                           .Build();
+
+                Console.WriteLine(orderWithVoucher.GetDescription());
+                Console.WriteLine($"=> Tong tien sau voucher: {orderWithVoucher.GetTotalPrice():N0} VND");
+                Console.WriteLine("================================================\n");
+
+                return Json(new
+                {
+                    success = true,
+                    message = response.message,
+                    discount = response.discount,
+                    finalPrice = response.finalPrice
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Voucher khong hop le: " + ex.Message });
+            }
+        }
+    }
+
+    public class VoucherViewModel
+    {
+        public int maKM { get; set; }
+        public string maCode { get; set; } = string.Empty;
+        public string? tenChienDich { get; set; }
+        public string? kieuGiam { get; set; }
+        public decimal? giaTriGiam { get; set; }
+        public decimal? giaTriGiamToiDa { get; set; }
+        public decimal? giaTriDonHangToiThieu { get; set; }
+    }
+
+    public class VoucherListResponse
+    {
+        public int total { get; set; }
+        public List<VoucherViewModel> data { get; set; } = new();
+    }
+
+    public class VoucherValidateResponse
+    {
+        public bool valid { get; set; }
+        public string maCode { get; set; } = string.Empty;
+        public string kieuGiam { get; set; } = string.Empty;
+        public decimal giaTriGiam { get; set; }
+        public decimal? giaTriGiamToiDa { get; set; }
+        public decimal discount { get; set; }
+        public decimal finalPrice { get; set; }
+        public string message { get; set; } = string.Empty;
     }
 }
