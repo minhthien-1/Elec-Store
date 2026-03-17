@@ -1,0 +1,142 @@
+@model ElectronicsStore.Admin.Controllers.VoucherCreateRequest
+@{
+    ViewData["Title"] = "Tạo Voucher Mới";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<style>
+    .kieu-giam-card {
+        border: 2px solid var(--border, #e2e8f0); border-radius: 12px;
+        padding: 18px; cursor: pointer; transition: all 0.2s; text-align: center;
+    }
+    .kieu-giam-card:hover { border-color: #FF8C42; background: #fff9f5; }
+    .kieu-giam-card.active { border-color: #FF8C42; background: #fff5ee; }
+    .kieu-giam-card i { font-size: 1.8rem; margin-bottom: 8px; }
+</style>
+
+<div style="max-width: 720px;">
+    <div class="page-card">
+        <div class="d-flex align-items-center gap-3 mb-4">
+            <a href="@Url.Action("Index", "Voucher")" class="btn btn-sm btn-outline-secondary" style="border-radius:8px;">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <div>
+                <h4 class="fw-bold mb-0" style="color:#2d3748;">Tạo Voucher Mới</h4>
+                <small class="text-muted">Điền thông tin để tạo mã giảm giá mới</small>
+            </div>
+        </div>
+
+        <form method="post" action="/Voucher/Create">
+            <div class="section-title"><i class="fas fa-info-circle me-1"></i> Thông Tin Cơ Bản</div>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Mã Code <span class="text-danger">*</span></label>
+                    <input type="text" name="MaCode" class="form-control text-uppercase" required
+                           placeholder="VD: SALE10, GIAM50K"
+                           style="font-family:'Courier New',monospace; font-weight:700; letter-spacing:1px;" />
+                    <small class="text-muted">Tự động chuyển thành chữ hoa</small>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Tên Chiến Dịch</label>
+                    <input type="text" name="TenChienDich" class="form-control" placeholder="VD: Khuyến mãi mùa hè" />
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Mô Tả</label>
+                <textarea name="MoTa" class="form-control" rows="2" placeholder="Mô tả ngắn về voucher..."></textarea>
+            </div>
+
+            <div class="section-title"><i class="fas fa-percent me-1"></i> Kiểu Giảm Giá</div>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <div class="kieu-giam-card active" id="card-phantram" onclick="selectKieu('PhanTram')">
+                        <i class="fas fa-percent text-primary d-block"></i>
+                        <strong>Phần Trăm (%)</strong>
+                        <p class="text-muted small mb-0">Giảm theo % giá sản phẩm</p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="kieu-giam-card" id="card-tienco" onclick="selectKieu('TienCoThuc')">
+                        <i class="fas fa-money-bill-wave text-success d-block"></i>
+                        <strong>Tiền Mặt (đ)</strong>
+                        <p class="text-muted small mb-0">Giảm số tiền cố định</p>
+                    </div>
+                </div>
+            </div>
+            <input type="hidden" name="KieuGiam" id="kieuGiamInput" value="PhanTram" />
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Giá Trị Giảm <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <input type="number" name="GiaTriGiam" class="form-control"
+                               placeholder="VD: 10" min="0" step="0.01" required />
+                        <span class="input-group-text" id="donViLabel">%</span>
+                    </div>
+                </div>
+                <div class="col-md-6" id="toiDaField">
+                    <label class="form-label">Giảm Tối Đa (VNĐ)</label>
+                    <input type="number" name="GiaTriGiamToiDa" class="form-control"
+                           placeholder="Để trống = không giới hạn" min="0" />
+                </div>
+            </div>
+
+            <div class="section-title"><i class="fas fa-filter me-1"></i> Điều Kiện Áp Dụng</div>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Đơn Hàng Tối Thiểu (VNĐ)</label>
+                    <input type="number" name="GiaTriDonHangToiThieu" class="form-control"
+                           placeholder="Để trống = không giới hạn" min="0" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Giới Hạn Lượt Dùng</label>
+                    <input type="number" name="GioiHanSoLuotSuDung" class="form-control"
+                           placeholder="Để trống = không giới hạn" min="1" />
+                </div>
+            </div>
+
+            <div class="section-title"><i class="fas fa-calendar me-1"></i> Thời Gian</div>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Ngày Bắt Đầu</label>
+                    <input type="datetime-local" name="NgayBatDau" class="form-control"
+                           value="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Ngày Kết Thúc</label>
+                    <input type="datetime-local" name="NgayKetThuc" class="form-control" />
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label">Trạng Thái</label>
+                <select name="TrangThai" class="form-select">
+                    <option value="true">✅ Hoạt động</option>
+                    <option value="false">❌ Tắt</option>
+                </select>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-orange px-4">
+                    <i class="fas fa-save me-1"></i> Tạo Voucher
+                </button>
+                <a href="/Voucher" class="btn btn-outline-secondary" style="border-radius:8px;">Hủy</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    function selectKieu(kieu) {
+        document.getElementById('kieuGiamInput').value = kieu;
+        document.getElementById('card-phantram').classList.toggle('active', kieu === 'PhanTram');
+        document.getElementById('card-tienco').classList.toggle('active', kieu === 'TienCoThuc');
+        document.getElementById('donViLabel').textContent = kieu === 'PhanTram' ? '%' : 'đ';
+        document.getElementById('toiDaField').style.display = kieu === 'PhanTram' ? 'block' : 'none';
+    }
+    document.querySelector('[name="MaCode"]').addEventListener('input', function () {
+        this.value = this.value.toUpperCase();
+    });
+</script>
+}

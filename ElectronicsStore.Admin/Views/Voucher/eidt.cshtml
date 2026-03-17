@@ -1,0 +1,115 @@
+@model ElectronicsStore.Admin.Controllers.VoucherAdminViewModel
+@{
+    ViewData["Title"] = "Sửa Voucher";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div style="max-width: 720px;">
+    <div class="page-card">
+        <div class="d-flex align-items-center gap-3 mb-4">
+            <a href="@Url.Action("Index", "Voucher")" class="btn btn-sm btn-outline-secondary" style="border-radius:8px;">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <div>
+                <h4 class="fw-bold mb-1" style="color:#2d3748;">Sửa Voucher</h4>
+                <span class="voucher-code">@Model.maCode</span>
+            </div>
+        </div>
+
+        @if (Model.gioiHanSoLuotSuDung.HasValue)
+        {
+            var pct = (double)(Model.soLuotSuDung ?? 0) / Model.gioiHanSoLuotSuDung.Value * 100;
+            <div class="alert alert-light border rounded-3 mb-4">
+                <div class="d-flex justify-content-between mb-2">
+                    <small class="fw-semibold">Lượt sử dụng</small>
+                    <small>@Model.soLuotSuDung / @Model.gioiHanSoLuotSuDung</small>
+                </div>
+                <div style="height:6px; border-radius:3px; background:#e2e8f0; overflow:hidden;">
+                    <div style="width:@pct%; height:100%; background:linear-gradient(90deg,#43e97b,#38f9d7); border-radius:3px;"></div>
+                </div>
+            </div>
+        }
+
+        <form method="post" action="/Voucher/Edit/@Model.maKM">
+            <div class="section-title"><i class="fas fa-info-circle me-1"></i> Thông Tin Cơ Bản</div>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Mã Code</label>
+                    <input type="text" class="form-control" value="@Model.maCode" readonly />
+                    <small class="text-muted">Mã code không thể thay đổi</small>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Kiểu Giảm</label>
+                    <input type="text" class="form-control" readonly
+                           value="@(Model.kieuGiam == "PhanTram" ? "% Phần Trăm" : "💵 Tiền Mặt")" />
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Tên Chiến Dịch</label>
+                <input type="text" name="TenChienDich" class="form-control" value="@Model.tenChienDich" />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Mô Tả</label>
+                <textarea name="MoTa" class="form-control" rows="2">@Model.moTa</textarea>
+            </div>
+
+            <div class="section-title"><i class="fas fa-percent me-1"></i> Giá Trị Giảm</div>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Giá Trị Giảm</label>
+                    <div class="input-group">
+                        <input type="number" name="GiaTriGiam" class="form-control"
+                               value="@Model.giaTriGiam" min="0" step="0.01" />
+                        <span class="input-group-text">@(Model.kieuGiam == "PhanTram" ? "%" : "đ")</span>
+                    </div>
+                </div>
+                @if (Model.kieuGiam == "PhanTram")
+                {
+                    <div class="col-md-6">
+                        <label class="form-label">Giảm Tối Đa (VNĐ)</label>
+                        <input type="number" name="GiaTriGiamToiDa" class="form-control"
+                               value="@Model.giaTriGiamToiDa" min="0" placeholder="Để trống = không giới hạn" />
+                    </div>
+                }
+            </div>
+
+            <div class="section-title"><i class="fas fa-filter me-1"></i> Điều Kiện Áp Dụng</div>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Đơn Hàng Tối Thiểu (VNĐ)</label>
+                    <input type="number" name="GiaTriDonHangToiThieu" class="form-control"
+                           value="@Model.giaTriDonHangToiThieu" min="0" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Giới Hạn Lượt Dùng</label>
+                    <input type="number" name="GioiHanSoLuotSuDung" class="form-control"
+                           value="@Model.gioiHanSoLuotSuDung" min="1" />
+                    <small class="text-muted">Đã dùng: @Model.soLuotSuDung lượt</small>
+                </div>
+            </div>
+
+            <div class="section-title"><i class="fas fa-calendar me-1"></i> Thời Gian & Trạng Thái</div>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Ngày Kết Thúc</label>
+                    <input type="datetime-local" name="NgayKetThuc" class="form-control"
+                           value="@Model.ngayKetThuc?.ToString("yyyy-MM-ddTHH:mm")" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Trạng Thái</label>
+                    <select name="TrangThai" class="form-select">
+                                <option value="true" selected="@(Model.trangThai)">✅ Hoạt động</option>
+                                <option value="false" selected="@(!Model.trangThai)">❌ Tắt</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="d-flex gap-2 mt-4">
+                <button type="submit" class="btn btn-orange px-4">
+                    <i class="fas fa-save me-1"></i> Lưu Thay Đổi
+                </button>
+                <a href="/Voucher" class="btn btn-outline-secondary" style="border-radius:8px;">Hủy</a>
+            </div>
+        </form>
+    </div>
+</div>

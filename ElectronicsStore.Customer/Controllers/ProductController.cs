@@ -1,5 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using ElectronicsStore.Customer.Models; 
+using Microsoft.AspNetCore.Mvc;
+using ElectronicsStore.Customer.Models;
+using ElectronicsStore.Customer.Decorator;
+using ElectronicsStore.AbstractFactory;
+using ElectronicsStore.AbstractFactory.Factories;
 using System.Net.Http.Json;
 
 namespace ElectronicsStore.Customer.Controllers
@@ -32,6 +35,7 @@ namespace ElectronicsStore.Customer.Controllers
                 { 
                     ViewBag.ErrorCategory = "Lỗi API Danh mục: " + ex.Message; 
                 }
+
                 ViewBag.Categories = categories;
 
                 // B. LẤY TẤT CẢ SẢN PHẨM TỪ API
@@ -55,6 +59,9 @@ namespace ElectronicsStore.Customer.Controllers
                     );
                 
                 ViewBag.CategoryBrands = categoryBrands;
+
+                ViewBag.FilterTitle = "Tat ca san pham";
+                return View(filteredProducts.ToList());
 
                 // D. XỬ LÝ LỌC SẢN PHẨM THEO QUERY URL
                 var filteredProducts = allProducts.AsEnumerable();
@@ -90,7 +97,7 @@ namespace ElectronicsStore.Customer.Controllers
             }
             catch (Exception ex)
             {
-                ViewBag.ErrorGeneral = "Lỗi hệ thống: " + ex.Message;
+                ViewBag.ErrorGeneral = "Loi he thong: " + ex.Message;
                 return View(new List<ProductViewModel>());
             }
         }
@@ -101,13 +108,128 @@ namespace ElectronicsStore.Customer.Controllers
             {
                 var product = await _httpClient.GetFromJsonAsync<ProductViewModel>($"products/{id}");
                 if (product == null) return NotFound();
+
+                // Lay danh sach voucher dang hoat dong de hien thi dropdown
+                var vouchers = new List<VoucherViewModel>();
+                try
+                {
+                    var voucherResponse = await _httpClient.GetFromJsonAsync<VoucherListResponse>("promotion");
+                    if (voucherResponse?.data != null)
+                        vouchers = voucherResponse.data;
+                }
+                catch { }
+                ViewBag.Vouchers = vouchers;
+
+                // DECORATOR PATTERN
+                Console.WriteLine("\n========== DECORATOR PATTERN ==========");
+                Console.WriteLine($"San pham: {product.tenSP} | Gia goc: {product.giaBan:N0} VND");
+
+                var orderGiftWrap = new OrderServiceBuilder(product.tenSP, product.giaBan)
+                                        .WithGiftWrap().Build();
+                Console.WriteLine(orderGiftWrap.GetDescription());
+                Console.WriteLine($"=> Tong tien: {orderGiftWrap.GetTotalPrice():N0} VND\n");
+
+                var orderGold = new OrderServiceBuilder(product.tenSP, product.giaBan)
+                                    .WithGiftWrap().WithMemberDiscount("Gold").Build();
+                Console.WriteLine(orderGold.GetDescription());
+                Console.WriteLine($"=> Tong tien: {orderGold.GetTotalPrice():N0} VND\n");
+
+                var orderPlatinum = new OrderServiceBuilder(product.tenSP, product.giaBan)
+                                        .WithMemberDiscount("Platinum").Build();
+                Console.WriteLine(orderPlatinum.GetDescription());
+                Console.WriteLine($"=> Tong tien: {orderPlatinum.GetTotalPrice():N0} VND");
+
+                // ABSTRACT FACTORY PATTERN
+                Console.WriteLine("\n========== ABSTRACT FACTORY PATTERN ==========");
+                var customerFactory = StoreFactoryProvider.GetFactory("customer");
+                var customerProduct = customerFactory.CreateElectronicProduct("phone");
+                customerProduct.MaSP = product.maSP;
+                customerProduct.TenSP = product.tenSP;
+                customerProduct.GiaBan = product.giaBan;
+                Console.WriteLine("[CUSTOMER FACTORY] " + customerProduct.GetDisplayInfo());
+
+                var adminFactory = StoreFactoryProvider.GetFactory("admin");
+                var adminProduct = adminFactory.CreateElectronicProduct("phone");
+                adminProduct.MaSP = product.maSP;
+                adminProduct.TenSP = product.tenSP;
+                adminProduct.GiaBan = product.giaBan;
+                Console.WriteLine("[ADMIN FACTORY]    " + adminProduct.GetDisplayInfo());
+                Console.WriteLine("========================================\n");
+
                 return View(product);
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Lỗi gọi API Details: " + ex.Message);
+                Console.WriteLine("Loi goi API Details: " + ex.Message);
                 return RedirectToAction("Index");
             }
         }
+
+        // POST: Khach chon voucher tu dropdown -> tinh gia -> ghi Terminal
+        [HttpPost]
+        public async Task<IActionResult> ApplyVoucher(int productId, string maCode, decimal giaGoc)
+        {
+            try
+            {
+                var response = await _httpClient.GetFromJsonAsync<VoucherValidateResponse>(
+                    $"promotion/validate/{maCode}?tongGia={giaGoc}");
+
+                if (response == null)
+                    return Json(new { success = false, message = "Khong the validate voucher" });
+
+                // DECORATOR PATTERN voi Voucher tu DB
+                Console.WriteLine("\n========== DECORATOR + VOUCHER TU DB ==========");
+                Console.WriteLine($"Khach chon voucher: [{maCode}]");
+
+                var orderWithVoucher = new OrderServiceBuilder($"San pham #{productId}", giaGoc)
+                                           .WithVoucher(maCode, response.kieuGiam, response.giaTriGiam, response.giaTriGiamToiDa)
+                                           .Build();
+
+                Console.WriteLine(orderWithVoucher.GetDescription());
+                Console.WriteLine($"=> Tong tien sau voucher: {orderWithVoucher.GetTotalPrice():N0} VND");
+                Console.WriteLine("================================================\n");
+
+                return Json(new
+                {
+                    success = true,
+                    message = response.message,
+                    discount = response.discount,
+                    finalPrice = response.finalPrice
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Voucher khong hop le: " + ex.Message });
+            }
+        }
+    }
+
+    public class VoucherViewModel
+    {
+        public int maKM { get; set; }
+        public string maCode { get; set; } = string.Empty;
+        public string? tenChienDich { get; set; }
+        public string? kieuGiam { get; set; }
+        public decimal? giaTriGiam { get; set; }
+        public decimal? giaTriGiamToiDa { get; set; }
+        public decimal? giaTriDonHangToiThieu { get; set; }
+    }
+
+    public class VoucherListResponse
+    {
+        public int total { get; set; }
+        public List<VoucherViewModel> data { get; set; } = new();
+    }
+
+    public class VoucherValidateResponse
+    {
+        public bool valid { get; set; }
+        public string maCode { get; set; } = string.Empty;
+        public string kieuGiam { get; set; } = string.Empty;
+        public decimal giaTriGiam { get; set; }
+        public decimal? giaTriGiamToiDa { get; set; }
+        public decimal discount { get; set; }
+        public decimal finalPrice { get; set; }
+        public string message { get; set; } = string.Empty;
     }
 }

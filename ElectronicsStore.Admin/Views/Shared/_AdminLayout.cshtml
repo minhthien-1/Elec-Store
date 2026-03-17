@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"] - Electronics Store Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <style>
+            :root {
+                --sidebar-width: 260px;
+                --orange-start: #FF8C42;
+                --orange-end: #FF6B35;
+                --bg: #f0f2f5;
+                --white: #ffffff;
+                --text-dark: #2d3748;
+                --text-muted: #718096;
+                --border: #e2e8f0;
+                --shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+            }
+
+            * {
+                box-sizing: border-box;
+            }
+
+            body {
+                background: var(--bg);
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                margin: 0;
+                overflow-x: hidden;
+            }
+
+            /* ── SIDEBAR ───────────────────────────────────────── */
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: var(--sidebar-width);
+                height: 100vh;
+                background: var(--white);
+                box-shadow: 2px 0 12px rgba(0, 0, 0, 0.07);
+                z-index: 1000;
+                display: flex;
+                flex-direction: column;
+                transition: transform 0.3s;
+            }
+
+            .sidebar-brand {
+                padding: 24px 20px 20px;
+                background: linear-gradient(135deg, var(--orange-start), var(--orange-end));
+                color: white;
+            }
+            .sidebar-brand h5 {
+                margin: 0;
+                font-weight: 800;
+                font-size: 1rem;
+                letter-spacing: 0.5px;
+            }
+            .sidebar-brand small {
+                opacity: 0.85;
+                font-size: 0.75rem;
+            }
+
+            .sidebar-admin {
+                padding: 14px 16px;
+                border-bottom: 1px solid var(--border);
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .admin-avatar {
+                width: 36px;
+                height: 36px;
+                border-radius: 50%;
+                background: linear-gradient(135deg, var(--orange-start), var(--orange-end));
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-weight: 700;
+                font-size: 0.85rem;
+                flex-shrink: 0;
+            }
+            .admin-info small {
+                color: var(--text-muted);
+                font-size: 0.72rem;
+            }
+            .admin-info span {
+                font-size: 0.82rem;
+                font-weight: 600;
+                color: var(--text-dark);
+                display: block;
+            }
+
+            .sidebar-nav {
+                flex: 1;
+                padding: 16px 12px;
+                overflow-y: auto;
+            }
+
+            .nav-section-title {
+                font-size: 0.68rem;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 1.2px;
+                color: var(--text-muted);
+                padding: 0 10px;
+                margin: 12px 0 6px;
+            }
+
+            .nav-item-link {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding: 10px 12px;
+                border-radius: 10px;
+                color: var(--text-muted);
+                text-decoration: none;
+                font-weight: 500;
+                font-size: 0.9rem;
+                transition: all 0.2s;
+                margin-bottom: 2px;
+            }
+
+            .nav-item-link:hover {
+                background: #fff5ee;
+                color: var(--orange-start);
+            }
+
+            .nav-item-link.active {
+                background: linear-gradient(135deg, #fff0e6, #ffe8d6);
+                color: var(--orange-end);
+                font-weight: 700;
+                box-shadow: 0 2px 8px rgba(255, 107, 53, 0.15);
+            }
+            .nav-item-link .icon {
+                width: 34px;
+                height: 34px;
+                border-radius: 8px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 0.9rem;
+                flex-shrink: 0;
+                background: #f5f7fa;
+                transition: all 0.2s;
+            }
+            .nav-item-link.active .icon,
+            .nav-item-link:hover .icon {
+                background: linear-gradient(135deg, var(--orange-start), var(--orange-end));
+                color: white;
+            }
+            .nav-badge {
+                margin-left: auto;
+                background: var(--orange-start);
+                color: white;
+                font-size: 0.65rem;
+                font-weight: 700;
+                padding: 2px 7px;
+                border-radius: 10px;
+            }
+
+            .sidebar-footer {
+                padding: 14px 12px;
+                border-top: 1px solid var(--border);
+            }
+            .sidebar-footer a {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 10px 12px;
+                border-radius: 10px;
+                color: #e53e3e;
+                text-decoration: none;
+                font-weight: 500;
+                font-size: 0.9rem;
+                transition: all 0.2s;
+            }
+
+            .sidebar-footer a:hover {
+                background: #fff5f5;
+            }
+
+            .sidebar-footer a .icon {
+                width: 34px;
+                height: 34px;
+                border-radius: 8px;
+                background: #fff5f5;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 0.9rem;
+            }
+
+            /* ── MAIN CONTENT ──────────────────────────────────── */
+            .main-wrapper {
+                margin-left: var(--sidebar-width);
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .topbar {
+                background: var(--white);
+                padding: 14px 28px;
+                border-bottom: 1px solid var(--border);
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+                position: sticky;
+                top: 0;
+                z-index: 100;
+            }
+
+            .topbar-title {
+                font-weight: 700;
+                font-size: 1.1rem;
+                color: var(--text-dark);
+            }
+
+            .topbar-title small {
+                color: var(--text-muted);
+                font-weight: 400;
+                font-size: 0.8rem;
+                display: block;
+            }
+
+            .content-area {
+                padding: 28px;
+                flex: 1;
+            }
+
+            /* ── CARDS & COMPONENTS ────────────────────────────── */
+            .page-card {
+                background: var(--white);
+                border-radius: 14px;
+                padding: 28px;
+                box-shadow: var(--shadow);
+                margin-bottom: 24px;
+            }
+            .stats-card {
+                background: var(--white);
+                border-radius: 14px;
+                padding: 22px;
+                box-shadow: var(--shadow);
+                transition: transform 0.2s, box-shadow 0.2s;
+                margin-bottom: 24px;
+            }
+            .stats-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            }
+            .stats-icon {
+                width: 52px;
+                height: 52px;
+                border-radius: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.3rem;
+                color: white;
+            }
+            .table-card {
+                background: var(--white);
+                border-radius: 14px;
+                padding: 24px;
+                box-shadow: var(--shadow);
+            }
+            .table thead th {
+                background: #f8f9fa;
+                color: var(--text-dark);
+                font-weight: 600;
+                border: none;
+                padding: 14px 16px;
+                font-size: 0.85rem;
+            }
+            .table tbody td {
+                padding: 14px 16px;
+                vertical-align: middle;
+            }
+            .table tbody tr:hover {
+                background: #fafbff;
+            }
+
+            .btn-orange {
+                background: linear-gradient(135deg, var(--orange-start), var(--orange-end));
+                color: white;
+                border: none;
+                border-radius: 8px;
+                font-weight: 600;
+                padding: 10px 22px;
+                transition: all 0.2s;
+            }
+            .btn-orange:hover {
+                color: white;
+                transform: translateY(-1px);
+                box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+            }
+            .btn-edit {
+                background: linear-gradient(135deg, #667eea, #764ba2);
+                color: white;
+                border: none;
+                border-radius: 6px;
+                padding: 6px 12px;
+                transition: all 0.2s;
+            }
+            .btn-edit:hover {
+                color: white;
+                opacity: 0.9;
+            }
+
+            .form-control,
+            .form-select {
+                border-radius: 8px;
+                border: 1.5px solid var(--border);
+                padding: 10px 14px;
+                transition: all 0.2s;
+            }
+            .form-control:focus,
+            .form-select:focus {
+                border-color: var(--orange-start);
+                box-shadow: 0 0 0 3px rgba(255, 140, 66, 0.15);
+            }
+            .form-control[readonly] {
+                background: #f8f9fa;
+                color: var(--text-muted);
+            }
+            .form-label {
+                font-weight: 600;
+                color: var(--text-dark);
+                margin-bottom: 6px;
+            }
+
+            .section-title {
+                font-size: 0.72rem;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                color: var(--text-muted);
+                margin: 20px 0 12px;
+                padding-bottom: 8px;
+                border-bottom: 2px solid #f0f4ff;
+            }
+
+            .voucher-code {
+                font-family: 'Courier New', monospace;
+                font-weight: 700;
+                background: #f0f4ff;
+                color: #4a6cf7;
+                padding: 4px 10px;
+                border-radius: 6px;
+                letter-spacing: 1px;
+            }
+
+            /* Mobile toggle */
+            .sidebar-toggle {
+                display: none;
+                background: none;
+                border: none;
+                font-size: 1.3rem;
+                color: var(--text-dark);
+            }
+
+            @@media (max-width: 768px) {
+                .sidebar {
+                    transform: translateX(-100%);
+                }
+
+                .sidebar.open {
+                    transform: translateX(0);
+                }
+
+                .main-wrapper {
+                    margin-left: 0;
+                }
+
+                .sidebar-toggle {
+                    display: block;
+                }
+            }
+    </style>
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+
+<body>
+
+    <!-- ── SIDEBAR ── -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <i class="fas fa-store fs-5"></i>
+                <h5>Electronics Store</h5>
+            </div>
+            <small>Admin Dashboard</small>
+        </div>
+
+        <div class="sidebar-admin">
+            <div class="admin-avatar">
+                @(Context.Session.GetString("AdminEmail")?.Substring(0, 1).ToUpper() ?? "A")
+            </div>
+            <div class="admin-info">
+                <small>Đăng nhập với</small>
+                <span>@(Context.Session.GetString("AdminEmail") ?? "Admin")</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-section-title">Quản Lý</div>
+
+            <a href="@Url.Action("Index", "Product")"
+                   class="nav-item-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Product" ? "active" : "")">
+                <span class="icon"><i class="fas fa-box"></i></span>
+                Sản Phẩm
+            </a>
+
+            <a href="@Url.Action("Index", "Voucher")"
+                   class="nav-item-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Voucher" ? "active" : "")">
+                <span class="icon"><i class="fas fa-tags"></i></span>
+                Voucher & Khuyến Mãi
+            </a>
+
+            <div class="nav-section-title mt-3">Hệ Thống</div>
+
+            <a href="@Url.Action("Index", "Home")" class="nav-item-link">
+                <span class="icon"><i class="fas fa-home"></i></span>
+                Trang Chủ
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="@Url.Action("Logout", "Login")">
+                <span class="icon"><i class="fas fa-sign-out-alt"></i></span>
+                Đăng Xuất
+            </a>
+        </div>
+    </div>
+
+    <!-- ── MAIN ── -->
+    <div class="main-wrapper">
+        <div class="topbar">
+            <div class="d-flex align-items-center gap-3">
+                <button class="sidebar-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="topbar-title">
+                    @ViewData["Title"]
+                    <small>Electronics Store Admin</small>
+                </div>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge"
+                      style="background:#fff0e6; color:#FF6B35; font-weight:600; padding:6px 12px; border-radius:8px;">
+                    <i class="fas fa-circle" style="font-size:0.5rem;"></i> Online
+                </span>
+            </div>
+        </div>
+
+        <div class="content-area">
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4">
+                    <i class="fas fa-check-circle me-2"></i> @TempData["Success"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4">
+                    <i class="fas fa-check-circle me-2"></i> @TempData["SuccessMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+            @if (ViewBag.Error != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4">
+                    <i class="fas fa-exclamation-circle me-2"></i> @ViewBag.Error
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            @RenderBody()
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script>
+        function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('open');
+        }
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+
+</html>
