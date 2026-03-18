@@ -60,9 +60,6 @@ namespace ElectronicsStore.Customer.Controllers
                 
                 ViewBag.CategoryBrands = categoryBrands;
 
-                ViewBag.FilterTitle = "Tat ca san pham";
-                return View(filteredProducts.ToList());
-
                 // D. XỬ LÝ LỌC SẢN PHẨM THEO QUERY URL
                 var filteredProducts = allProducts.AsEnumerable();
 

@@ -7,6 +7,8 @@ using ElectronicsStore.AbstractFactory.Factories;
 using ElectronicsStore.Customer.Services; 
 using ElectronicsStore.Customer.Service;// Đảm bảo có using này
 using ElectronicsStore.Customer.Service.Payment;
+using ElectronicsStore.API.Commands;
+using ElectronicsStore.API.Observers;
 
 namespace ElectronicsStore.Customer
 {
@@ -26,8 +28,8 @@ namespace ElectronicsStore.Customer
             builder.Services.AddControllersWithViews();
 
            // Đăng ký Service với cấu hình chuẩn
-// Đăng ký Service theo cách tường minh nhất
-builder.Services.AddHttpClient<IProductApiService, ProductApiService>()
+    // Đăng ký Service theo cách tường minh nhất
+    builder.Services.AddHttpClient<IProductApiService, ProductApiService>()
     .ConfigureHttpClient(client => 
     {
         client.BaseAddress = new Uri("http://localhost:5145/api/");
@@ -40,9 +42,14 @@ builder.Services.AddHttpClient<IProductApiService, ProductApiService>()
             AllowAutoRedirect = false 
         };
     });
-
-    builder.Services.AddScoped<ElectronicsStore.Customer.Service.Pricing.PricingStrategyFactory>();
-    builder.Services.AddScoped<PaymentFactory>();
+            builder.Services.AddHttpClient<OrderService>(client =>
+            {
+                client.BaseAddress = new Uri("https://localhost:7206/");
+            });
+            builder.Services.AddScoped<OrderSubject>();
+            builder.Services.AddScoped<CreateOrderCommand>();
+            builder.Services.AddScoped<ElectronicsStore.Customer.Service.Pricing.PricingStrategyFactory>();
+            builder.Services.AddScoped<PaymentFactory>();
             // --- 3. CẤU HÌNH ĐĂNG NHẬP ---
             builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options =>

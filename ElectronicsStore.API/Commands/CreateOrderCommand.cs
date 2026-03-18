@@ -10,26 +10,24 @@ namespace ElectronicsStore.API.Commands
         private readonly DonHang _donHang;
         private readonly OrderSubject _subject;
 
-        public CreateOrderCommand(
-            ElectronicsStoreDbContext context,
-            DonHang donHang,
-            OrderSubject subject)
+        public CreateOrderCommand(ElectronicsStoreDbContext context, OrderSubject subject)
         {
             _context = context;
-            _donHang = donHang;
             _subject = subject;
         }
 
-        public async Task ExecuteAsync()
+        public async Task<int> ExecuteAsync(DonHang donHang)
         {
             Console.WriteLine("COMMAND PATTERN RUNNING");
 
-            _context.DonHangs.Add(_donHang);
+            _context.DonHangs.Add(donHang);
             await _context.SaveChangesAsync();
 
-            Console.WriteLine($"Order {_donHang.MaDH} created");
+            Console.WriteLine($"Order {donHang.MaDH} created");
 
-            await _subject.NotifyOrderCreated(_donHang);
+            await _subject.NotifyOrderCreated(donHang);
+
+            return donHang.MaDH;
         }
     }
 }

@@ -4,6 +4,7 @@ using ElectronicsStore.API.Models.Entities;
 using Microsoft.EntityFrameworkCore;
 using ElectronicsStore.API.Observers;
 using ElectronicsStore.API.Commands;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace ElectronicsStore.API.Controllers
 {
@@ -13,11 +14,13 @@ namespace ElectronicsStore.API.Controllers
     {
         private readonly ElectronicsStoreDbContext _context;
         private readonly OrderSubject _subject;
+        private readonly CreateOrderCommand _command;
 
-        public OrderController(ElectronicsStoreDbContext context, OrderSubject subject)
+        public OrderController(ElectronicsStoreDbContext context, OrderSubject subject, CreateOrderCommand command)
         {
             _context = context;
             _subject = subject;
+            _command = command;
         }
 
         // GET: /api/order/{maND}
@@ -152,7 +155,6 @@ namespace ElectronicsStore.API.Controllers
         [HttpPost("create")]
         public async Task<ActionResult<object>> CreateOrder([FromBody] CreateOrderRequest request)
         {
-
             try
             {
                 var user = await _context.NguoiDungs.FindAsync(request.MaND);
@@ -247,9 +249,16 @@ namespace ElectronicsStore.API.Controllers
                 Console.WriteLine("===== ORDER CONTROLLER =====");
                 Console.WriteLine($"Creating order for user {request.MaND}");
 
-                var command = new CreateOrderCommand(_context, donHang, _subject);
+                var orderId = await _command.ExecuteAsync(donHang);
 
-                await command.ExecuteAsync();
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine($">>> [COMMAND]: CreateOrderCommand đã lưu đơn hàng {donHang.MaDonHangGoc} thành công.");
+                Console.ResetColor();
+
+                // Kích hoạt Observer (Để hiện cái bảng thông báo màu sắc bạn đã viết)
+                var terminalObserver = new TerminalLoggerObserver();
+                _subject.Attach(terminalObserver); // Đăng ký
+                await _subject.NotifyOrderCreated(donHang); // Gửi thông báo tới Terminal
 
                 return Created($"api/order/detail/{donHang.MaDH}", new
                 {

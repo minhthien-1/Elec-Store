@@ -51,5 +51,9 @@ namespace ElectronicsStore.API.Observers
 
             Console.WriteLine("Inventory updated.");
         }
+        public void OnOrderCreated(string orderInfo)
+        {
+            // Có thể để trống nếu Service này không cần xử lý chuỗi string
+        }
     }
 }

@@ -1,26 +1,40 @@
 ﻿using ElectronicsStore.API.Models.Entities;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace ElectronicsStore.API.Observers
 {
     public class OrderSubject
     {
-        private readonly IEnumerable<IOrderObserver> _observers;
+        // Danh sách lưu trữ các Observer đang lắng nghe
+        private readonly List<IOrderObserver> _observers = new List<IOrderObserver>();
 
-        public OrderSubject(IEnumerable<IOrderObserver> observers)
+        // Phương thức để đăng ký một Observer mới
+        public void Attach(IOrderObserver observer)
         {
-            _observers = observers;
+            if (!_observers.Contains(observer))
+            {
+                _observers.Add(observer);
+            }
         }
 
+        // Phương thức để hủy đăng ký Observer
+        public void Detach(IOrderObserver observer)
+        {
+            if (_observers.Contains(observer))
+            {
+                _observers.Remove(observer);
+            }
+        }
+
+        // Phương thức gửi thông báo tới tất cả các Observer đã đăng ký
         public async Task NotifyOrderCreated(DonHang order)
         {
-            Console.WriteLine("SUBJECT: Notifying observers...");
-
             foreach (var observer in _observers)
             {
                 await observer.OnOrderCreated(order);
             }
-
-            Console.WriteLine("SUBJECT: All observers finished");
         }
+
     }
 }

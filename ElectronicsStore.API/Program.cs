@@ -18,11 +18,15 @@ namespace ElectronicsStore.API
         public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            builder.Services.AddScoped<CreateOrderCommand>();
 
             // Add services to the container
             builder.Services.AddScoped<OrderSubject>();
             builder.Services.AddScoped<IOrderObserver, EmailNotifier>();
             builder.Services.AddScoped<IOrderObserver, InventoryService>();
+            builder.Services.AddScoped<IOrderObserver, TerminalLoggerObserver>();
+            builder.Services.AddScoped<IOrderObserver, InventoryService>();
+            builder.Services.AddScoped<IOrderObserver, EmailNotifier>();
             builder.Services.AddControllers()
                 .AddJsonOptions(options =>
                 {
