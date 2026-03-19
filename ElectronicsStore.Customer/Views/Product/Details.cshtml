@@ -13,9 +13,6 @@
     {
         percentDiscount = (int)((1 - (giaGiamGia.Value / giaBan)) * 100);
     }
-
-    var vouchers = ViewBag.Vouchers as List<ElectronicsStore.Customer.Controllers.VoucherViewModel> ?? new
-    List<ElectronicsStore.Customer.Controllers.VoucherViewModel>();
     decimal giaHienThi = giaGiamGia.HasValue && giaGiamGia.Value > 0 ? giaGiamGia.Value : giaBan;
 }
 
@@ -37,34 +34,10 @@
         padding: 20px;
         box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
     }
-
-    .voucher-box {
-        background: #fff8f0;
-        border: 1.5px dashed #ff6600;
-        border-radius: 8px;
-        padding: 14px 16px;
-    }
-
-    .voucher-box select {
-        border: 1px solid #ff6600;
-        border-radius: 6px;
-    }
-
-    .price-after-voucher {
-        color: #e53935;
-        font-size: 1.5rem;
-        font-weight: 700;
-    }
-
-    .voucher-saving {
-        color: #43a047;
-        font-size: 0.9rem;
-    }
 </style>
 
 <div class="product-detail-page bg-light pb-5">
     <div class="container py-4">
-
         <nav aria-label="breadcrumb" class="mb-3">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="/" class="text-decoration-none text-muted">Trang chủ</a></li>
@@ -79,112 +52,60 @@
                          onerror="this.src='https://via.placeholder.com/600'">
                 </div>
 
-                <div class="col-lg-7 col-md-12 col-12 product-info">
-                    <div class="info-wrapper">
-                        <div class="product-name">
-                            <h1 class="fs-3 fw-bold mb-3">@Model.tenSP</h1>
+                <div class="col-lg-7 col-md-12 col-12">
+                    <h1 class="fs-3 fw-bold mb-3">@Model.tenSP</h1>
+                    <div class="mb-3 pb-2 border-bottom">
+                        <span class="text-muted small">Mã sản phẩm: <strong
+                            class="text-danger">@Model.maSP</strong></span>
+                            <span class="text-muted small ms-4">
+                                Tình trạng:
+                                @if (Model.soLuongTonKho > 0)
+                                {
+                                    <strong class="text-success">Còn hàng</strong>
+                                }
+                                else
+                                {
+
+                                    <strong class="text-danger">Hết hàng</strong>
+                                }
+                            </span>
                         </div>
-                        <div class="product-sku mb-3 pb-2 border-bottom">
-                            <span class="text-muted small">Mã sản phẩm: <strong
-                                class="text-danger">@Model.maSP</strong></span>
-                                <span class="text-muted small ms-4">
-                                    Tình trạng:
-                                    @if (Model.soLuongTonKho > 0)
-                                    {
-                                        <strong class="text-success">Còn hàng</strong>
-                                    }
-                                    else
-                                    {
 
-                                        <strong class="text-danger">Hết hàng</strong>
-                                    }
-                                </span>
-                            </div>
+                        <div class="mb-3">
+                            <span class="text-warning">
+                                <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                                <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                                <i class="bi bi-star-half"></i>
+                            </span>
+                            <span class="small text-primary ms-2">(Xem đánh giá từ API)</span>
+                        </div>
 
-                            <div class="product-rating mb-3">
-                                <span class="text-warning">
-                                    <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
-                                    <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
-                                    <i class="bi bi-star-half"></i>
-                                </span>
-                                <span class="small text-primary ms-2">(Xem đánh giá từ API)</span>
-                            </div>
+                        <!-- Giá sản phẩm -->
+                        <div class="product-price mb-4">
+                            @if (giaGiamGia.HasValue && giaGiamGia > 0)
+                            {
+                                <span class="text-danger fs-2 fw-bold">@giaGiamGia.Value.ToString("N0")₫</span>
+                                <del class="text-muted ms-3 fs-5">@giaBan.ToString("N0")₫</del>
+                                <span class="badge bg-danger ms-2 align-middle fs-6">-@percentDiscount%</span>
+                            }
+                            else
+                            {
+                                <span class="text-danger fs-2 fw-bold">@giaBan.ToString("N0")₫</span>
+                            }
+                        </div>
 
-                            <div class="product-price mb-3" id="priceOriginal">
-                                @if (giaGiamGia.HasValue && giaGiamGia > 0)
-                                {
-                                    <span class="pro-price text-danger fs-2 fw-bold">@giaGiamGia.Value.ToString("N0")₫</span>
-                                    <del class="text-muted ms-3 fs-5">@giaBan.ToString("N0")₫</del>
-                                    <span class="badge bg-danger ms-2 align-middle fs-6">-@percentDiscount%</span>
-                                }
-                                else
-                                {
-                                    <span class="pro-price text-danger fs-2 fw-bold"
-                                          id="basePrice">@giaBan.ToString("N0")₫</span>
-                                }
-                            </div>
-
-                            <div id="priceAfterVoucher" class="mb-3" style="display:none;">
-                                <div class="d-flex align-items-center gap-3 flex-wrap">
-                                    <span class="price-after-voucher" id="finalPriceDisplay"></span>
-                                    <del class="text-muted fs-5">@giaHienThi.ToString("N0")₫</del>
-                                </div>
-                                <div class="voucher-saving mt-1">
-                                    <i class="bi bi-check-circle-fill me-1"></i>
-                                    Tiết kiệm: <strong id="discountDisplay"></strong>
-                                    <span class="ms-2 text-muted" id="voucherMessage"></span>
-                                </div>
-                            </div>
-
-                            <div class="voucher-box mb-4">
-                                <div class="d-flex align-items-center mb-2">
-                                    <i class="bi bi-tag-fill text-warning me-2"></i>
-                                    <span class="fw-semibold">Mã giảm giá</span>
-                                </div>
-                                @if (vouchers.Any())
-                                {
-                                    <div class="d-flex gap-2 flex-wrap">
-                                        <select id="voucherSelect" class="form-select form-select-sm flex-grow-1">
-                                            <option value="">-- Chọn mã giảm giá --</option>
-                                            @foreach (var v in vouchers)
-                                            {
-                                                var moTaGiam = v.kieuGiam == "PhanTram"
-                                                            ? $"Giảm {v.giaTriGiam}%{(v.giaTriGiamToiDa.HasValue ? $" (tối đa                     {v.giaTriGiamToiDa:N0}đ)" : "")}"
-                                                : $"Giảm {v.giaTriGiam:N0}đ";
-                                                <option value="@v.maCode" data-kieu="@v.kieuGiam" data-giatri="@v.giaTriGiam"
-                                                        data-toida="@v.giaTriGiamToiDa" data-min="@v.giaTriDonHangToiThieu">
-                                                    [@v.maCode] @v.tenChienDich - @moTaGiam
-                                                </option>
-                                            }
-                                        </select>
-                                        <button onclick="applyVoucher()" class="btn btn-warning btn-sm fw-semibold px-3">
-                                            <i class="bi bi-lightning-fill me-1"></i>Áp dụng
-                                        </button>
-                                        <button onclick="removeVoucher()" id="btnRemoveVoucher"
-                                                class="btn btn-outline-secondary btn-sm" style="display:none;">
-                                            Bỏ mã
-                                        </button>
-                                    </div>
-                                    <div id="voucherError" class="text-danger small mt-1" style="display:none;"></div>
-                                }
-                                else
-                                {
-                                    <p class="text-muted small mb-0">Hiện không có mã giảm giá khả dụng.</p>
-                                }
-                            </div>
-
-                            <div class="col-md-6 col-12 mt-2">
-                                <form action="/Cart/AddToCart" method="post" id="addToCartForm">
-                                    <input type="hidden" name="productId" value="@Model.maSP" />
-                                    <input type="hidden" name="quantity" value="1" />
-                                    <button type="button" onclick="checkLoginAndBuy()"
-                                            class="btn btn-danger btn-buynow w-100 py-2 d-flex flex-column align-items-center rounded-3">
-                                        <span class="fs-5 fw-bold">ĐẶT HÀNG NGAY</span>
-                                        <span style="font-size: 12px; font-weight: 400;">Giao tận nơi hoặc nhận tại cửa
-                                            hàng</span>
-                                        </button>
-                                    </form>
-                                </div>
+                        <!-- Nút đặt hàng -->
+                        <div class="col-md-6 col-12">
+                            <form action="/Cart/AddToCart" method="post" id="addToCartForm">
+                                <input type="hidden" name="productId" value="@Model.maSP" />
+                                <input type="hidden" name="quantity" value="1" />
+                                <button type="button" onclick="checkLoginAndBuy()"
+                                        class="btn btn-danger w-100 py-2 d-flex flex-column align-items-center rounded-3">
+                                    <span class="fs-5 fw-bold">ĐẶT HÀNG NGAY</span>
+                                    <span style="font-size:12px; font-weight:400;">Giao tận nơi hoặc nhận tại cửa
+                                        hàng</span>
+                                    </button>
+                                </form>
                             </div>
                         </div>
                     </div>
@@ -193,42 +114,37 @@
                 <div class="row">
                     <div class="col-lg-8 mb-4">
                         <div class="white-box h-100">
-                            <h4 class="section-title border-bottom pb-2 mb-3 fs-5 fw-bold">Đặc điểm nổi bật</h4>
-                            <div class="product-desc-content p-2">
-                                @if (!string.IsNullOrEmpty(Model.moTa))
-                                {
-                                    @Html.Raw(Model.moTa)
-                                }
-                                else
-                                {
+                            <h4 class="border-bottom pb-2 mb-3 fs-5 fw-bold">Đặc điểm nổi bật</h4>
+                            @if (!string.IsNullOrEmpty(Model.moTa))
+                            {
+                                @Html.Raw(Model.moTa)
+                            }
+                            else
+                            {
 
-                                    <p class="text-muted fst-italic">Sản phẩm hiện chưa có mô tả chi tiết từ nhà sản xuất.</p>
-                                }
-                            </div>
+                                <p class="text-muted fst-italic">Sản phẩm hiện chưa có mô tả chi tiết từ nhà sản xuất.</p>
+                            }
                         </div>
                     </div>
-
                     <div class="col-lg-4 mb-4">
                         <div class="white-box h-100">
-                            <h4 class="section-title border-bottom pb-2 mb-3 fs-5 fw-bold">Thông số kỹ thuật</h4>
-                            <div class="specs-content p-2">
-                                <table class="table table-sm table-striped table-bordered mb-0">
-                                    <tbody>
-                                        <tr>
-                                            <td class="text-muted py-2" style="width: 40%;">Mã sản phẩm</td>
-                                            <td class="text-end fw-medium py-2">@Model.maSP</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="text-muted py-2">Danh mục</td>
-                                            <td class="text-end fw-medium py-2">@(ViewBag.CategoryName ?? "Chưa cập nhật")</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="text-muted py-2">Tồn kho</td>
-                                            <td class="text-end fw-medium py-2">@Model.soLuongTonKho</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
+                            <h4 class="border-bottom pb-2 mb-3 fs-5 fw-bold">Thông số kỹ thuật</h4>
+                            <table class="table table-sm table-striped table-bordered mb-0">
+                                <tbody>
+                                    <tr>
+                                        <td class="text-muted py-2" style="width:40%;">Mã sản phẩm</td>
+                                        <td class="text-end fw-medium py-2">@Model.maSP</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted py-2">Danh mục</td>
+                                        <td class="text-end fw-medium py-2">@(ViewBag.CategoryName ?? "Chưa cập nhật")</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted py-2">Tồn kho</td>
+                                        <td class="text-end fw-medium py-2">@Model.soLuongTonKho</td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -241,63 +157,10 @@
         </div>
 
         <script>
-            const productId = @Model.maSP;
-            const basePrice = @giaHienThi;
-
-            async function applyVoucher() {
-                const select = document.getElementById('voucherSelect');
-                const maCode = select.value;
-                const errDiv = document.getElementById('voucherError');
-
-                if (!maCode) {
-                    errDiv.textContent = 'Vui lòng chọn mã giảm giá!';
-                    errDiv.style.display = 'block';
-                    return;
-                }
-
-                errDiv.style.display = 'none';
-
-                try {
-                    const res = await fetch('/Product/ApplyVoucher', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                        body: `productId=${productId}&maCode=${maCode}&giaGoc=${basePrice}`
-                    });
-
-                    const data = await res.json();
-
-                    if (data.success) {
-                        // Hiển thị giá sau voucher
-                        document.getElementById('priceOriginal').style.display = 'none';
-                        document.getElementById('priceAfterVoucher').style.display = 'block';
-                        document.getElementById('finalPriceDisplay').textContent =
-                            new Intl.NumberFormat('vi-VN').format(data.finalPrice) + '₫';
-                        document.getElementById('discountDisplay').textContent =
-                            new Intl.NumberFormat('vi-VN').format(data.discount) + '₫';
-                        document.getElementById('voucherMessage').textContent = data.message;
-                        document.getElementById('btnRemoveVoucher').style.display = 'inline-block';
-                    } else {
-                        errDiv.textContent = data.message;
-                        errDiv.style.display = 'block';
-                    }
-                } catch (e) {
-                    errDiv.textContent = 'Lỗi kết nối, vui lòng thử lại.';
-                    errDiv.style.display = 'block';
-                }
-            }
-
-            function removeVoucher() {
-                document.getElementById('priceOriginal').style.display = 'block';
-                document.getElementById('priceAfterVoucher').style.display = 'none';
-                document.getElementById('voucherSelect').value = '';
-                document.getElementById('btnRemoveVoucher').style.display = 'none';
-                document.getElementById('voucherError').style.display = 'none';
-            }
-
             function checkLoginAndBuy() {
                 var isLoggedIn = '@User.Identity.IsAuthenticated.ToString().ToLower()';
                 if (isLoggedIn === 'true') {
-                    const btn = document.querySelector('.btn-buynow');
+                    const btn = document.querySelector('.btn-danger');
                     btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> ĐANG XỬ LÝ...';
                     btn.disabled = true;
                     document.getElementById('addToCartForm').submit();

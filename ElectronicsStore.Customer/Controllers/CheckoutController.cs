@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Net.Http.Json;
 
 namespace ElectronicsStore.Customer.Controllers
 {
@@ -70,6 +71,18 @@ namespace ElectronicsStore.Customer.Controllers
                 DiaChiCuThe = user?.DiaChiMacDinh
             };
 
+            var vouchers = new List<ElectronicsStore.Customer.Controllers.VoucherViewModel>();
+            try
+            {
+                using var httpClient = new HttpClient();
+                httpClient.BaseAddress = new Uri("http://localhost:5145/api/");
+                var voucherResponse = await httpClient.GetFromJsonAsync<ElectronicsStore.Customer.Controllers.VoucherListResponse>("promotion");
+                if (voucherResponse?.data != null)
+                    vouchers = voucherResponse.data;
+            }
+            catch { /* Không có voucher thì bỏ qua */ }
+            ViewBag.Vouchers = vouchers;
+            
             return View(model);
         }
 
