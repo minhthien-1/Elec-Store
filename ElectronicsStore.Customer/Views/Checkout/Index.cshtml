@@ -2,91 +2,26 @@
 @{
     ViewData["Title"] = "Thanh toán";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var vouchers = ViewBag.Vouchers as List<ElectronicsStore.Customer.Controllers.VoucherViewModel>
+        ?? new List<ElectronicsStore.Customer.Controllers.VoucherViewModel>();
 }
 
 <style>
-    /* --- FIX LỖI BADGE SỐ LƯỢNG --- */
-
-    /* 1. Tạo khoảng cách cho khung cuộn để badge không bị cắt ở mép trên và phải */
-    .checkout-product-list {
-        padding: 10px 10px 0 0; /* Top Right Bottom Left */
-    }
-
-    /* 2. Căn chỉnh khung chứa ảnh: Cho phép hiển thị đè ra ngoài (overflow visible) */
-    .checkout-item-img-wrapper {
-        margin-right: 15px !important;
-        overflow: visible !important;
-        position: relative;
-    }
-
-    /* 3. Chỉnh lại Badge: Kích thước cố định, tròn trịa, căn giữa số */
-    .qty-badge-custom {
-        width: 24px; /* Chiều rộng cố định */
-        height: 24px; /* Chiều cao cố định */
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 12px !important; /* Cỡ chữ rõ ràng */
-        font-weight: 700;
-        padding: 0 !important; /* Bỏ padding mặc định để số nằm chính giữa */
-        /* Vị trí thủ công thay vì dùng translate-middle để kiểm soát tốt hơn */
-        top: -8px;
-        right: -8px;
-    }
-
-    /* --- CÁC STYLE KHÁC --- */
-
-    /* Nút Đặt hàng màu đỏ nổi bật (Gradient) */
-    .btn-checkout-confirm {
-        background: linear-gradient(180deg, #ff424e, #e31837);
-        color: white;
-        border: none;
-        padding: 15px;
-        border-radius: 8px;
-        font-weight: 800;
-        font-size: 1.3rem;
-        text-transform: uppercase;
-        width: 100%;
-        box-shadow: 0 4px 6px rgba(227, 24, 55, 0.2);
-        transition: all 0.3s ease;
-    }
-
-        .btn-checkout-confirm:hover {
-            background: linear-gradient(180deg, #e31837, #ff424e);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(227, 24, 55, 0.4);
-            color: white;
-        }
-
-    /* Style cho Phương thức thanh toán */
-    .payment-option-card {
-        cursor: pointer;
-        transition: all 0.2s;
-        border: 2px solid #eee;
-    }
-
-    /* Khi radio được check thì đổi màu viền label bao quanh nó */
-    .form-check-input:checked + .payment-option-card {
-        border-color: #e31837;
-        background-color: #fff5f6;
-    }
-
-    .payment-icon-wrapper {
-        width: 40px;
-        text-align: center;
-        font-size: 1.4rem;
-    }
-
-    .payment-text {
-        font-weight: 600;
-        font-size: 1rem;
-        color: #333;
-    }
+    .checkout-product-list { padding: 10px 10px 0 0; }
+    .checkout-item-img-wrapper { margin-right: 15px !important; overflow: visible !important; position: relative; }
+    .qty-badge-custom { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 12px !important; font-weight: 700; padding: 0 !important; top: -8px; right: -8px; }
+    .btn-checkout-confirm { background: linear-gradient(180deg, #ff424e, #e31837); color: white; border: none; padding: 15px; border-radius: 8px; font-weight: 800; font-size: 1.3rem; text-transform: uppercase; width: 100%; box-shadow: 0 4px 6px rgba(227,24,55,0.2); transition: all 0.3s ease; }
+    .btn-checkout-confirm:hover { background: linear-gradient(180deg, #e31837, #ff424e); transform: translateY(-2px); color: white; }
+    .payment-option-card { cursor: pointer; transition: all 0.2s; border: 2px solid #eee; border-radius: 8px; }
+    .payment-option-card.selected { border-color: #e31837 !important; background-color: #fff5f6 !important; }
+    .voucher-box { background: #fff8f0; border: 1.5px dashed #ff6600; border-radius: 8px; padding: 14px 16px; }
+    .voucher-saving { color: #43a047; font-size: 0.9rem; }
 </style>
 
 <div class="container py-5">
     <form asp-action="PlaceOrder" method="post" id="checkoutForm">
         <div class="row">
+            <!-- CỘT TRÁI: Thông tin giao hàng -->
             <div class="col-md-7">
                 <div class="card shadow-sm border-0 mb-4">
                     <div class="card-header bg-white py-3">
@@ -106,7 +41,6 @@
                                 <label class="form-label small text-muted">Email (để nhận hóa đơn)</label>
                                 <input asp-for="Email" class="form-control" type="email">
                             </div>
-
                             <div class="col-md-4">
                                 <label class="form-label small text-muted">Tỉnh / Thành</label>
                                 <select class="form-select" id="province" required>
@@ -128,12 +62,10 @@
                                 </select>
                                 <input type="hidden" asp-for="PhuongXa" id="wardName" />
                             </div>
-
                             <div class="col-12">
                                 <label class="form-label small text-muted">Địa chỉ cụ thể</label>
                                 <input asp-for="DiaChiCuThe" class="form-control" required placeholder="Số nhà, tên đường, tòa nhà...">
                             </div>
-
                             <div class="col-12">
                                 <label class="form-label small text-muted">Ghi chú đơn hàng</label>
                                 <textarea asp-for="GhiChu" class="form-control" rows="2" placeholder="Ví dụ: Giao giờ hành chính..."></textarea>
@@ -143,6 +75,7 @@
                 </div>
             </div>
 
+            <!-- CỘT PHẢI: Đơn hàng + Voucher + Thanh toán -->
             <div class="col-md-5">
                 <div class="card shadow-sm border-0">
                     <div class="card-header bg-white py-3">
@@ -150,29 +83,35 @@
                     </div>
                     <div class="card-body">
 
+                        <!-- Danh sách sản phẩm -->
                         <div class="checkout-product-list mb-3" style="max-height: 300px; overflow-y: auto; overflow-x: visible;">
                             @foreach (var item in Model.CartItems)
                             {
                                 <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
                                     <div class="d-flex align-items-center" style="max-width: 80%;">
-
                                         <div class="checkout-item-img-wrapper">
-                                            <img src="@item.SanPham.HinhAnh" width="60" height="60" style="object-fit: cover;" class="rounded border bg-white" onerror="this.src='https://via.placeholder.com/60'">
-
+                                            <img src="@item.SanPham.HinhAnh" width="60" height="60"
+                                                 style="object-fit:cover;" class="rounded border bg-white"
+                                                 onerror="this.src='https://via.placeholder.com/60'">
                                             <span class="position-absolute badge rounded-pill bg-danger border border-white qty-badge-custom">
                                                 @item.SoLuong
                                             </span>
                                         </div>
-
                                         <div class="ms-2">
-                                            <span class="small fw-bold text-break" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">@item.SanPham.TenSP</span>
+                                            <span class="small fw-bold text-break"
+                                                  style="display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">
+                                                @item.SanPham.TenSP
+                                            </span>
                                         </div>
                                     </div>
-                                    <span class="text-danger fw-bold small text-nowrap">@((item.SoLuong * item.SanPham.GiaBan).ToString("N0"))₫</span>
+                                    <span class="text-danger fw-bold small text-nowrap">
+                                        @((item.SoLuong * item.SanPham.GiaBan).ToString("N0"))₫
+                                    </span>
                                 </div>
                             }
                         </div>
 
+                        <!-- Tóm tắt giá -->
                         <div class="bg-light p-3 rounded mb-3">
                             <div class="d-flex justify-content-between mb-2">
                                 <span class="text-muted">Tạm tính:</span>
@@ -181,51 +120,102 @@
                             <div class="d-flex justify-content-between mb-2">
                                 <span class="text-muted">Phí vận chuyển:</span>
                                 @if (Model.PhiVanChuyen == 0)
-                                {
-                                    <span class="text-success fw-bold">Miễn phí</span>
-                                }
+                                {<span class="text-success fw-bold">Miễn phí</span>}
                                 else
-                                {
-                                    <span>@Model.PhiVanChuyen.ToString("N0")₫</span>
-                                }
+                                {<span>@Model.PhiVanChuyen.ToString("N0")₫</span>}
+                            </div>
+                            <div class="d-flex justify-content-between mb-2" id="voucherDiscountRow" style="display:none !important;">
+                                <span class="text-muted">Giảm giá voucher:</span>
+                                <span class="text-success fw-bold" id="voucherDiscountAmount">-0₫</span>
                             </div>
                             <hr>
                             <div class="d-flex justify-content-between align-items-center">
                                 <span class="fw-bold fs-5">Tổng cộng:</span>
-                                <span class="fw-bold fs-3 text-danger">@Model.TongThanhToan.ToString("N0")₫</span>
+                                <span class="fw-bold fs-3 text-danger" id="tongThanhToanDisplay">
+                                    @Model.TongThanhToan.ToString("N0")₫
+                                </span>
                             </div>
                         </div>
 
+                        <!-- VOUCHER BOX -->
+                        <div class="voucher-box mb-4">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="bi bi-tag-fill text-warning me-2"></i>
+                                <span class="fw-semibold">Mã giảm giá</span>
+                            </div>
+                            @if (vouchers.Any())
+                            {
+                                <div class="d-flex gap-2 flex-wrap">
+                                    <select id="voucherSelect" class="form-select form-select-sm flex-grow-1"
+                                            style="border:1px solid #ff6600; border-radius:6px;">
+                                        <option value="">-- Chọn mã giảm giá --</option>
+                                        @foreach (var v in vouchers)
+                                        {
+                                            var moTaGiam = v.kieuGiam == "PhanTram"
+                                                ? $"Giảm {v.giaTriGiam}%{(v.giaTriGiamToiDa.HasValue ? $" (tối đa {v.giaTriGiamToiDa:N0}đ)" : "")}"
+                                                : $"Giảm {v.giaTriGiam:N0}đ";
+                                            <option value="@v.maCode">
+                                                [@v.maCode] @moTaGiam
+                                                @if (v.giaTriDonHangToiThieu.HasValue)
+                                                { @($" | Đơn từ {v.giaTriDonHangToiThieu:N0}đ") }
+                                            </option>
+                                        }
+                                    </select>
+                                    <button type="button" onclick="applyVoucher()"
+                                            class="btn btn-warning btn-sm fw-semibold px-3">
+                                        <i class="bi bi-lightning-fill me-1"></i>Áp dụng
+                                    </button>
+                                    <button type="button" onclick="removeVoucher()" id="btnRemoveVoucher"
+                                            class="btn btn-outline-secondary btn-sm" style="display:none;">
+                                        Bỏ mã
+                                    </button>
+                                </div>
+                                <div id="voucherError" class="text-danger small mt-1" style="display:none;"></div>
+                                <div id="voucherSuccess" class="voucher-saving mt-1" style="display:none;">
+                                    <i class="bi bi-check-circle-fill me-1"></i>
+                                    Tiết kiệm: <strong id="discountDisplay"></strong>
+                                    <span class="ms-1 text-muted" id="voucherMessage"></span>
+                                </div>
+                            }
+                            else
+                            {
+                                <p class="text-muted small mb-0">Hiện không có mã giảm giá khả dụng.</p>
+                            }
+                        </div>
+
+                        <!-- Hidden fields -->
                         <input type="hidden" asp-for="TongTienHang" />
                         <input type="hidden" asp-for="PhiVanChuyen" />
+                        <input type="hidden" id="appliedVoucherCode" name="AppliedVoucherCode" value="" />
+                        <input type="hidden" id="appliedDiscount" name="AppliedDiscount" value="0" />
+                        <input type="hidden" id="selectedPayment" asp-for="HinhThucThanhToan" value="COD" />
 
-                        <div class="mt-4">
+                        <!-- Phương thức thanh toán -->
+                        <div class="mt-2">
                             <h6 class="fw-bold mb-3">Chọn hình thức thanh toán:</h6>
 
                             <div class="mb-2">
-                                <input class="form-check-input visually-hidden" type="radio" asp-for="HinhThucThanhToan" value="COD" id="paymentCOD" checked>
-                                <label class="form-check-label d-flex align-items-center p-3 rounded payment-option-card w-100" for="paymentCOD">
-                                    <div class="payment-icon-wrapper">
+                                <div class="d-flex align-items-center p-3 payment-option-card selected"
+                                     id="lblCOD" onclick="selectPayment('COD')">
+                                    <div style="width:40px; text-align:center; font-size:1.4rem; flex-shrink:0;">
                                         <i class="bi bi-cash-coin text-success"></i>
                                     </div>
-                                    <span class="payment-text ms-2">Thanh toán tiền mặt khi nhận hàng (COD)</span>
-                                </label>
+                                    <span class="fw-semibold ms-2">Thanh toán tiền mặt khi nhận hàng (COD)</span>
+                                </div>
                             </div>
 
                             <div>
-                                <input class="form-check-input visually-hidden" type="radio" asp-for="HinhThucThanhToan" value="VNPAY" id="paymentVNPAY">
-                                <label class="form-check-label d-flex align-items-center p-3 rounded payment-option-card w-100" for="paymentVNPAY">
-                                    <div class="payment-icon-wrapper">
-                                        <img src="https://cdn.haitrieu.com/wp-content/uploads/2022/10/Icon-VNPAY-QR.png" height="24" alt="VNPay">
+                                <div class="d-flex align-items-center p-3 payment-option-card"
+                                     id="lblVNPAY" onclick="selectPayment('VNPAY')">
+                                    <div style="width:40px; text-align:center; flex-shrink:0;">
+                                        <img src="https://cdn.haitrieu.com/wp-content/uploads/2022/10/Icon-VNPAY-QR.png" height="28" alt="VNPay">
                                     </div>
-                                    <span class="payment-text ms-2">Thanh toán online qua VNPAY (ATM/QR)</span>
-                                </label>
+                                    <span class="fw-semibold ms-2">Thanh toán online qua VNPAY (ATM/QR)</span>
+                                </div>
                             </div>
                         </div>
 
-                        <button type="submit" class="btn-checkout-confirm mt-4">
-                            ĐẶT HÀNG NGAY
-                        </button>
+                        <button type="submit" class="btn-checkout-confirm mt-4">ĐẶT HÀNG NGAY</button>
                     </div>
                 </div>
             </div>
@@ -235,38 +225,112 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script>
+    const tongTienHang = @Model.TongTienHang;
+    const phiVanChuyen = @Model.PhiVanChuyen;
+
+    // Chọn phương thức thanh toán
+    function selectPayment(method) {
+        document.getElementById('selectedPayment').value = method;
+        document.getElementById('lblCOD').classList.toggle('selected', method === 'COD');
+        document.getElementById('lblVNPAY').classList.toggle('selected', method === 'VNPAY');
+    }
+
+    // Áp dụng voucher
+    async function applyVoucher() {
+        const maCode = document.getElementById('voucherSelect').value;
+        const errDiv = document.getElementById('voucherError');
+        const successDiv = document.getElementById('voucherSuccess');
+
+        if (!maCode) {
+            errDiv.textContent = 'Vui lòng chọn mã giảm giá!';
+            errDiv.style.display = 'block';
+            return;
+        }
+        errDiv.style.display = 'none';
+
+        try {
+            const res = await fetch('/Product/ApplyVoucher', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `productId=0&maCode=${encodeURIComponent(maCode)}&giaGoc=${tongTienHang}`
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                // Hiện dòng giảm giá
+                document.getElementById('voucherDiscountRow').style.cssText = 'display:flex !important;';
+                document.getElementById('voucherDiscountAmount').textContent =
+                    '-' + new Intl.NumberFormat('vi-VN').format(data.discount) + '₫';
+
+                // Cập nhật tổng
+                const newTotal = tongTienHang + phiVanChuyen - data.discount;
+                document.getElementById('tongThanhToanDisplay').textContent =
+                    new Intl.NumberFormat('vi-VN').format(newTotal) + '₫';
+
+                // Thông báo tiết kiệm
+                document.getElementById('discountDisplay').textContent =
+                    new Intl.NumberFormat('vi-VN').format(data.discount) + '₫';
+                document.getElementById('voucherMessage').textContent = data.message;
+                successDiv.style.display = 'block';
+                document.getElementById('btnRemoveVoucher').style.display = 'inline-block';
+
+                // Lưu vào form
+                document.getElementById('appliedVoucherCode').value = maCode;
+                document.getElementById('appliedDiscount').value = data.discount;
+            } else {
+                errDiv.textContent = data.message;
+                errDiv.style.display = 'block';
+                successDiv.style.display = 'none';
+            }
+        } catch (e) {
+            errDiv.textContent = 'Lỗi kết nối, vui lòng thử lại.';
+            errDiv.style.display = 'block';
+        }
+    }
+
+    function removeVoucher() {
+        document.getElementById('voucherSelect').value = '';
+        document.getElementById('btnRemoveVoucher').style.display = 'none';
+        document.getElementById('voucherSuccess').style.display = 'none';
+        document.getElementById('voucherError').style.display = 'none';
+        document.getElementById('voucherDiscountRow').style.cssText = 'display:none !important;';
+        document.getElementById('appliedVoucherCode').value = '';
+        document.getElementById('appliedDiscount').value = '0';
+        document.getElementById('tongThanhToanDisplay').textContent =
+            new Intl.NumberFormat('vi-VN').format(tongTienHang + phiVanChuyen) + '₫';
+    }
+
+    // API địa chỉ
     $(document).ready(function() {
         $.getJSON('https://esgoo.net/api-tinhthanh/1/0.htm', function(data_tinh) {
             if (data_tinh.error == 0) {
-                $.each(data_tinh.data, function(key_tinh, val_tinh) {
-                    $("#province").append('<option value="' + val_tinh.id + '">' + val_tinh.full_name + '</option>');
+                $.each(data_tinh.data, function(k, v) {
+                    $("#province").append('<option value="' + v.id + '">' + v.full_name + '</option>');
                 });
-                $("#province").change(function(e) {
-                    var idtinh = $(this).val();
+                $("#province").change(function() {
                     $("#provinceName").val($("#province option:selected").text());
-                    $.getJSON('https://esgoo.net/api-tinhthanh/2/' + idtinh + '.htm', function(data_quan) {
-                        if (data_quan.error == 0) {
+                    $.getJSON('https://esgoo.net/api-tinhthanh/2/' + $(this).val() + '.htm', function(d) {
+                        if (d.error == 0) {
                             $("#district").html('<option value="">Chọn Quận/Huyện</option>');
                             $("#ward").html('<option value="">Chọn Phường/Xã</option>');
-                            $.each(data_quan.data, function(key_quan, val_quan) {
-                                $("#district").append('<option value="' + val_quan.id + '">' + val_quan.full_name + '</option>');
+                            $.each(d.data, function(k, v) {
+                                $("#district").append('<option value="' + v.id + '">' + v.full_name + '</option>');
                             });
                         }
                     });
                 });
-                $("#district").change(function(e) {
-                    var idquan = $(this).val();
+                $("#district").change(function() {
                     $("#districtName").val($("#district option:selected").text());
-                    $.getJSON('https://esgoo.net/api-tinhthanh/3/' + idquan + '.htm', function(data_phuong) {
-                        if (data_phuong.error == 0) {
+                    $.getJSON('https://esgoo.net/api-tinhthanh/3/' + $(this).val() + '.htm', function(d) {
+                        if (d.error == 0) {
                             $("#ward").html('<option value="">Chọn Phường/Xã</option>');
-                            $.each(data_phuong.data, function(key_phuong, val_phuong) {
-                                $("#ward").append('<option value="' + val_phuong.id + '">' + val_phuong.full_name + '</option>');
+                            $.each(d.data, function(k, v) {
+                                $("#ward").append('<option value="' + v.id + '">' + v.full_name + '</option>');
                             });
                         }
                     });
                 });
-                $("#ward").change(function(e) {
+                $("#ward").change(function() {
                     $("#wardName").val($("#ward option:selected").text());
                 });
             }

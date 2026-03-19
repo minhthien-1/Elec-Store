@@ -23,7 +23,7 @@ namespace ElectronicsStore.API.Controllers
             try
             {
                 var promotions = await _context.MaKhuyenMais
-                    .Where(p => p.TrangThai == true && (p.NgayKetThuc == null || p.NgayKetThuc >= DateTime.Now))
+                    .Where(p => p.TrangThai == true && (p.NgayKetThuc == null || p.NgayKetThuc >= DateTime.UtcNow))
                     .Select(p => new
                     {
                         p.MaKM,
@@ -98,10 +98,10 @@ namespace ElectronicsStore.API.Controllers
                     return NotFound(new { message = "Mã khuyến mãi không hợp lệ" });
 
                 // Check expiration
-                if (promotion.NgayBatDau > DateTime.Now)
+                if (promotion.NgayBatDau > DateTime.UtcNow)
                     return BadRequest(new { message = "Mã khuyến mãi chưa được kích hoạt" });
 
-                if (promotion.NgayKetThuc < DateTime.Now)
+                if (promotion.NgayKetThuc < DateTime.UtcNow)
                     return BadRequest(new { message = "Mã khuyến mãi đã hết hạn" });
 
                 // Check usage limit
@@ -180,7 +180,7 @@ namespace ElectronicsStore.API.Controllers
                     NgayBatDau = request.NgayBatDau,
                     NgayKetThuc = request.NgayKetThuc,
                     TrangThai = request.TrangThai,
-                    ThemTrongDB = DateTime.Now
+                    ThemTrongDB = DateTime.UtcNow
                 };
 
                 _context.MaKhuyenMais.Add(promotion);

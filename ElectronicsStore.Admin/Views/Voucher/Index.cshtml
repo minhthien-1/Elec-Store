@@ -155,12 +155,12 @@
                                 <td>
                                     @if (v.trangThai)
                                     {
-                                        <span class="badge bg-success">Hoạt động</span>
+                                        <span class="badge bg-secondary">Tắt</span>
                                     }
                                     else
                                     {
 
-                                        <span class="badge bg-secondary">Tắt</span>
+                                        <span class="badge bg-success">Hoạt động</span>
                                     }
                                 </td>
                                 <td class="text-center">
@@ -202,26 +202,26 @@
 
         @section Scripts {
             <script>
-                $(document).ready(function () {
-                    $('#voucherTable').DataTable({
-                        language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json' },
-                        pageLength: 10
-                    });
-                });
+                            $(document).ready(function () {
+                                $('#voucherTable').DataTable({
+                                    language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json' },
+                                    pageLength: 10
+                                });
+                            });
 
-                let idToDelete = null;
-                function deleteVoucher(id, code) {
-                    idToDelete = id;
-                    document.getElementById('voucherCode').textContent = code;
-                    new bootstrap.Modal(document.getElementById('deleteModal')).show();
-                }
-                document.getElementById('confirmDelete').addEventListener('click', async function () {
-                    if (idToDelete) {
-                        const res = await fetch(`/Voucher/Delete/${idToDelete}`, { method: 'POST' });
-                        const result = await res.json();
-                        if (result.success) location.reload();
-                        else alert('Lỗi: ' + result.message);
-                    }
-                });
+                            let idToDelete = null;
+                            function deleteVoucher(id, code) {
+                                idToDelete = id;
+                                document.getElementById('voucherCode').textContent = code;
+                                new bootstrap.Modal(document.getElementById('deleteModal')).show();
+                            }
+                            document.getElementById('confirmDelete').addEventListener('click', async function () {
+                                if (idToDelete) {
+                                    const res = await fetch(`/Voucher/Delete/${idToDelete}`, { method: 'POST' });
+                                    const result = await res.json();
+                                    if (result.success) location.reload();
+                                    else alert('Lỗi: ' + result.message);
+                                }
+                            });
             </script>
         }
