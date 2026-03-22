@@ -94,21 +94,7 @@ namespace ElectronicsStore.Customer.Controllers
                 }
                 catch { }
                 ViewBag.Vouchers = vouchers;
-
-                Console.WriteLine("\n========== DECORATOR PATTERN ==========");
-                Console.WriteLine($"San pham: {product.tenSP} | Gia goc: {product.giaBan:N0} VND");
-
-                var orderGiftWrap = new OrderServiceBuilder(product.tenSP, product.giaBan).WithGiftWrap().Build();
-                Console.WriteLine(orderGiftWrap.GetDescription());
-                Console.WriteLine($"=> Tong tien: {orderGiftWrap.GetTotalPrice():N0} VND\n");
-
-                var orderGold = new OrderServiceBuilder(product.tenSP, product.giaBan).WithGiftWrap().WithMemberDiscount("Gold").Build();
-                Console.WriteLine(orderGold.GetDescription());
-                Console.WriteLine($"=> Tong tien: {orderGold.GetTotalPrice():N0} VND\n");
-
-                var orderPlatinum = new OrderServiceBuilder(product.tenSP, product.giaBan).WithMemberDiscount("Platinum").Build();
-                Console.WriteLine(orderPlatinum.GetDescription());
-                Console.WriteLine($"=> Tong tien: {orderPlatinum.GetTotalPrice():N0} VND");
+               
 
                 Console.WriteLine("\n========== ABSTRACT FACTORY PATTERN ==========");
                 var customerFactory = StoreFactoryProvider.GetFactory("customer");
