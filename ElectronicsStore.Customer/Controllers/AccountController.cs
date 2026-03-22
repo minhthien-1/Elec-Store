@@ -8,11 +8,13 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Security.Claims;
 // Thêm namespace này
 using BCrypt.Net;
+using NguoiDung = ElectronicsStore.Customer.Models.NguoiDung;
 
 namespace ElectronicsStore.Customer.Controllers
 {
     public class AccountController : Controller
     {
+
         private readonly ElectronicsStoreDbContext _context;
 
         public AccountController(ElectronicsStoreDbContext context)
@@ -96,7 +98,7 @@ namespace ElectronicsStore.Customer.Controllers
             // MÃ HÓA MẬT KHẨU TẠI ĐÂY
             string passwordHash = BCrypt.Net.BCrypt.HashPassword(model.Password);
 
-            var newUser = new NguoiDung
+            var newUser = new ElectronicsStore.API.Models.Entities.NguoiDung
             {
                 Email = model.Email,
                 TenDayDu = model.TenDayDu,
