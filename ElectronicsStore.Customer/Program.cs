@@ -7,6 +7,8 @@ using ElectronicsStore.AbstractFactory.Factories;
 using ElectronicsStore.Customer.Services; 
 using ElectronicsStore.Customer.Service;// Đảm bảo có using này
 using ElectronicsStore.Customer.Service.Payment;
+using ElectronicsStore.Customer.Repositories;
+using ElectronicsStore.Customer.Repositories.Interfaces;
 
 namespace ElectronicsStore.Customer
 {
@@ -26,6 +28,8 @@ namespace ElectronicsStore.Customer
             builder.Services.AddControllersWithViews();
 
            // Đăng ký Service với cấu hình chuẩn
+           // Đăng ký Generic Repository
+builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 // Đăng ký Service theo cách tường minh nhất
 builder.Services.AddHttpClient<IProductApiService, ProductApiService>()
     .ConfigureHttpClient(client => 

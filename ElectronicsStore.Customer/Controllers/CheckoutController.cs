@@ -11,6 +11,8 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Net.Http.Json;
+using ElectronicsStore.Customer.Repositories;
+using ElectronicsStore.Customer.Repositories.Interfaces;
 
 namespace ElectronicsStore.Customer.Controllers
 {
@@ -21,18 +23,22 @@ namespace ElectronicsStore.Customer.Controllers
         private readonly PricingStrategyFactory _pricingFactory; 
         private readonly PaymentFactory _paymentFactory;
         private readonly ILogger<CheckoutController> _logger;
+        private readonly IGenericRepository<ElectronicsStore.Customer.Models.NguoiDung> _userRepo;
 
         // Inject các dịch vụ qua Constructor
         public CheckoutController(
             ElectronicsStoreDbContext context,
             PricingStrategyFactory pricingFactory, // SỬA Ở ĐÂY
             PaymentFactory paymentFactory,
-            ILogger<CheckoutController> logger)
+            ILogger<CheckoutController> logger,
+            IGenericRepository<ElectronicsStore.Customer.Models.NguoiDung> userRepo
+            )
         {
             _context = context;
             _pricingFactory = pricingFactory;      // SỬA Ở ĐÂY
             _paymentFactory = paymentFactory;
             _logger = logger;
+            _userRepo = userRepo;
         }
 
         // GET: Hiển thị trang thanh toán
@@ -49,7 +55,8 @@ namespace ElectronicsStore.Customer.Controllers
 
             if (!cartItems.Any()) return RedirectToAction("Index", "Cart");
 
-            var user = await _context.NguoiDungs.FindAsync(userId);
+            //var user = await _context.NguoiDungs.FindAsync(userId);
+            var user = await _userRepo.GetByIdAsync(userId);
 
             decimal tongTienHang = cartItems.Sum(x => x.SoLuong * x.SanPham.GiaBan);
             
