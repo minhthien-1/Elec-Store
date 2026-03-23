@@ -1,4 +1,4 @@
-﻿/*using ElectronicsStore.API.Data;
+﻿using ElectronicsStore.API.Data;
 using ElectronicsStore.API.Models.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -415,4 +415,3 @@ namespace ElectronicsStore.API.Controllers
         #endregion
     }
 }
-*/
