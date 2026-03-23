@@ -15,13 +15,13 @@ using ElectronicsStore.Customer.Repositories;
 using ElectronicsStore.Customer.Repositories.Interfaces;
 using ElectronicsStore.API.Commands;
 using ElectronicsStore.API.Observers;
+using System.Collections.Generic; // Đảm bảo có thư viện này cho List<>
 
 namespace ElectronicsStore.Customer.Controllers
 {
     public class CheckoutController : Controller
     {
         private readonly ElectronicsStoreDbContext _context;
-        // SỬA: Dùng PricingStrategyFactory thay vì IPricingStrategy trực tiếp
         private readonly PricingStrategyFactory _pricingFactory; 
         private readonly PaymentFactory _paymentFactory;
         private readonly ILogger<CheckoutController> _logger;
@@ -29,23 +29,22 @@ namespace ElectronicsStore.Customer.Controllers
         private readonly CreateOrderCommand _createOrderCommand;
         private readonly OrderSubject _subject;
 
-        // Inject các dịch vụ qua Constructor
         public CheckoutController(
             ElectronicsStoreDbContext context,
-            PricingStrategyFactory pricingFactory, // SỬA Ở ĐÂY
+            PricingStrategyFactory pricingFactory, 
             PaymentFactory paymentFactory,
             ILogger<CheckoutController> logger,
             IGenericRepository<ElectronicsStore.Customer.Models.NguoiDung> userRepo,
             CreateOrderCommand createOrderCommand,
-            OrderSubject subject)                  // Inject thêm
+            OrderSubject subject)                  
         {
             _context = context;
-            _pricingFactory = pricingFactory;      // SỬA Ở ĐÂY
+            _pricingFactory = pricingFactory;      
             _paymentFactory = paymentFactory;
             _logger = logger;
             _userRepo = userRepo;
-            _createOrderCommand = createOrderCommand; // Gán vào biến
-            _subject = subject;                       // Gán vào biến
+            _createOrderCommand = createOrderCommand; 
+            _subject = subject;                       
         }
 
         // GET: Hiển thị trang thanh toán
@@ -62,14 +61,13 @@ namespace ElectronicsStore.Customer.Controllers
 
             if (!cartItems.Any()) return RedirectToAction("Index", "Cart");
 
-            //var user = await _context.NguoiDungs.FindAsync(userId);
             var user = await _userRepo.GetByIdAsync(userId);
 
             decimal tongTienHang = cartItems.Sum(x => x.SoLuong * x.SanPham.GiaBan);
             
             // DÙNG FACTORY ĐỂ LẤY STRATEGY VÀ TÍNH TOÁN HIỂN THỊ LÊN VIEW
             var pricingStrategy = _pricingFactory.CreateStrategy(tongTienHang);
-            decimal phiShip = pricingStrategy.CalculateShippingFee(tongTienHang);
+            decimal phiShip = pricingStrategy.CalculateShippingFee(tongTienHang, string.Empty);
             decimal tienGiamGia = pricingStrategy.CalculateDiscount(tongTienHang);
 
             var model = new CheckoutViewModel
@@ -77,8 +75,6 @@ namespace ElectronicsStore.Customer.Controllers
                 CartItems = cartItems,
                 TongTienHang = tongTienHang,
                 PhiVanChuyen = phiShip,
-                // Nếu CheckoutViewModel của bạn có thuộc tính TienGiamGia, hãy gán nó ở đây:
-                // TienGiamGia = tienGiamGia, 
                 HoTen = user?.TenDayDu,
                 SoDienThoai = user?.SoDienThoai,
                 Email = user?.Email,
@@ -100,6 +96,26 @@ namespace ElectronicsStore.Customer.Controllers
             return View(model);
         }
 
+        // GET: API tính phí vận chuyển động cho Front-end
+        [HttpGet]
+        public async Task<IActionResult> CalculateShipping(string province, string district)
+        {
+            var userIdClaim = User.FindFirst("UserId");
+    if (userIdClaim == null) return Json(new { success = false });
+
+    int userId = int.Parse(userIdClaim.Value);
+    var cartItems = await _context.GioHangs.Include(g => g.SanPham)
+                        .Where(g => g.MaND == userId).ToListAsync();
+    
+    decimal tongTienHang = cartItems.Sum(x => x.SoLuong * x.SanPham.GiaBan);
+
+    // Sử dụng Factory để chọn Strategy và tính phí dựa trên Tỉnh/Thành gửi lên
+    var pricingStrategy = _pricingFactory.CreateStrategy(tongTienHang);
+    decimal fee = pricingStrategy.CalculateShippingFee(tongTienHang, province);
+
+    return Json(new { success = true, fee = fee });
+        }
+
         // POST: Xử lý đặt hàng
         [HttpPost]
         public async Task<IActionResult> PlaceOrder(CheckoutViewModel model)
@@ -117,26 +133,40 @@ namespace ElectronicsStore.Customer.Controllers
 
             if (!cartItems.Any()) return RedirectToAction("Index", "Cart");
 
-            // LOG: Thông tin khách hàng
             _logger.LogInformation($"[CONTROLLER] ---> Khách hàng ID: {userId} | Người nhận: {model.HoTen}");
             _logger.LogInformation($"[CONTROLLER] ---> Địa chỉ: {model.DiaChiCuThe}, {model.PhuongXa}, {model.QuanHuyen}, {model.TinhThanh}");
 
             // 1. BẢO MẬT: Tính lại tổng tiền từ Database
-            decimal actualTongTienHang = cartItems.Sum(x => x.SoLuong * x.SanPham.GiaBan);
+           decimal actualTongTienHang = cartItems.Sum(x => x.SoLuong * x.SanPham.GiaBan);
             _logger.LogInformation($"[CONTROLLER] ---> Tổng tiền trong giỏ: {actualTongTienHang:N0}đ");
 
-            // 2. SỬ DỤNG PRICING FACTORY & STRATEGY
-            var pricingStrategy = _pricingFactory.CreateStrategy(actualTongTienHang);
+            // 2. TÍNH TOÁN LẠI PHÍ SHIP Ở BACKEND (Bảo mật, không tin tưởng dữ liệu từ client)
+            decimal phiShipCoBan = 30000; // Mặc định
+            if (!string.IsNullOrEmpty(model.TinhThanh))
+            {
+                if (model.TinhThanh.Contains("Hồ Chí Minh"))
+                    phiShipCoBan = 15000;
+                else if (model.TinhThanh.Contains("Hà Giang") || model.TinhThanh.Contains("Lào Cai"))
+                    phiShipCoBan = 50000;
+            }
+
+            // 3. SỬ DỤNG PRICING FACTORY & STRATEGY
+          var pricingStrategy = _pricingFactory.CreateStrategy(actualTongTienHang);
             _logger.LogInformation($"[FACTORY PATTERN] ---> Đã tự động phân loại và chọn chiến lược: {pricingStrategy.GetStrategyName()}");
 
-            decimal phiShip = pricingStrategy.CalculateShippingFee(actualTongTienHang);
-            decimal tienGiamGia = pricingStrategy.CalculateDiscount(actualTongTienHang);
+            // Kiểm tra xem Strategy có cho Freeship không
+            decimal phiShip = pricingStrategy.CalculateShippingFee(actualTongTienHang, model.TinhThanh);
+    decimal tienGiamGia = pricingStrategy.CalculateDiscount(actualTongTienHang);
+            
+            // Xử lý tiền giảm giá từ Voucher (Nếu bạn có truyền AppliedDiscount từ form lên, hãy dùng model.AppliedDiscount)
+            // Ví dụ: if (model.AppliedDiscount > 0) tienGiamGia = model.AppliedDiscount;
+
             decimal tongThanhToan = actualTongTienHang + phiShip - tienGiamGia;
 
             _logger.LogInformation($"[STRATEGY PATTERN] ---> Kết quả tính toán:");
-            _logger.LogInformation($"                     + Phí Ship: {phiShip:N0}đ");
-            _logger.LogInformation($"                     + Tiền được giảm: -{tienGiamGia:N0}đ");
-            _logger.LogInformation($"                     + TỔNG PHẢI TRẢ: {tongThanhToan:N0}đ");
+            _logger.LogInformation($"                    + Phí Ship: {phiShip:N0}đ");
+            _logger.LogInformation($"                    + Tiền được giảm: -{tienGiamGia:N0}đ");
+            _logger.LogInformation($"                    + TỔNG PHẢI TRẢ: {tongThanhToan:N0}đ");
 
             var order = new DonHang
             {
@@ -145,8 +175,8 @@ namespace ElectronicsStore.Customer.Controllers
                 NgayTaoDon = DateTime.UtcNow,
                 TongGiaTruocGiam = actualTongTienHang,
                 PhiVanChuyen = phiShip,
-                TienGiamGia = tienGiamGia,          // Đã thêm Tiền Giảm Giá
-                TongGiaSauGiam = tongThanhToan,     // Tổng thanh toán thực tế
+                TienGiamGia = tienGiamGia,          
+                TongGiaSauGiam = tongThanhToan,     
                 TrangThaiDon = "Chờ xác nhận",
                 TrangThaiThanhToan = "Chưa thanh toán",
                 PhuongThucThanhToan = model.HinhThucThanhToan,
@@ -156,10 +186,6 @@ namespace ElectronicsStore.Customer.Controllers
                 GhiChu = model.GhiChu
             };
 
-            //_context.DonHangs.Add(order);
-            //await _context.SaveChangesAsync();
-
-            //_logger.LogInformation($"[CONTROLLER] ---> Đã lưu Đơn hàng #{order.MaDH} thành công.");
             // 1. Đăng ký các Observer muốn lắng nghe (Terminal, Email, v.v.)
             _subject.Attach(new TerminalLoggerObserver());
 
@@ -167,6 +193,7 @@ namespace ElectronicsStore.Customer.Controllers
             int orderId = await _createOrderCommand.ExecuteAsync(order);
 
             _logger.LogInformation($"[CONTROLLER] ---> Command đã thực thi xong cho Đơn hàng #{orderId}");
+            
             // Lưu chi tiết đơn hàng
             foreach (var item in cartItems)
             {

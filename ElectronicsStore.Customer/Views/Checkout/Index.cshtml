@@ -21,7 +21,6 @@
 <div class="container py-5">
     <form asp-action="PlaceOrder" method="post" id="checkoutForm">
         <div class="row">
-            <!-- CỘT TRÁI: Thông tin giao hàng -->
             <div class="col-md-7">
                 <div class="card shadow-sm border-0 mb-4">
                     <div class="card-header bg-white py-3">
@@ -75,7 +74,6 @@
                 </div>
             </div>
 
-            <!-- CỘT PHẢI: Đơn hàng + Voucher + Thanh toán -->
             <div class="col-md-5">
                 <div class="card shadow-sm border-0">
                     <div class="card-header bg-white py-3">
@@ -83,7 +81,6 @@
                     </div>
                     <div class="card-body">
 
-                        <!-- Danh sách sản phẩm -->
                         <div class="checkout-product-list mb-3" style="max-height: 300px; overflow-y: auto; overflow-x: visible;">
                             @foreach (var item in Model.CartItems)
                             {
@@ -111,7 +108,6 @@
                             }
                         </div>
 
-                        <!-- Tóm tắt giá -->
                         <div class="bg-light p-3 rounded mb-3">
                             <div class="d-flex justify-content-between mb-2">
                                 <span class="text-muted">Tạm tính:</span>
@@ -119,10 +115,9 @@
                             </div>
                             <div class="d-flex justify-content-between mb-2">
                                 <span class="text-muted">Phí vận chuyển:</span>
-                                @if (Model.PhiVanChuyen == 0)
-                                {<span class="text-success fw-bold">Miễn phí</span>}
-                                else
-                                {<span>@Model.PhiVanChuyen.ToString("N0")₫</span>}
+                                <span id="shippingFeeDisplay" class="@(Model.PhiVanChuyen == 0 ? "text-success fw-bold" : "")">
+                                    @(Model.PhiVanChuyen == 0 ? "Miễn phí" : Model.PhiVanChuyen.ToString("N0") + "₫")
+                                </span>
                             </div>
                             <div class="d-flex justify-content-between mb-2" id="voucherDiscountRow" style="display:none !important;">
                                 <span class="text-muted">Giảm giá voucher:</span>
@@ -137,7 +132,6 @@
                             </div>
                         </div>
 
-                        <!-- VOUCHER BOX -->
                         <div class="voucher-box mb-4">
                             <div class="d-flex align-items-center mb-2">
                                 <i class="bi bi-tag-fill text-warning me-2"></i>
@@ -183,14 +177,12 @@
                             }
                         </div>
 
-                        <!-- Hidden fields -->
                         <input type="hidden" asp-for="TongTienHang" />
                         <input type="hidden" asp-for="PhiVanChuyen" />
                         <input type="hidden" id="appliedVoucherCode" name="AppliedVoucherCode" value="" />
                         <input type="hidden" id="appliedDiscount" name="AppliedDiscount" value="0" />
                         <input type="hidden" id="selectedPayment" asp-for="HinhThucThanhToan" value="COD" />
 
-                        <!-- Phương thức thanh toán -->
                         <div class="mt-2">
                             <h6 class="fw-bold mb-3">Chọn hình thức thanh toán:</h6>
 
@@ -226,13 +218,56 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script>
     const tongTienHang = @Model.TongTienHang;
-    const phiVanChuyen = @Model.PhiVanChuyen;
+    let currentShippingFee = @Model.PhiVanChuyen; 
+    let currentDiscount = 0; // Thêm biến toàn cục quản lý Voucher
 
     // Chọn phương thức thanh toán
     function selectPayment(method) {
         document.getElementById('selectedPayment').value = method;
         document.getElementById('lblCOD').classList.toggle('selected', method === 'COD');
         document.getElementById('lblVNPAY').classList.toggle('selected', method === 'VNPAY');
+    }
+
+    // --- HÀM TÍNH PHÍ SHIP MỚI ---
+    async function updateShippingFee() {
+        const provinceName = $("#provinceName").val();
+        const districtName = $("#districtName").val();
+
+        if (!provinceName) return;
+
+        try {
+            const res = await fetch(`/Checkout/CalculateShipping?province=${encodeURIComponent(provinceName)}&district=${encodeURIComponent(districtName)}`);
+            const data = await res.json();
+
+            if (data.success) {
+                currentShippingFee = data.fee;
+                
+                // Sử dụng ID để target chính xác
+                const shipDisplay = document.getElementById('shippingFeeDisplay');
+                if (currentShippingFee === 0) {
+                    shipDisplay.className = "text-success fw-bold";
+                    shipDisplay.textContent = "Miễn phí";
+                } else {
+                    shipDisplay.className = "fw-bold";
+                    shipDisplay.textContent = new Intl.NumberFormat('vi-VN').format(currentShippingFee) + '₫';
+                }
+
+                // Cập nhật Input ẩn
+                document.querySelector('input[name="PhiVanChuyen"]').value = currentShippingFee;
+
+                // Tính lại tổng cộng
+                recalculateTotal();
+            }
+        } catch (e) {
+            console.error("Lỗi tính phí ship:", e);
+        }
+    }
+
+    // Hàm dùng chung để tính tổng
+    function recalculateTotal() {
+        const newTotal = tongTienHang + currentShippingFee - currentDiscount;
+        document.getElementById('tongThanhToanDisplay').textContent = 
+            new Intl.NumberFormat('vi-VN').format(newTotal) + '₫';
     }
 
     // Áp dụng voucher
@@ -257,15 +292,15 @@
             const data = await res.json();
 
             if (data.success) {
+                currentDiscount = data.discount; // Đã sửa: Lưu vào biến global
+
                 // Hiện dòng giảm giá
                 document.getElementById('voucherDiscountRow').style.cssText = 'display:flex !important;';
                 document.getElementById('voucherDiscountAmount').textContent =
                     '-' + new Intl.NumberFormat('vi-VN').format(data.discount) + '₫';
 
-                // Cập nhật tổng
-                const newTotal = tongTienHang + phiVanChuyen - data.discount;
-                document.getElementById('tongThanhToanDisplay').textContent =
-                    new Intl.NumberFormat('vi-VN').format(newTotal) + '₫';
+                // Đã sửa: Tính lại tổng dựa trên cả 2 biến
+                recalculateTotal(); 
 
                 // Thông báo tiết kiệm
                 document.getElementById('discountDisplay').textContent =
@@ -296,25 +331,24 @@
         document.getElementById('voucherDiscountRow').style.cssText = 'display:none !important;';
         document.getElementById('appliedVoucherCode').value = '';
         document.getElementById('appliedDiscount').value = '0';
-        document.getElementById('tongThanhToanDisplay').textContent =
-            new Intl.NumberFormat('vi-VN').format(tongTienHang + phiVanChuyen) + '₫';
+        
+        currentDiscount = 0; // Đã sửa: Reset biến global
+        recalculateTotal(); // Đã sửa: Gọi hàm tính tổng chung
     }
 
     $(document).ready(function () {
-        // 1. Lấy danh sách Tỉnh/Thành khi trang vừa load
+        // 1. Lấy danh sách Tỉnh/Thành
         $.getJSON('https://provinces.open-api.vn/api/p/', function (data) {
             $.each(data, function (index, item) {
                 $("#province").append(`<option value="${item.code}">${item.name}</option>`);
             });
         });
 
-        // 2. Khi chọn Tỉnh -> Load Quận/Huyện
+        // 2. Tỉnh -> Quận
         $("#province").change(function () {
             var provinceCode = $(this).val();
-            // Gán tên tỉnh vào input hidden để gửi lên Server
             $("#provinceName").val($("#province option:selected").text());
 
-            // Reset các ô bên dưới
             $("#district").html('<option value="">Chọn Quận/Huyện</option>');
             $("#ward").html('<option value="">Chọn Phường/Xã</option>');
 
@@ -325,9 +359,10 @@
                     });
                 });
             }
+            setTimeout(updateShippingFee, 200);
         });
 
-        // 3. Khi chọn Quận -> Load Phường/Xã
+        // 3. Quận -> Phường
         $("#district").change(function () {
             var districtCode = $(this).val();
             $("#districtName").val($("#district option:selected").text());
@@ -341,9 +376,11 @@
                     });
                 });
             }
+            // Đã sửa: Gọi update khi đổi quận/huyện
+            setTimeout(updateShippingFee, 200);
         });
 
-        // 4. Khi chọn Phường -> Lưu tên vào hidden input
+        // 4. Lưu tên Phường
         $("#ward").change(function () {
             $("#wardName").val($("#ward option:selected").text());
         });
