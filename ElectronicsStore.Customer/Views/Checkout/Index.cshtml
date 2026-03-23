@@ -300,40 +300,52 @@
             new Intl.NumberFormat('vi-VN').format(tongTienHang + phiVanChuyen) + '₫';
     }
 
-    // API địa chỉ
-    $(document).ready(function() {
-        $.getJSON('https://esgoo.net/api-tinhthanh/1/0.htm', function(data_tinh) {
-            if (data_tinh.error == 0) {
-                $.each(data_tinh.data, function(k, v) {
-                    $("#province").append('<option value="' + v.id + '">' + v.full_name + '</option>');
-                });
-                $("#province").change(function() {
-                    $("#provinceName").val($("#province option:selected").text());
-                    $.getJSON('https://esgoo.net/api-tinhthanh/2/' + $(this).val() + '.htm', function(d) {
-                        if (d.error == 0) {
-                            $("#district").html('<option value="">Chọn Quận/Huyện</option>');
-                            $("#ward").html('<option value="">Chọn Phường/Xã</option>');
-                            $.each(d.data, function(k, v) {
-                                $("#district").append('<option value="' + v.id + '">' + v.full_name + '</option>');
-                            });
-                        }
+    $(document).ready(function () {
+        // 1. Lấy danh sách Tỉnh/Thành khi trang vừa load
+        $.getJSON('https://provinces.open-api.vn/api/p/', function (data) {
+            $.each(data, function (index, item) {
+                $("#province").append(`<option value="${item.code}">${item.name}</option>`);
+            });
+        });
+
+        // 2. Khi chọn Tỉnh -> Load Quận/Huyện
+        $("#province").change(function () {
+            var provinceCode = $(this).val();
+            // Gán tên tỉnh vào input hidden để gửi lên Server
+            $("#provinceName").val($("#province option:selected").text());
+
+            // Reset các ô bên dưới
+            $("#district").html('<option value="">Chọn Quận/Huyện</option>');
+            $("#ward").html('<option value="">Chọn Phường/Xã</option>');
+
+            if (provinceCode) {
+                $.getJSON(`https://provinces.open-api.vn/api/p/${provinceCode}?depth=2`, function (data) {
+                    $.each(data.districts, function (index, item) {
+                        $("#district").append(`<option value="${item.code}">${item.name}</option>`);
                     });
-                });
-                $("#district").change(function() {
-                    $("#districtName").val($("#district option:selected").text());
-                    $.getJSON('https://esgoo.net/api-tinhthanh/3/' + $(this).val() + '.htm', function(d) {
-                        if (d.error == 0) {
-                            $("#ward").html('<option value="">Chọn Phường/Xã</option>');
-                            $.each(d.data, function(k, v) {
-                                $("#ward").append('<option value="' + v.id + '">' + v.full_name + '</option>');
-                            });
-                        }
-                    });
-                });
-                $("#ward").change(function() {
-                    $("#wardName").val($("#ward option:selected").text());
                 });
             }
+        });
+
+        // 3. Khi chọn Quận -> Load Phường/Xã
+        $("#district").change(function () {
+            var districtCode = $(this).val();
+            $("#districtName").val($("#district option:selected").text());
+
+            $("#ward").html('<option value="">Chọn Phường/Xã</option>');
+
+            if (districtCode) {
+                $.getJSON(`https://provinces.open-api.vn/api/d/${districtCode}?depth=2`, function (data) {
+                    $.each(data.wards, function (index, item) {
+                        $("#ward").append(`<option value="${item.code}">${item.name}</option>`);
+                    });
+                });
+            }
+        });
+
+        // 4. Khi chọn Phường -> Lưu tên vào hidden input
+        $("#ward").change(function () {
+            $("#wardName").val($("#ward option:selected").text());
         });
     });
 </script>

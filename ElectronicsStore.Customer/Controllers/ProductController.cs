@@ -46,6 +46,7 @@ namespace ElectronicsStore.Customer.Controllers
                         g => g.Select(p => p.nhaSanXuat!).DistinctBy(b => b.maNhaSX).ToList()
                     );
                 ViewBag.CategoryBrands = categoryBrands;
+                // D. XỬ LÝ LỌC SẢN PHẨM THEO QUERY URL
 
                 var filteredProducts = allProducts.AsEnumerable();
 
@@ -148,6 +149,29 @@ namespace ElectronicsStore.Customer.Controllers
             {
                 return Json(new { success = false, message = "Voucher khong hop le: " + ex.Message });
             }
+        }
+        [HttpGet]
+        public async Task<IActionResult> GetProvinces()
+        {
+            using var client = new HttpClient();
+            var res = await client.GetStringAsync("https://esgoo.net/api-tinhthanh/1/0.htm");
+            return Json(System.Text.Json.JsonSerializer.Deserialize<object>(res));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetDistricts(string id)
+        {
+            using var client = new HttpClient();
+            var res = await client.GetStringAsync($"https://esgoo.net/api-tinhthanh/2/{id}.htm");
+            return Json(System.Text.Json.JsonSerializer.Deserialize<object>(res));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetWards(string id)
+        {
+            using var client = new HttpClient();
+            var res = await client.GetStringAsync($"https://esgoo.net/api-tinhthanh/3/{id}.htm");
+            return Json(System.Text.Json.JsonSerializer.Deserialize<object>(res));
         }
     }
 
