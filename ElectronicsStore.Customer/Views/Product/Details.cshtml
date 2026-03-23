@@ -1,13 +1,13 @@
 ﻿@using ElectronicsStore.Customer.Models
-@model ProductViewModel
+@model ElectronicsStore.Customer.Models.ViewModels.ProductDetailViewModel
 
 @{
-    ViewData["Title"] = Model.tenSP;
+    ViewData["Title"] = Model.TenSP;
     Layout = "~/Views/Shared/_Layout.cshtml";
 
     int percentDiscount = 0;
-    decimal giaBan = Model.giaBan;
-    decimal? giaGiamGia = Model.giaGiamGia;
+    decimal giaBan = Model.GiaBan;
+    decimal? giaGiamGia = Model.GiaGiamGia;
 
     if (giaGiamGia.HasValue && giaGiamGia.Value > 0 && giaBan > 0)
     {
@@ -41,25 +41,25 @@
         <nav aria-label="breadcrumb" class="mb-3">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="/" class="text-decoration-none text-muted">Trang chủ</a></li>
-                <li class="breadcrumb-item active">@Model.tenSP</li>
+                <li class="breadcrumb-item active">@Model.TenSP</li>
             </ol>
         </nav>
 
         <div class="white-box mb-4">
             <div class="row">
                 <div class="col-lg-5 col-md-12 mb-4 text-center align-self-center">
-                    <img src="@Model.hinhAnh" class="main-image" alt="@Model.tenSP"
+                    <img src="@Model.HinhAnh" class="main-image" alt="@Model.TenSP"
                          onerror="this.src='https://via.placeholder.com/600'">
                 </div>
 
                 <div class="col-lg-7 col-md-12 col-12">
-                    <h1 class="fs-3 fw-bold mb-3">@Model.tenSP</h1>
+                    <h1 class="fs-3 fw-bold mb-3">@Model.TenSP</h1>
                     <div class="mb-3 pb-2 border-bottom">
                         <span class="text-muted small">Mã sản phẩm: <strong
-                            class="text-danger">@Model.maSP</strong></span>
+                            class="text-danger">@Model.MaSP</strong></span>
                             <span class="text-muted small ms-4">
                                 Tình trạng:
-                                @if (Model.soLuongTonKho > 0)
+                                @if (Model.SoLuongTonKho > 0)
                                 {
                                     <strong class="text-success">Còn hàng</strong>
                                 }
@@ -97,7 +97,7 @@
                         <!-- Nút đặt hàng -->
                         <div class="col-md-6 col-12">
                             <form action="/Cart/AddToCart" method="post" id="addToCartForm">
-                                <input type="hidden" name="productId" value="@Model.maSP" />
+                                <input type="hidden" name="productId" value="@Model.MaSP" />
                                 <input type="hidden" name="quantity" value="1" />
                                 <button type="button" onclick="checkLoginAndBuy()"
                                         class="btn btn-danger w-100 py-2 d-flex flex-column align-items-center rounded-3">
@@ -115,9 +115,9 @@
                     <div class="col-lg-8 mb-4">
                         <div class="white-box h-100">
                             <h4 class="border-bottom pb-2 mb-3 fs-5 fw-bold">Đặc điểm nổi bật</h4>
-                            @if (!string.IsNullOrEmpty(Model.moTa))
+                            @if (!string.IsNullOrEmpty(Model.MoTaChiTiet))
                             {
-                                @Html.Raw(Model.moTa)
+                                @Html.Raw(Model.MoTaChiTiet)
                             }
                             else
                             {
@@ -133,7 +133,7 @@
                                 <tbody>
                                     <tr>
                                         <td class="text-muted py-2" style="width:40%;">Mã sản phẩm</td>
-                                        <td class="text-end fw-medium py-2">@Model.maSP</td>
+                                        <td class="text-end fw-medium py-2">@Model.MaSP</td>
                                     </tr>
                                     <tr>
                                         <td class="text-muted py-2">Danh mục</td>
@@ -141,7 +141,7 @@
                                     </tr>
                                     <tr>
                                         <td class="text-muted py-2">Tồn kho</td>
-                                        <td class="text-end fw-medium py-2">@Model.soLuongTonKho</td>
+                                        <td class="text-end fw-medium py-2">@Model.SoLuongTonKho</td>
                                     </tr>
                                 </tbody>
                             </table>
