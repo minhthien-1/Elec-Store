@@ -11,6 +11,7 @@ using ElectronicsStore.Customer.Repositories;
 using ElectronicsStore.Customer.Repositories.Interfaces;
 using ElectronicsStore.API.Commands;
 using ElectronicsStore.API.Observers;
+using ElectronicsStore.Customer.Builders;
 
 namespace ElectronicsStore.Customer
 {
@@ -34,6 +35,8 @@ namespace ElectronicsStore.Customer
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             // Đăng ký Service theo cách tường minh nhất
             builder.Services.AddHttpClient<IProductApiService, ProductApiService>();
+            // Đăng ký ProductBuilder vào DI Container
+builder.Services.AddScoped<IProductBuilder, ProductBuilder>();
     // Đăng ký Service theo cách tường minh nhất
     builder.Services.AddHttpClient<IProductApiService, ProductApiService>()
     .ConfigureHttpClient(client => 

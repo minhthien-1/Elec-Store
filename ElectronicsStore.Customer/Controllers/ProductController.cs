@@ -4,15 +4,19 @@ using ElectronicsStore.Customer.Decorator;
 using ElectronicsStore.AbstractFactory;
 using ElectronicsStore.AbstractFactory.Factories;
 using System.Net.Http.Json;
+using ElectronicsStore.Customer.Builders;
+using ElectronicsStore.Customer.Models.ViewModels;
 
 namespace ElectronicsStore.Customer.Controllers
 {
     public class ProductController : Controller
     {
         private readonly HttpClient _httpClient;
+        private readonly IProductBuilder _productBuilder; // 1. Khai báo Builder
 
-        public ProductController()
+        public ProductController(IProductBuilder productBuilder)
         {
+            _productBuilder = productBuilder;
             _httpClient = new HttpClient();
             _httpClient.BaseAddress = new Uri("http://localhost:5145/api/");
         }
@@ -113,7 +117,22 @@ namespace ElectronicsStore.Customer.Controllers
                 Console.WriteLine("[ADMIN FACTORY]    " + adminProduct.GetDisplayInfo());
                 Console.WriteLine("========================================\n");
 
-                return View(product);
+                // 3. DEMO BUILDER PATTERN TẠI ĐÂY
+                Console.WriteLine("\n========== BUILDER PATTERN ==========");
+                var complexProductViewModel = _productBuilder
+                    .SetBasicInfo(product.maSP, product.tenSP, product.giaBan)
+                    .SetDiscountPrice(product.giaGiamGia)
+                    .SetDescription(product.moTa ?? "Đang cập nhật", "Thông số mặc định")
+                    .SetImage(product.hinhAnh)
+                    .SetCategory(product.maDanhMuc, "Điện tử") // Giả sử lấy từ dữ liệu
+                    .Build();
+
+                Console.WriteLine($"[BUILDER] Đã lắp ráp thành công ViewModel cho: {complexProductViewModel.TenSP}");
+                Console.WriteLine("=====================================\n");
+
+                // Trả về cái đã Build để hiển thị lên View
+                return View(complexProductViewModel);
+            
             }
             catch (Exception ex)
             {
