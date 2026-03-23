@@ -300,40 +300,62 @@
             new Intl.NumberFormat('vi-VN').format(tongTienHang + phiVanChuyen) + '₫';
     }
 
-    // API địa chỉ
-    $(document).ready(function() {
-        $.getJSON('https://esgoo.net/api-tinhthanh/1/0.htm', function(data_tinh) {
+    $(document).ready(function () {
+
+        $.getJSON('https://esgoo.net/api-tinhthanh/1/0.htm', function (data_tinh) {
+
             if (data_tinh.error == 0) {
-                $.each(data_tinh.data, function(k, v) {
-                    $("#province").append('<option value="' + v.id + '">' + v.full_name + '</option>');
+
+                $.each(data_tinh.data, function (k, v) {
+                    $("#province").append(`<option value="${v.id}">${v.full_name}</option>`);
                 });
-                $("#province").change(function() {
+
+                $("#province").change(function () {
+                    const provinceId = $(this).val();
                     $("#provinceName").val($("#province option:selected").text());
-                    $.getJSON('https://esgoo.net/api-tinhthanh/2/' + $(this).val() + '.htm', function(d) {
-                        if (d.error == 0) {
-                            $("#district").html('<option value="">Chọn Quận/Huyện</option>');
-                            $("#ward").html('<option value="">Chọn Phường/Xã</option>');
-                            $.each(d.data, function(k, v) {
-                                $("#district").append('<option value="' + v.id + '">' + v.full_name + '</option>');
-                            });
-                        }
-                    });
+
+                    $("#district").html('<option value="">Chọn Quận/Huyện</option>');
+                    $("#ward").html('<option value="">Chọn Phường/Xã</option>');
+
+                    if (provinceId) {
+                        $.getJSON(`https://esgoo.net/api-tinhthanh/2/${provinceId}.htm`, function (data_quan) {
+                            if (data_quan.error == 0) {
+                                $.each(data_quan.data, function (k, v) {
+                                    $("#district").append(`<option value="${v.id}">${v.full_name}</option>`);
+                                });
+                            }
+                        });
+                    }
                 });
-                $("#district").change(function() {
+
+                $("#district").change(function () {
+                    const districtId = $(this).val();
                     $("#districtName").val($("#district option:selected").text());
-                    $.getJSON('https://esgoo.net/api-tinhthanh/3/' + $(this).val() + '.htm', function(d) {
-                        if (d.error == 0) {
-                            $("#ward").html('<option value="">Chọn Phường/Xã</option>');
-                            $.each(d.data, function(k, v) {
-                                $("#ward").append('<option value="' + v.id + '">' + v.full_name + '</option>');
-                            });
-                        }
-                    });
+
+                    $("#ward").html('<option value="">Chọn Phường/Xã</option>');
+
+                    if (districtId) {
+                        $.getJSON(`https://esgoo.net/api-tinhthanh/3/${districtId}.htm`, function (data_phuong) {
+                            if (data_phuong.error == 0) {
+                                $.each(data_phuong.data, function (k, v) {
+                                    $("#ward").append(`<option value="${v.id}">${v.full_name}</option>`);
+                                });
+                            }
+                        });
+                    }
                 });
-                $("#ward").change(function() {
+
+                $("#ward").change(function () {
                     $("#wardName").val($("#ward option:selected").text());
                 });
+
+            } else {
+                console.log("API lỗi:", data_tinh);
             }
+
+        }).fail(function () {
+            console.log("Không gọi được API tỉnh thành");
         });
+
     });
 </script>

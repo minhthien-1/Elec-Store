@@ -8,12 +8,22 @@ namespace ElectronicsStore.Customer.Controllers
     public class OrderController : Controller
     {
         private readonly ElectronicsStoreDbContext _context;
+        private readonly OrderService _orderService;
 
-        public OrderController(ElectronicsStoreDbContext context)
+        public OrderController(ElectronicsStoreDbContext context, OrderService orderService)
         {
             _context = context;
+            _orderService = orderService;
         }
+        [HttpPost]
+        public async Task<IActionResult> Create(CreateOrderRequest request)
+        {
+            var orderId = await _orderService.CreateOrderAsync(request);
 
+            ViewBag.Message = $"Order {orderId} created successfully";
+
+            return View("Success");
+        }
         // Trang lịch sử đơn hàng & thanh toán
         public async Task<IActionResult> History()
         {

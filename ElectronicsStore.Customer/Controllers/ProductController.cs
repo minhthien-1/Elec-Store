@@ -46,6 +46,7 @@ namespace ElectronicsStore.Customer.Controllers
                         g => g.Select(p => p.nhaSanXuat!).DistinctBy(b => b.maNhaSX).ToList()
                     );
                 ViewBag.CategoryBrands = categoryBrands;
+                // D. XỬ LÝ LỌC SẢN PHẨM THEO QUERY URL
 
                 var filteredProducts = allProducts.AsEnumerable();
 

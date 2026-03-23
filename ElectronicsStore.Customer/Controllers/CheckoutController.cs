@@ -13,6 +13,8 @@ using System.Threading.Tasks;
 using System.Net.Http.Json;
 using ElectronicsStore.Customer.Repositories;
 using ElectronicsStore.Customer.Repositories.Interfaces;
+using ElectronicsStore.API.Commands;
+using ElectronicsStore.API.Observers;
 
 namespace ElectronicsStore.Customer.Controllers
 {
@@ -24,6 +26,8 @@ namespace ElectronicsStore.Customer.Controllers
         private readonly PaymentFactory _paymentFactory;
         private readonly ILogger<CheckoutController> _logger;
         private readonly IGenericRepository<ElectronicsStore.Customer.Models.NguoiDung> _userRepo;
+        private readonly CreateOrderCommand _createOrderCommand;
+        private readonly OrderSubject _subject;
 
         // Inject các dịch vụ qua Constructor
         public CheckoutController(
@@ -31,14 +35,17 @@ namespace ElectronicsStore.Customer.Controllers
             PricingStrategyFactory pricingFactory, // SỬA Ở ĐÂY
             PaymentFactory paymentFactory,
             ILogger<CheckoutController> logger,
-            IGenericRepository<ElectronicsStore.Customer.Models.NguoiDung> userRepo
-            )
+            IGenericRepository<ElectronicsStore.Customer.Models.NguoiDung> userRepo,
+            CreateOrderCommand createOrderCommand,
+            OrderSubject subject)                  // Inject thêm
         {
             _context = context;
             _pricingFactory = pricingFactory;      // SỬA Ở ĐÂY
             _paymentFactory = paymentFactory;
             _logger = logger;
             _userRepo = userRepo;
+            _createOrderCommand = createOrderCommand; // Gán vào biến
+            _subject = subject;                       // Gán vào biến
         }
 
         // GET: Hiển thị trang thanh toán
@@ -149,11 +156,17 @@ namespace ElectronicsStore.Customer.Controllers
                 GhiChu = model.GhiChu
             };
 
-            _context.DonHangs.Add(order);
-            await _context.SaveChangesAsync();
+            //_context.DonHangs.Add(order);
+            //await _context.SaveChangesAsync();
 
-            _logger.LogInformation($"[CONTROLLER] ---> Đã lưu Đơn hàng #{order.MaDH} thành công.");
+            //_logger.LogInformation($"[CONTROLLER] ---> Đã lưu Đơn hàng #{order.MaDH} thành công.");
+            // 1. Đăng ký các Observer muốn lắng nghe (Terminal, Email, v.v.)
+            _subject.Attach(new TerminalLoggerObserver());
 
+            // 2. Chạy Command để lưu đơn hàng và tự động kích hoạt Observer
+            int orderId = await _createOrderCommand.ExecuteAsync(order);
+
+            _logger.LogInformation($"[CONTROLLER] ---> Command đã thực thi xong cho Đơn hàng #{orderId}");
             // Lưu chi tiết đơn hàng
             foreach (var item in cartItems)
             {
