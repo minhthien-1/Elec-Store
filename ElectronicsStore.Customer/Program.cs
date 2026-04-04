@@ -5,13 +5,19 @@ using ElectronicsStore.Customer.Decorator;
 using ElectronicsStore.AbstractFactory;
 using ElectronicsStore.AbstractFactory.Factories;
 using ElectronicsStore.Customer.Services; 
-using ElectronicsStore.Customer.Service;// Đảm bảo có using này
+using ElectronicsStore.Customer.Service;
 using ElectronicsStore.Customer.Service.Payment;
 using ElectronicsStore.Customer.Repositories;
 using ElectronicsStore.Customer.Repositories.Interfaces;
 using ElectronicsStore.API.Commands;
 using ElectronicsStore.API.Observers;
 using ElectronicsStore.Customer.Builders;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Authentication.Facebook;
+using ElectronicsStore.Customer.Patterns;
+
 
 namespace ElectronicsStore.Customer
 {
@@ -30,44 +36,74 @@ namespace ElectronicsStore.Customer
             // --- 2. CẤU HÌNH SERVICES & HTTPCLIENT ---
             builder.Services.AddControllersWithViews();
 
-           // Đăng ký Service với cấu hình chuẩn
-           // Đăng ký Generic Repository
-builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-            // Đăng ký Service theo cách tường minh nhất
-            builder.Services.AddHttpClient<IProductApiService, ProductApiService>();
+            // Đăng ký Generic Repository
+            builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+            
             // Đăng ký ProductBuilder vào DI Container
-builder.Services.AddScoped<IProductBuilder, ProductBuilder>();
-    // Đăng ký Service theo cách tường minh nhất
-    builder.Services.AddHttpClient<IProductApiService, ProductApiService>()
-    .ConfigureHttpClient(client => 
-    {
-        client.BaseAddress = new Uri("http://localhost:5145/api/");
-    })
-    .ConfigurePrimaryHttpMessageHandler(() => 
-    {
-        return new HttpClientHandler
-        {
-            ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true,
-            AllowAutoRedirect = false 
-        };
-    });
+            builder.Services.AddScoped<IProductBuilder, ProductBuilder>();
+
+            // Đăng ký Login Patterns
+builder.Services.AddScoped<LocalLoginStrategy>();
+builder.Services.AddScoped<ExternalLoginStrategy>();
+builder.Services.AddScoped<LoginStrategyFactory>();
+
+            // Đăng ký Service theo cách tường minh nhất
+            builder.Services.AddHttpClient<IProductApiService, ProductApiService>()
+                .ConfigureHttpClient(client => 
+                {
+                    client.BaseAddress = new Uri("http://localhost:5145/api/");
+                })
+                .ConfigurePrimaryHttpMessageHandler(() => 
+                {
+                    return new HttpClientHandler
+                    {
+                        ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true,
+                        AllowAutoRedirect = false 
+                    };
+                });
+
             builder.Services.AddHttpClient<OrderService>(client =>
             {
                 client.BaseAddress = new Uri("https://localhost:7206/");
             });
+            
             builder.Services.AddScoped<OrderSubject>();
             builder.Services.AddScoped<CreateOrderCommand>();
             builder.Services.AddScoped<ElectronicsStore.Customer.Service.Pricing.PricingStrategyFactory>();
             builder.Services.AddScoped<PaymentFactory>();
-            // --- 3. CẤU HÌNH ĐĂNG NHẬP ---
-            builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                .AddCookie(options =>
-                {
-                    options.LoginPath = "/Home/Index";
-                    options.LogoutPath = "/Account/Logout";
-                    options.AccessDeniedPath = "/Home/Index";
-                    options.Cookie.Name = "ElectronicsStore_Session";
-                });
+
+            // --- 3. CẤU HÌNH ĐĂNG NHẬP (COOKIE, GOOGLE & FACEBOOK) ---
+            builder.Services.AddAuthentication(options =>
+            {
+                // Đặt Cookie làm phương thức xác thực mặc định
+                options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+            })
+            .AddCookie(options =>
+            {
+                options.LoginPath = "/Home/Index";
+                options.LogoutPath = "/Account/Logout";
+                options.AccessDeniedPath = "/Home/Index";
+                options.Cookie.Name = "ElectronicsStore_Session";
+            })
+            .AddCookie("ExternalCookie") // Tạo Cookie tạm để hứng dữ liệu
+            .AddGoogle(googleOptions =>
+            {
+                googleOptions.SignInScheme = "ExternalCookie";
+                
+                IConfigurationSection googleAuthNSection = builder.Configuration.GetSection("Authentication:Google");
+                googleOptions.ClientId = googleAuthNSection["ClientId"];
+                googleOptions.ClientSecret = googleAuthNSection["ClientSecret"];
+            })
+            .AddFacebook(facebookOptions =>
+            {
+                facebookOptions.SignInScheme = "ExternalCookie";
+                
+                IConfigurationSection fbAuthNSection = builder.Configuration.GetSection("Authentication:Facebook");
+                facebookOptions.AppId = fbAuthNSection["AppId"];
+                facebookOptions.AppSecret = fbAuthNSection["AppSecret"];
+            });
 
             // Sau khi khai báo hết Services mới gọi Build
             var app = builder.Build();
@@ -82,6 +118,8 @@ builder.Services.AddScoped<IProductBuilder, ProductBuilder>();
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseRouting();
+            
+            // Đảm bảo Authentication luôn đứng trước Authorization
             app.UseAuthentication();
             app.UseAuthorization();
 

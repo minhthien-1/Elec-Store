@@ -273,14 +273,23 @@
                         <span>hoặc đăng nhập bằng</span>
                     </div>
 
-                    <div class="d-flex gap-3">
-                        <button type="button" class="btn btn-outline-danger w-50 social-btn">
-                            <i class="bi bi-google"></i> Google
-                        </button>
-                        <button type="button" class="btn btn-outline-primary w-50 social-btn">
-                            <i class="bi bi-facebook"></i> Facebook
-                        </button>
-                    </div>
+                    <div class="d-flex gap-3 w-100">
+    <button type="submit" 
+            name="provider" value="Google"
+            asp-controller="Account" asp-action="ExternalLogin" 
+            formnovalidate 
+            class="btn btn-outline-danger w-50 social-btn">
+        <i class="bi bi-google"></i> Google
+    </button>
+
+    <button type="submit" 
+            name="provider" value="Facebook"
+            asp-controller="Account" asp-action="ExternalLogin" 
+            formnovalidate 
+            class="btn btn-outline-primary w-50 social-btn">
+        <i class="bi bi-facebook"></i> Facebook
+    </button>
+</div>
                 </form>
             </div>
             <div class="modal-footer border-0">
@@ -295,26 +304,23 @@
         </div>
     </div>
 </div>
+
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         // Hàm chuyển đổi mượt mà giữa các Modal
         function switchModal(currentModalId, nextModalId) {
-            // 1. Lấy thực thể của Modal hiện tại
             const currentModalEl = document.querySelector(currentModalId);
             const currentModal = bootstrap.Modal.getOrCreateInstance(currentModalEl);
 
-            // 2. Ẩn Modal hiện tại
             currentModal.hide();
 
-            // 3. Đợi cho đến khi Modal cũ ẩn hoàn toàn (tránh lỗi chồng Backdrop)
             currentModalEl.addEventListener('hidden.bs.modal', function () {
                 const nextModalEl = document.querySelector(nextModalId);
                 const nextModal = bootstrap.Modal.getOrCreateInstance(nextModalEl);
                 nextModal.show();
-            }, { once: true }); // Chỉ chạy một lần duy nhất
+            }, { once: true });
         }
 
-        // Gán sự kiện cho các link chuyển đổi
         // Chuyển sang Register
         document.querySelectorAll('[data-target-register]').forEach(btn => {
             btn.addEventListener('click', () => switchModal('#loginModal', '#registerModal'));
@@ -325,8 +331,7 @@
             btn.addEventListener('click', () => switchModal('#registerModal', '#loginModal'));
         });
     });
-</script>
-<script>
+
     function togglePassword() {
         const passwordInput = document.getElementById('passwordInput');
         const toggleIcon = document.getElementById('toggleIcon');
