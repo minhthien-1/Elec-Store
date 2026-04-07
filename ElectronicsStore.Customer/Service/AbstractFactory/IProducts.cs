@@ -14,7 +14,7 @@ namespace ElectronicsStore.AbstractFactory.Products
 
     /// <summary>
     /// Abstract Product B - Phụ kiện
-    /// </summary>
+    /// </summary>a
     public interface IAccessoryProduct
     {
         int MaSP { get; set; }
