@@ -17,6 +17,8 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.Facebook;
 using ElectronicsStore.Customer.Patterns;
+using ElectronicsStore.Customer.Service.Proxy;
+using ElectronicsStore.Customer.Service.Adapter;
 
 
 namespace ElectronicsStore.Customer
@@ -105,9 +107,43 @@ builder.Services.AddScoped<LoginStrategyFactory>();
                 facebookOptions.AppSecret = fbAuthNSection["AppSecret"];
             });
 
+            // --- ĐĂNG KÝ DESIGN PATTERNS MỚI ---
+
+            // Proxy Pattern: Đăng ký Service Báo cáo
+            builder.Services.AddScoped<IReportService, AdminReportProxy>(provider => 
+                new AdminReportProxy("Staff")); // Mặc định thử nghiệm với quyền Staff
+
+            // Adapter Pattern: Đăng ký Service Thông báo
+            builder.Services.AddScoped<OldEmailSystem>();
+            builder.Services.AddScoped<INotificationService, EmailAdapter>();
+
             // Sau khi khai báo hết Services mới gọi Build
             var app = builder.Build();
 
+            using (var scope = app.Services.CreateScope())
+            {
+                Console.WriteLine("\n" + new string('=', 50));
+                Console.WriteLine("       DEMO DESIGN PATTERNS BỔ SUNG");
+                Console.WriteLine(new string('=', 50));
+
+                // 1. Test Proxy Pattern
+                Console.WriteLine("\n[PROXY PATTERN TEST]");
+                // Thử với quyền Staff (đã đăng ký ở trên)
+                var reportService = scope.ServiceProvider.GetRequiredService<IReportService>();
+                reportService.DisplayReport();
+                
+                // Thử tạo trực tiếp với quyền Admin để thấy sự khác biệt
+                Console.WriteLine("-> Thử lại với quyền Admin:");
+                var adminReport = new AdminReportProxy("Admin");
+                adminReport.DisplayReport();
+
+                // 2. Test Adapter Pattern
+                Console.WriteLine("\n[ADAPTER PATTERN TEST]");
+                var notification = scope.ServiceProvider.GetRequiredService<INotificationService>();
+                notification.Send("Đơn hàng điện tử mới đã được tạo thành công!");
+
+                Console.WriteLine(new string('=', 50) + "\n");
+            }
             // --- 4. CẤU HÌNH PIPELINE (MIDDLEWARE) ---
             if (!app.Environment.IsDevelopment())
             {
