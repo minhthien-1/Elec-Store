@@ -1,0 +1,229 @@
+@using System.Net.Http.Json
+@using System.Text.Json.Serialization
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Web
+@inject IHttpClientFactory HttpClientFactory
+
+<div class="product-reviews mt-5">
+    <h3 class="mb-4">Đánh giá sản phẩm</h3>
+
+    <!-- Form viết đánh giá mới -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+            <h5 class="card-title">Viết đánh giá của bạn</h5>
+            
+            @if (isSubmitting)
+            {
+                <div class="alert alert-info">Đang gửi đánh giá...</div>
+            }
+            else if (!string.IsNullOrEmpty(successMessage))
+            {
+                <div class="alert alert-success">@successMessage</div>
+            }
+            else if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <div class="alert alert-danger">@errorMessage</div>
+            }
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">Đánh giá của bạn:</label>
+                <div class="d-flex text-warning" style="cursor: pointer; font-size: 1.5rem;">
+                    @for (int i = 1; i <= 5; i++)
+                    {
+                        var starValue = i;
+                        <i class="bi @(starValue <= (hoveredRating > 0 ? hoveredRating : newReview.DemSao) ? "bi-star-fill" : "bi-star") me-1"
+                           @onclick="() => SetRating(starValue)"
+                           @onmouseover="() => HoverRating(starValue)"
+                           @onmouseout="ResetHoverRating"></i>
+                    }
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">Tiêu đề đánh giá:</label>
+                <input type="text" class="form-control" @bind="newReview.TieuDe" placeholder="Ví dụ: Sản phẩm rất tốt!" />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">Chi tiết đánh giá:</label>
+                <textarea class="form-control" rows="3" @bind="newReview.NoiDung" placeholder="Chia sẻ thêm cảm nhận của bạn về sản phẩm..."></textarea>
+            </div>
+
+            <button class="btn btn-primary" @onclick="SubmitReview" disabled="@(newReview.DemSao == 0 || isSubmitting)">
+                <i class="bi bi-send"></i> Gửi đánh giá
+            </button>
+        </div>
+    </div>
+
+    <!-- Danh sách đánh giá -->
+    <h5 class="mb-3">Khách hàng nói gì về sản phẩm này?</h5>
+    @if (isLoadingReviews)
+    {
+        <div class="text-center"><div class="spinner-border text-primary" role="status"></div></div>
+    }
+    else if (reviews == null || !reviews.Any())
+    {
+        <p class="text-muted fst-italic">Chưa có đánh giá nào. Hãy trở thành người đầu tiên đánh giá sản phẩm này!</p>
+    }
+    else
+    {
+        <div class="list-group">
+            @foreach (var review in reviews)
+            {
+                <div class="list-group-item list-group-item-action mb-2 border rounded">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h6 class="mb-1 fw-bold">@review.TieuDe</h6>
+                        <small class="text-muted">@review.ThemTrongDB.ToString("dd/MM/yyyy HH:mm")</small>
+                    </div>
+                    <div class="mb-2 text-warning">
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            <i class="bi @(i <= review.DemSao ? "bi-star-fill" : "bi-star")"></i>
+                        }
+                    </div>
+                    <p class="mb-1">@review.NoiDung</p>
+                    <small class="text-muted">Bởi: <strong>@(review.NguoiDung?.TenDayDu ?? "Khách hàng")</strong></small>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public int ProductId { get; set; }
+
+    [Parameter]
+    public int CurrentUserId { get; set; } = 1;
+
+    private List<ReviewDto> reviews = new();
+    private CreateReviewModel newReview = new();
+    private int hoveredRating = 0;
+    private bool isLoadingReviews = true;
+    private bool isSubmitting = false;
+    private string? successMessage;
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        newReview.MaSP = ProductId;
+        newReview.MaND = CurrentUserId; // Set user ID hiện tại
+        await LoadReviews();
+    }
+
+    private async Task LoadReviews()
+    {
+        try
+        {
+            isLoadingReviews = true;
+            var client = HttpClientFactory.CreateClient();
+            client.BaseAddress = new Uri("http://localhost:5145/"); 
+
+            var response = await client.GetFromJsonAsync<ReviewApiResponse>($"api/review/product/{ProductId}");
+            if (response != null && response.Data != null)
+            {
+                reviews = response.Data;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading reviews: {ex.Message}");
+        }
+        finally
+        {
+            isLoadingReviews = false;
+        }
+    }
+
+    private void SetRating(int rating)
+    {
+        newReview.DemSao = rating;
+    }
+
+    private void HoverRating(int rating)
+    {
+        hoveredRating = rating;
+    }
+
+    private void ResetHoverRating()
+    {
+        hoveredRating = 0;
+    }
+
+    private async Task SubmitReview()
+    {
+        if (newReview.DemSao == 0) return;
+
+        try
+        {
+            isSubmitting = true;
+            errorMessage = null;
+            successMessage = null;
+
+            var client = HttpClientFactory.CreateClient();
+            client.BaseAddress = new Uri("http://localhost:5145/");
+
+            var response = await client.PostAsJsonAsync("api/review", newReview);
+
+            if (response.IsSuccessStatusCode)
+            {
+                successMessage = "Cảm ơn bạn! Đánh giá của bạn đã được đăng thành công.";
+                newReview = new CreateReviewModel { MaSP = ProductId, MaND = CurrentUserId };
+                await LoadReviews();
+            }
+            else
+            {
+                errorMessage = "Có lỗi xảy ra khi gửi đánh giá. Vui lòng thử lại.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Lỗi kết nối: {ex.Message}";
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+
+    public class ReviewApiResponse
+    {
+        [JsonPropertyName("total")]
+        public int Total { get; set; }
+        
+        [JsonPropertyName("data")]
+        public List<ReviewDto> Data { get; set; } = new();
+    }
+
+    public class ReviewDto
+    {
+        [JsonPropertyName("maDG")]
+        public int MaDG { get; set; }
+        [JsonPropertyName("demSao")]
+        public int DemSao { get; set; }
+        [JsonPropertyName("tieuDe")]
+        public string? TieuDe { get; set; }
+        [JsonPropertyName("noiDung")]
+        public string? NoiDung { get; set; }
+        [JsonPropertyName("themTrongDB")]
+        public DateTime ThemTrongDB { get; set; }
+        [JsonPropertyName("nguoiDung")]
+        public UserDto? NguoiDung { get; set; }
+    }
+
+    public class UserDto
+    {
+        [JsonPropertyName("tenDayDu")]
+        public string? TenDayDu { get; set; }
+    }
+
+    public class CreateReviewModel
+    {
+        public int MaSP { get; set; }
+        public int MaND { get; set; }
+        public int DemSao { get; set; }
+        public string? TieuDe { get; set; }
+        public string? NoiDung { get; set; }
+        public bool CoDienTieuDung { get; set; } = false;
+    }
+}

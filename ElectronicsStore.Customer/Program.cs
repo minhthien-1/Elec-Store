@@ -1,4 +1,4 @@
-﻿using ElectronicsStore.API.Data;
+using ElectronicsStore.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using ElectronicsStore.Customer.Decorator;
@@ -37,6 +37,8 @@ namespace ElectronicsStore.Customer
 
             // --- 2. CẤU HÌNH SERVICES & HTTPCLIENT ---
             builder.Services.AddControllersWithViews();
+            builder.Services.AddServerSideBlazor();
+            builder.Services.AddHttpClient();
 
             // Đăng ký Generic Repository
             builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
@@ -162,6 +164,8 @@ builder.Services.AddScoped<LoginStrategyFactory>();
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
+
+            app.MapBlazorHub();
 
             // Dòng này phải là dòng CUỐI CÙNG của Main
             app.Run();

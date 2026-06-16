@@ -1,4 +1,4 @@
-﻿@using ElectronicsStore.Customer.Models
+@using ElectronicsStore.Customer.Models
 @model ElectronicsStore.Customer.Models.ViewModels.ProductDetailViewModel
 
 @{
@@ -150,8 +150,11 @@
                 </div>
 
                 <div class="white-box mt-2">
-                    <p class="text-center text-muted mb-0">Tính năng bình luận và sản phẩm tương tự đang được nâng cấp qua API.
-                    </p>
+                    @using ElectronicsStore.Customer.Components
+                    <component type="typeof(ProductReview)" 
+                               render-mode="ServerPrerendered" 
+                               param-ProductId="@Model.MaSP" 
+                               param-CurrentUserId="1" />
                 </div>
             </div>
         </div>
