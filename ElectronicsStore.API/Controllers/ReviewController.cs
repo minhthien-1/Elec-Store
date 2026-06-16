@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using ElectronicsStore.API.Data;
 using ElectronicsStore.API.Models.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -123,17 +123,30 @@ namespace ElectronicsStore.API.Controllers
                     TieuDe = request.TieuDe,
                     NoiDung = request.NoiDung,
                     CoDienTieuDung = request.CoDienTieuDung,
-                    DuocDuyet = false, // Cần admin duyệt
+                    DuocDuyet = true, // Tự động duyệt theo yêu cầu
                     SoLuotThichChu = 0,
-                    ThemTrongDB = DateTime.Now
+                    ThemTrongDB = DateTime.UtcNow
                 };
 
                 _context.DanhGiaSanPhams.Add(review);
                 await _context.SaveChangesAsync();
 
+                // Tự động cập nhật điểm đánh giá cho Sản phẩm
+                var allReviews = await _context.DanhGiaSanPhams
+                    .Where(r => r.MaSP == review.MaSP && r.DuocDuyet == true)
+                    .ToListAsync();
+
+                if (allReviews.Any())
+                {
+                    sanPham.DanhGiaXepHang = (decimal)allReviews.Average(r => r.DemSao);
+                    sanPham.SoLuotDanhGia = allReviews.Count;
+                    sanPham.SuaDoi = DateTime.UtcNow; // Cập nhật lại thời gian sửa đổi chuẩn UTC
+                    await _context.SaveChangesAsync();
+                }
+
                 return Created($"api/review/{review.MaDG}", new
                 {
-                    message = "Tạo đánh giá thành công, chờ admin duyệt",
+                    message = "Tạo đánh giá thành công",
                     review = new
                     {
                         review.MaDG,
@@ -183,7 +196,7 @@ namespace ElectronicsStore.API.Controllers
                     return NotFound(new { message = "Đánh giá không tồn tại" });
 
                 review.DuocDuyet = true;
-                review.SuaDoi = DateTime.Now;
+                review.SuaDoi = DateTime.UtcNow;
 
                 // Update product rating
                 var sanPham = await _context.SanPhams.FindAsync(review.MaSP);
@@ -196,7 +209,7 @@ namespace ElectronicsStore.API.Controllers
                     var avgRating = allReviews.Average(r => r.DemSao);
                     sanPham.DanhGiaXepHang = (decimal)avgRating;
                     sanPham.SoLuotDanhGia = allReviews.Count;
-                    _context.SanPhams.Update(sanPham);
+                    sanPham.SuaDoi = DateTime.UtcNow;
                 }
 
                 _context.DanhGiaSanPhams.Update(review);

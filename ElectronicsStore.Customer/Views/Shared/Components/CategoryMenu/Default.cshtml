@@ -1,0 +1,89 @@
+@model List<ElectronicsStore.API.Models.Entities.DanhMucSanPham>
+
+@{
+    var categoryList = Model ?? new List<ElectronicsStore.API.Models.Entities.DanhMucSanPham>();
+}
+
+<!-- ========== CATEGORY MENU NAVBAR ========== -->
+<ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-3">
+    
+    <!-- 🏠 TRANG CHỦ -->
+    <li class="nav-item">
+        <a class="nav-link fw-bold text-dark" href="/">
+            <i class="bi bi-house-fill me-1"></i>Trang chủ
+        </a>
+    </li>
+
+    <!-- 📦 DANH MỤC SẢN PHẨM -->
+    @if (categoryList.Any())
+    {
+        @foreach (var category in categoryList)
+        {
+            <li class="nav-item">
+                <a class="nav-link text-dark" 
+                   href="@Url.Action("Index", "Product", new { categoryId = category.MaDanhMuc })"
+                   title="@category.MoTa">
+                    
+                    <!-- Hiển thị icon nếu có ảnh, nếu không dùng icon mặc định -->
+                    @if (!string.IsNullOrEmpty(category.HinhAnh))
+                    {
+                        <img src="@category.HinhAnh" 
+                             alt="@category.TenDanhMuc" 
+                             class="rounded-circle me-1" 
+                             style="width: 20px; height: 20px; object-fit: cover;" />
+                    }
+                    else
+                    {
+                        <i class="bi bi-box2 me-1"></i>
+                    }
+                    
+                    @category.TenDanhMuc
+                </a>
+            </li>
+        }
+    }
+    else
+    {
+        <li class="nav-item">
+            <span class="nav-link text-muted">
+                <i class="bi bi-exclamation-circle me-1"></i>Không có danh mục
+            </span>
+        </li>
+    }
+</ul>
+
+<!-- CSS CUSTOM STYLES -->
+<style>
+    /* Navbar nav items styling */
+    .navbar-nav .nav-link {
+        padding: 0.5rem 0.8rem !important;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+        font-size: 0.95rem;
+    }
+
+    .navbar-nav .nav-link:hover {
+        background-color: rgba(255, 140, 66, 0.1);
+        color: #ff8c42 !important;
+        transform: translateY(-2px);
+    }
+
+    .navbar-nav .nav-link.active {
+        background-color: rgba(255, 140, 66, 0.2);
+        color: #ff8c42 !important;
+        font-weight: 600;
+    }
+
+    /* Responsive */
+    @@media (max-width: 991.98px) {
+        .navbar-nav {
+            gap: 0 !important;
+            padding-top: 10px;
+        }
+
+        .navbar-nav .nav-link {
+            padding: 0.7rem 1rem !important;
+        }
+    }
+</style>
+

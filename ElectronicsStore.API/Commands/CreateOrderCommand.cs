@@ -7,7 +7,6 @@ namespace ElectronicsStore.API.Commands
     public class CreateOrderCommand
     {
         private readonly ElectronicsStoreDbContext _context;
-        private readonly DonHang _donHang;
         private readonly OrderSubject _subject;
 
         public CreateOrderCommand(ElectronicsStoreDbContext context, OrderSubject subject)
