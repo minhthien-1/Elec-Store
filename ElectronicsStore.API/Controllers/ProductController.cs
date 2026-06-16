@@ -60,7 +60,7 @@ namespace ElectronicsStore.API.Controllers
                 // Search by name or description
                 if (!string.IsNullOrWhiteSpace(searchKeyword))
                 {
-                    query = query.Where(s => s.TenSP.Contains(searchKeyword) || s.MoTaChiTiet.Contains(searchKeyword));
+                    query = query.Where(s => s.TenSP.Contains(searchKeyword) || (s.MoTaChiTiet != null && s.MoTaChiTiet.Contains(searchKeyword)));
                 }
 
                 var total = await query.CountAsync();
@@ -334,7 +334,7 @@ namespace ElectronicsStore.API.Controllers
                 // Check if product is in any active orders
                 var inOrders = await _context.ChiTietDonHangs
                     .Include(c => c.DonHang)
-                    .AnyAsync(c => c.MaSP == id && c.DonHang.TrangThaiDon != "Đã hủy");
+                    .AnyAsync(c => c.MaSP == id && c.DonHang != null && c.DonHang.TrangThaiDon != "Đã hủy");
 
                 if (inOrders)
                     return BadRequest(new { message = "Không thể xóa sản phẩm vì nó đang có trong đơn hàng" });

@@ -11,7 +11,6 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using ElectronicsStore.API.Services;
 
 namespace ElectronicsStore.API.Controllers
 {
@@ -19,7 +18,6 @@ namespace ElectronicsStore.API.Controllers
     [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
-        private readonly IJwtTokenService _jwtTokenService;
         private readonly ElectronicsStoreDbContext _context;
         private readonly IConfiguration _configuration;
         private readonly ILogger<AuthController> _logger;
@@ -56,7 +54,7 @@ namespace ElectronicsStore.API.Controllers
                 }
 
                 // Bước 2: Kiểm tra email trùng (case-insensitive)
-                var emailLower = request.Email.ToLower().Trim();
+                var emailLower = (request.Email ?? string.Empty).ToLower().Trim();
                 var existingEmail = await _context.NguoiDungs
                     .AsNoTracking()
                     .FirstOrDefaultAsync(u => u.Email.ToLower() == emailLower);
