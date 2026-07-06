@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ElectronicsStore.API.Data;
 using ElectronicsStore.API.Models.Entities;
@@ -29,7 +29,7 @@ namespace ElectronicsStore.Customer.Controllers
         {
             // Kiểm tra đăng nhập
             var userIdClaim = User.FindFirst("UserId");
-            if (userIdClaim == null) return RedirectToAction("Login", "Account");
+            if (userIdClaim == null) return RedirectToPage("/Account/Login");
             int userId = int.Parse(userIdClaim.Value);
 
             // Lấy danh sách đơn hàng kèm theo chi tiết sản phẩm và các lịch sử

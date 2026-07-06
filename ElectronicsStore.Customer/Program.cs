@@ -37,6 +37,7 @@ namespace ElectronicsStore.Customer
 
             // --- 2. CẤU HÌNH SERVICES & HTTPCLIENT ---
             builder.Services.AddControllersWithViews();
+            builder.Services.AddRazorPages();
             builder.Services.AddServerSideBlazor();
             builder.Services.AddHttpClient();
 
@@ -47,9 +48,9 @@ namespace ElectronicsStore.Customer
             builder.Services.AddScoped<IProductBuilder, ProductBuilder>();
 
             // Đăng ký Login Patterns
-builder.Services.AddScoped<LocalLoginStrategy>();
-builder.Services.AddScoped<ExternalLoginStrategy>();
-builder.Services.AddScoped<LoginStrategyFactory>();
+            builder.Services.AddScoped<LocalLoginStrategy>();
+            builder.Services.AddScoped<ExternalLoginStrategy>();
+            builder.Services.AddScoped<LoginStrategyFactory>();
 
             // Đăng ký Service theo cách tường minh nhất
             builder.Services.AddHttpClient<IProductApiService, ProductApiService>()
@@ -166,6 +167,7 @@ builder.Services.AddScoped<LoginStrategyFactory>();
                 pattern: "{controller=Home}/{action=Index}/{id?}");
 
             app.MapBlazorHub();
+            app.MapRazorPages();
 
             // Dòng này phải là dòng CUỐI CÙNG của Main
             app.Run();

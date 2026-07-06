@@ -1,4 +1,4 @@
-﻿using ElectronicsStore.API.Data;
+using ElectronicsStore.API.Data;
 using ElectronicsStore.API.Models.Entities;
 using ElectronicsStore.Customer.Models;
 using ElectronicsStore.Customer.Service;
@@ -51,7 +51,7 @@ namespace ElectronicsStore.Customer.Controllers
         public async Task<IActionResult> Index()
         {
             var userIdClaim = User.FindFirst("UserId");
-            if (userIdClaim == null) return RedirectToAction("Login", "Account");
+            if (userIdClaim == null) return RedirectToPage("/Account/Login");
             int userId = int.Parse(userIdClaim.Value);
 
             var cartItems = await _context.GioHangs
@@ -123,7 +123,7 @@ namespace ElectronicsStore.Customer.Controllers
             _logger.LogInformation("\n================ BẮT ĐẦU XỬ LÝ ĐẶT HÀNG ================");
 
             var userIdClaim = User.FindFirst("UserId");
-            if (userIdClaim == null) return RedirectToAction("Login", "Account");
+            if (userIdClaim == null) return RedirectToPage("/Account/Login");
             int userId = int.Parse(userIdClaim.Value);
 
             var cartItems = await _context.GioHangs

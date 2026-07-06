@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ElectronicsStore.API.Data;
@@ -21,7 +21,7 @@ namespace ElectronicsStore.Customer.Controllers
         public async Task<IActionResult> Index()
         {
             var userId = GetUserId();
-            if (userId == 0) return RedirectToAction("Login", "Account");
+            if (userId == 0) return RedirectToPage("/Account/Login");
 
             var cartItems = await _context.GioHangs
                 .Include(g => g.SanPham) // Lấy thông tin sản phẩm đi kèm
@@ -37,7 +37,7 @@ namespace ElectronicsStore.Customer.Controllers
         public async Task<IActionResult> AddToCart(int productId, int quantity = 1)
         {
             var userId = GetUserId();
-            if (userId == 0) return RedirectToAction("Login", "Account");
+            if (userId == 0) return RedirectToPage("/Account/Login");
 
             // Kiểm tra tồn kho (Optional - logic nâng cao)
             var product = await _context.SanPhams.FindAsync(productId);
