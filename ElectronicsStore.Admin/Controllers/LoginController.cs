@@ -24,7 +24,7 @@ namespace ElectronicsStore.Admin.Controllers
             // Nếu đã đăng nhập thì chuyển đến Dashboard
             if (HttpContext.Session.GetString("AdminToken") != null)
             {
-                return RedirectToAction("Index", "Product");
+                return Redirect("/Dashboard");
             }
             return View();
         }
@@ -69,7 +69,7 @@ namespace ElectronicsStore.Admin.Controllers
                             HttpContext.Session.SetString("AdminToken", accessToken);
                             HttpContext.Session.SetString("AdminName", user.GetProperty("tenDayDu").GetString());
 
-                            return RedirectToAction("Index", "Product");
+                            return Redirect("/Dashboard");
                         }
                     }
                 }

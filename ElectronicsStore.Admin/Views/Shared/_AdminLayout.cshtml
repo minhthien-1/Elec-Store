@@ -410,6 +410,12 @@
         <nav class="sidebar-nav">
             <div class="nav-section-title">Quản Lý</div>
 
+            <a href="/Dashboard"
+               class="nav-item-link @(Context.Request.Path.StartsWithSegments("/Dashboard") ? "active" : "")">
+                <span class="icon"><i class="fas fa-chart-line"></i></span>
+                Dashboard
+            </a>
+
             <a href="@Url.Action("Index", "Product")"
                    class="nav-item-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Product" ? "active" : "")">
                 <span class="icon"><i class="fas fa-box"></i></span>
@@ -419,7 +425,7 @@
             <a href="@Url.Action("Index", "Voucher")"
                    class="nav-item-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Voucher" ? "active" : "")">
                 <span class="icon"><i class="fas fa-tags"></i></span>
-                Voucher & Khuyến Mãi
+                Voucher &amp; Khuyến Mãi
             </a>
 
             <div class="nav-section-title mt-3">Hệ Thống</div>
