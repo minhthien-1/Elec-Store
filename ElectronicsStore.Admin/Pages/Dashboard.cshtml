@@ -1,0 +1,349 @@
+@page
+@model ElectronicsStore.Admin.Pages.DashboardModel
+@{
+    ViewData["Title"] = "Dashboard Thống Kê";
+}
+
+<style>
+    /* ── KPI CARDS ─────────────────────────────────────────────── */
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 20px;
+        margin-bottom: 28px;
+    }
+
+    .kpi-card {
+        background: #fff;
+        border-radius: 16px;
+        padding: 24px 22px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .kpi-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.11);
+    }
+
+    .kpi-icon {
+        width: 54px;
+        height: 54px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        flex-shrink: 0;
+    }
+
+    .kpi-icon.orange  { background: linear-gradient(135deg,#FF8C42,#FF6B35); color:#fff; }
+    .kpi-icon.blue    { background: linear-gradient(135deg,#4facfe,#00f2fe); color:#fff; }
+    .kpi-icon.green   { background: linear-gradient(135deg,#43e97b,#38f9d7); color:#fff; }
+    .kpi-icon.purple  { background: linear-gradient(135deg,#a18cd1,#fbc2eb); color:#fff; }
+
+    .kpi-info { flex: 1; }
+    .kpi-value {
+        font-size: 1.65rem;
+        font-weight: 800;
+        color: #2d3748;
+        line-height: 1.2;
+    }
+    .kpi-label {
+        font-size: 0.82rem;
+        color: #718096;
+        margin-top: 3px;
+        font-weight: 500;
+    }
+
+    /* ── STATUS PILLS ───────────────────────────────────────────── */
+    .status-row {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 28px;
+    }
+
+    .status-pill {
+        flex: 1;
+        min-width: 120px;
+        background: #fff;
+        border-radius: 14px;
+        padding: 16px 18px;
+        text-align: center;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    }
+
+    .status-pill .pill-count { font-size: 1.8rem; font-weight: 800; }
+    .status-pill .pill-label { font-size: 0.75rem; color: #718096; margin-top: 2px; }
+    .pill-warning  .pill-count { color: #e67e22; }
+    .pill-info     .pill-count { color: #3498db; }
+    .pill-success  .pill-count { color: #27ae60; }
+    .pill-danger   .pill-count { color: #e74c3c; }
+
+    /* ── SECTION CARDS ──────────────────────────────────────────── */
+    .section-card {
+        background: #fff;
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+        margin-bottom: 24px;
+    }
+
+    .section-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 18px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .section-title i { color: #FF8C42; }
+
+    /* ── TABLE ──────────────────────────────────────────────────── */
+    .table-custom thead th {
+        background: #f7f8fc;
+        color: #718096;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border: none;
+        padding: 10px 14px;
+    }
+
+    .table-custom tbody td {
+        font-size: 0.88rem;
+        color: #2d3748;
+        border-color: #f0f2f5;
+        padding: 12px 14px;
+        vertical-align: middle;
+    }
+
+    /* ── BADGE TRẠNG THÁI ───────────────────────────────────────── */
+    .badge-trang-thai {
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .badge-cho   { background:#fff3cd; color:#856404; }
+    .badge-giao  { background:#cfe2ff; color:#084298; }
+    .badge-xong  { background:#d1e7dd; color:#0a3622; }
+    .badge-huy   { background:#f8d7da; color:#842029; }
+    .badge-chua  { background:#f8d7da; color:#842029; }
+    .badge-da    { background:#d1e7dd; color:#0a3622; }
+
+    /* ── TOP SP BAR ─────────────────────────────────────────────── */
+    .top-sp-item { margin-bottom: 16px; }
+    .top-sp-name { font-size: 0.85rem; font-weight: 600; color: #2d3748; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .top-sp-bar  { height: 8px; border-radius: 4px; background: linear-gradient(90deg,#FF8C42,#FF6B35); transition: width 0.5s ease; }
+    .top-sp-meta { display: flex; justify-content: space-between; font-size: 0.75rem; color: #718096; margin-top: 4px; }
+</style>
+
+<!-- Tên trang -->
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h4 class="fw-bold mb-1" style="color:#2d3748;">
+            <i class="fas fa-chart-line me-2" style="color:#FF8C42;"></i>Dashboard Thống Kê
+        </h4>
+        <p class="text-muted small mb-0">Dữ liệu cập nhật theo thời gian thực từ hệ thống</p>
+    </div>
+    <span class="badge" style="background:#fff3e0;color:#FF6B35;font-size:0.8rem;padding:8px 14px;border-radius:10px;">
+        <i class="fas fa-calendar-alt me-1"></i> @DateTime.Now.ToString("dd/MM/yyyy HH:mm")
+    </span>
+</div>
+
+<!-- ── KPI CARDS ──────────────────────────────────────────────────── -->
+<div class="kpi-grid">
+    <div class="kpi-card">
+        <div class="kpi-icon orange"><i class="fas fa-box"></i></div>
+        <div class="kpi-info">
+            <div class="kpi-value">@Model.TongSanPham.ToString("N0")</div>
+            <div class="kpi-label">Tổng sản phẩm</div>
+        </div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-icon blue"><i class="fas fa-shopping-bag"></i></div>
+        <div class="kpi-info">
+            <div class="kpi-value">@Model.TongDonHang.ToString("N0")</div>
+            <div class="kpi-label">Tổng đơn hàng</div>
+        </div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-icon green"><i class="fas fa-users"></i></div>
+        <div class="kpi-info">
+            <div class="kpi-value">@Model.TongNguoiDung.ToString("N0")</div>
+            <div class="kpi-label">Người dùng</div>
+        </div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-icon purple"><i class="fas fa-dollar-sign"></i></div>
+        <div class="kpi-info">
+            <div class="kpi-value" style="font-size:1.2rem;">@Model.DoanhThuThang.ToString("N0") ₫</div>
+            <div class="kpi-label">Doanh thu tháng @DateTime.Now.Month</div>
+        </div>
+    </div>
+</div>
+
+<!-- ── TRẠNG THÁI ĐƠN HÀNG ────────────────────────────────────────── -->
+<div class="status-row">
+    <div class="status-pill pill-warning">
+        <div class="pill-count">@Model.DonChoXacNhan</div>
+        <div class="pill-label"><i class="fas fa-clock me-1"></i>Chờ xác nhận</div>
+    </div>
+    <div class="status-pill pill-info">
+        <div class="pill-count">@Model.DonDangGiao</div>
+        <div class="pill-label"><i class="fas fa-truck me-1"></i>Đang giao</div>
+    </div>
+    <div class="status-pill pill-success">
+        <div class="pill-count">@Model.DonHoanThanh</div>
+        <div class="pill-label"><i class="fas fa-check-circle me-1"></i>Hoàn thành</div>
+    </div>
+    <div class="status-pill pill-danger">
+        <div class="pill-count">@Model.DonHuy</div>
+        <div class="pill-label"><i class="fas fa-times-circle me-1"></i>Đã hủy</div>
+    </div>
+</div>
+
+<!-- ── BIỂU ĐỒ + TOP SP ──────────────────────────────────────────── -->
+<div class="row">
+    <div class="col-lg-8">
+        <div class="section-card">
+            <div class="section-title">
+                <i class="fas fa-chart-bar"></i> Doanh thu 6 tháng gần nhất
+            </div>
+            <canvas id="revenueChart" height="100"></canvas>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="section-card h-100">
+            <div class="section-title">
+                <i class="fas fa-fire"></i> Sản phẩm bán chạy
+            </div>
+
+            @{
+                var maxSl = Model.TopSanPham.Any() ? Model.TopSanPham.Max(x => x.SoLuong) : 1;
+            }
+
+            @foreach (var sp in Model.TopSanPham)
+            {
+                var pct = maxSl > 0 ? (sp.SoLuong * 100 / maxSl) : 0;
+                <div class="top-sp-item">
+                    <div class="top-sp-name" title="@sp.TenSP">@sp.TenSP</div>
+                    <div style="background:#f0f2f5;border-radius:4px;height:8px;">
+                        <div class="top-sp-bar" style="width:@pct%;"></div>
+                    </div>
+                    <div class="top-sp-meta">
+                        <span>@sp.SoLuong sản phẩm</span>
+                        <span>@sp.DoanhThu.ToString("N0") ₫</span>
+                    </div>
+                </div>
+            }
+
+            @if (!Model.TopSanPham.Any())
+            {
+                <p class="text-muted small text-center mt-4">Chưa có dữ liệu</p>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- ── ĐƠN HÀNG GẦN ĐÂY ──────────────────────────────────────────── -->
+<div class="section-card">
+    <div class="section-title">
+        <i class="fas fa-list-alt"></i> Đơn hàng gần đây
+    </div>
+    <div class="table-responsive">
+        <table class="table table-custom table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Mã đơn</th>
+                    <th>Khách hàng</th>
+                    <th>Ngày tạo</th>
+                    <th>Tổng tiền</th>
+                    <th>Trạng thái đơn</th>
+                    <th>Thanh toán</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var dh in Model.DonHangGanDays)
+                {
+                    var badgeDon = dh.TrangThaiDon switch {
+                        "Chờ xác nhận" => "badge-cho",
+                        "Đang giao"    => "badge-giao",
+                        "Hoàn thành"   => "badge-xong",
+                        "Đã hủy"       => "badge-huy",
+                        _              => "badge-cho"
+                    };
+                    var badgeTT = dh.TrangThaiTT == "Đã thanh toán" ? "badge-da" : "badge-chua";
+                    <tr>
+                        <td><span class="fw-semibold text-orange">#@dh.MaDH</span></td>
+                        <td>@dh.TenKhachHang</td>
+                        <td><small>@dh.NgayTao.ToString("dd/MM/yyyy HH:mm")</small></td>
+                        <td class="fw-semibold">@dh.TongTien.ToString("N0") ₫</td>
+                        <td><span class="badge-trang-thai @badgeDon">@dh.TrangThaiDon</span></td>
+                        <td><span class="badge-trang-thai @badgeTT">@dh.TrangThaiTT</span></td>
+                    </tr>
+                }
+                @if (!Model.DonHangGanDays.Any())
+                {
+                    <tr><td colspan="6" class="text-center text-muted py-4">Chưa có đơn hàng nào</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+        // Dữ liệu từ PageModel truyền xuống
+        const labels  = [@Html.Raw(string.Join(",", Model.DoanhThu6Thang.Select(x => $"\"{x.Thang}\"")))];
+        const data    = [@Html.Raw(string.Join(",", Model.DoanhThu6Thang.Select(x => x.DoanhThu)))];
+
+        const ctx = document.getElementById('revenueChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels,
+                datasets: [{
+                    label: 'Doanh thu (VNĐ)',
+                    data,
+                    backgroundColor: 'rgba(255,140,66,0.75)',
+                    borderColor: '#FF6B35',
+                    borderWidth: 2,
+                    borderRadius: 8,
+                    hoverBackgroundColor: '#FF6B35'
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => new Intl.NumberFormat('vi-VN',{style:'currency',currency:'VND'})
+                                             .format(ctx.parsed.y)
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(0,0,0,0.05)' },
+                        ticks: {
+                            callback: val => new Intl.NumberFormat('vi-VN',{notation:'compact'}).format(val) + ' ₫'
+                        }
+                    },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    </script>
+}

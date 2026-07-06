@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.EntityFrameworkCore;
+using ElectronicsStore.API.Data;
 
 namespace ElectronicsStore.Admin
 {
@@ -22,6 +24,11 @@ namespace ElectronicsStore.Admin
 
             // Thêm HttpClient để gọi API
             builder.Services.AddHttpClient();
+            builder.Services.AddRazorPages();
+
+            // Đăng ký DbContext dùng chung connection string với API
+            builder.Services.AddDbContext<ElectronicsStoreDbContext>(options =>
+                options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             // Cấu hình Session để lưu token đăng nhập
             builder.Services.AddSession(options =>
@@ -51,6 +58,7 @@ namespace ElectronicsStore.Admin
             app.UseSession();
 
             app.UseAuthorization();
+            app.MapRazorPages();
 
             // Route mặc định là Login
             app.MapControllerRoute(
