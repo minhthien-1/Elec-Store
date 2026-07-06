@@ -1,0 +1,362 @@
+@page
+@model ElectronicsStore.Customer.Pages.Account.LoginModel
+@{
+    ViewData["Title"] = "Đăng nhập";
+}
+
+<style>
+    /* ===== PHÔNG NỀN CHUNG KHỚP VỚI THEME CAM/KEM ===== */
+    .auth-page-wrapper {
+        min-height: 75vh;
+        background-color: var(--bg-cream);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+        font-family: 'Inter', sans-serif;
+    }
+
+    /* ===== CARD TRẮNG TINH TẾ (LIGHT THEME) ===== */
+    .auth-card {
+        background: #ffffff;
+        border-radius: 20px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.06), 0 5px 15px rgba(0, 0, 0, 0.04);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        width: 100%;
+        max-width: 450px;
+        padding: 40px 35px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .auth-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    }
+
+    /* ===== TIÊU ĐỀ NỔI BẬT VỚI TÔNG MÀU CAM THƯƠNG HIỆU ===== */
+    .auth-title {
+        font-weight: 800;
+        font-size: 1.6rem;
+        color: #212121;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 8px;
+        text-align: center;
+    }
+
+    .auth-subtitle {
+        color: #757575;
+        font-size: 0.9rem;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    /* ===== NHÃN NHẬP LIỆU GỌN GÀNG ===== */
+    .form-label-custom {
+        color: #424242;
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        margin-bottom: 6px;
+        display: block;
+    }
+
+    /* ===== Ô NHẬP LIỆU ĐẸP MẮT (DÙNG BOOTSTRAP FORM-CONTROL LÀM NỀN) ===== */
+    .input-group-custom {
+        position: relative;
+        display: flex;
+        align-items: center;
+        width: 100%;
+    }
+
+    .input-group-custom .input-icon {
+        position: absolute;
+        left: 14px;
+        color: #9e9e9e;
+        font-size: 1.1rem;
+        z-index: 10;
+        pointer-events: none;
+        transition: color 0.3s ease;
+    }
+
+    .input-group-custom .form-control-custom {
+        width: 100%;
+        padding: 12px 14px 12px 42px; /* Dành chỗ cho icon bên trái */
+        font-size: 0.95rem;
+        color: #212121;
+        background-color: #fafafa;
+        border: 1.5px solid #e0e0e0;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        outline: none;
+    }
+
+    /* Tương thích khi bật nút ẩn/hiện mật khẩu */
+    .input-group-custom .form-control-custom.pass-field {
+        padding-right: 42px; /* Dành chỗ cho icon toggle bên phải */
+    }
+
+    .input-group-custom .form-control-custom:focus {
+        background-color: #ffffff;
+        border-color: var(--bar-orange);
+        box-shadow: 0 0 0 3px rgba(255, 140, 66, 0.15);
+    }
+
+    .input-group-custom .form-control-custom:focus ~ .input-icon {
+        color: var(--bar-orange);
+    }
+
+    /* ===== NÚT ẨN/HIỆN MẬT KHẨU ===== */
+    .toggle-password {
+        position: absolute;
+        right: 14px;
+        color: #9e9e9e;
+        cursor: pointer;
+        font-size: 1.1rem;
+        z-index: 10;
+        transition: color 0.3s ease;
+    }
+
+    .toggle-password:hover {
+        color: var(--bar-orange);
+    }
+
+    /* ===== TÙY CHỌN DƯỚI Ô NHẬP ===== */
+    .auth-options {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 18px 0 24px;
+    }
+
+    .checkbox-custom-label {
+        color: #616161;
+        font-size: 0.85rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        user-select: none;
+    }
+
+    .checkbox-custom-input {
+        accent-color: var(--bar-orange);
+        width: 15px;
+        height: 15px;
+        cursor: pointer;
+    }
+
+    .forgot-link {
+        color: var(--sub-orange);
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+
+    .forgot-link:hover {
+        color: #d32f2f;
+        text-decoration: underline;
+    }
+
+    /* ===== NÚT ĐĂNG NHẬP CHÍNH MÀU CAM ===== */
+    .btn-auth-submit {
+        background: linear-gradient(135deg, var(--sub-orange), var(--bar-orange));
+        border: none;
+        color: #ffffff !important;
+        font-weight: 700;
+        font-size: 0.95rem;
+        padding: 13px;
+        border-radius: 12px;
+        width: 100%;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        box-shadow: 0 4px 12px rgba(255, 107, 53, 0.25);
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .btn-auth-submit:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 18px rgba(255, 107, 53, 0.4);
+        filter: brightness(1.05);
+    }
+
+    /* ===== CHIA VẠCH ===== */
+    .auth-divider {
+        margin: 22px 0;
+        text-align: center;
+        position: relative;
+    }
+
+    .auth-divider::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 0;
+        width: 100%;
+        height: 1px;
+        background: #e0e0e0;
+        z-index: 1;
+    }
+
+    .auth-divider-text {
+        background: #ffffff;
+        padding: 0 12px;
+        color: #9e9e9e;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        position: relative;
+        z-index: 2;
+    }
+
+    /* ===== MẠNG XÃ HỘI CHUYÊN NGHIỆP ===== */
+    .social-btn-container {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 24px;
+    }
+
+    .social-btn {
+        flex: 1;
+        background: #ffffff;
+        border: 1.5px solid #e0e0e0;
+        color: #424242;
+        padding: 10px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+
+    .social-btn:hover {
+        background: #fafafa;
+        border-color: #bdbdbd;
+    }
+
+    .social-btn-google:hover {
+        border-color: #ea4335;
+        color: #ea4335;
+    }
+
+    .social-btn-facebook:hover {
+        border-color: #1877f2;
+        color: #1877f2;
+    }
+
+    /* ===== FOOTER DƯỚI ===== */
+    .auth-footer {
+        text-align: center;
+        color: #757575;
+        font-size: 0.85rem;
+    }
+
+    .auth-footer-link {
+        color: var(--sub-orange);
+        font-weight: 700;
+        text-decoration: none;
+        margin-left: 4px;
+        transition: color 0.2s ease;
+    }
+
+    .auth-footer-link:hover {
+        color: #d32f2f;
+        text-decoration: underline;
+    }
+</style>
+
+<div class="auth-page-wrapper">
+    <div class="auth-card">
+        <h2 class="auth-title">Đăng nhập</h2>
+        <p class="auth-subtitle">Trải nghiệm mua sắm công nghệ đỉnh cao</p>
+
+        <form method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="ReturnUrl" />
+
+            <div class="mb-3">
+                <label class="form-label-custom" asp-for="Input.Email">Email hoặc Số điện thoại</label>
+                <div class="input-group-custom">
+                    <i class="bi bi-envelope input-icon"></i>
+                    <input asp-for="Input.Email" class="form-control-custom" placeholder="nhap.email@example.com" required autocomplete="username" />
+                </div>
+                <span asp-validation-for="Input.Email" class="text-danger small mt-1 d-block"></span>
+            </div>
+
+            <div class="mb-1">
+                <label class="form-label-custom" asp-for="Input.Password">Mật khẩu</label>
+                <div class="input-group-custom">
+                    <i class="bi bi-lock input-icon"></i>
+                    <input asp-for="Input.Password" type="password" id="passwordField" class="form-control-custom pass-field" placeholder="••••••••" required autocomplete="current-password" />
+                    <i class="bi bi-eye-slash toggle-password" id="eyeToggle" onclick="togglePasswordVisibility()"></i>
+                </div>
+                <span asp-validation-for="Input.Password" class="text-danger small mt-1 d-block"></span>
+            </div>
+
+            <div class="auth-options">
+                <label class="checkbox-custom-label">
+                    <input type="checkbox" class="checkbox-custom-input" id="rememberMeCheck" />
+                    Nhớ tôi
+                </label>
+                <a href="#" class="forgot-link">Quên mật khẩu?</a>
+            </div>
+
+            <button type="submit" class="btn-auth-submit">Đăng nhập ngay</button>
+
+            <div class="auth-divider">
+                <span class="auth-divider-text">Hoặc đăng nhập bằng</span>
+            </div>
+        </form>
+
+        <div class="social-btn-container">
+            <form method="post" asp-page-handler="ExternalLogin" class="w-50">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="provider" value="Google" />
+                <button type="submit" class="social-btn social-btn-google w-100">
+                    <i class="bi bi-google text-danger"></i> Google
+                </button>
+            </form>
+
+            <form method="post" asp-page-handler="ExternalLogin" class="w-50">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="provider" value="Facebook" />
+                <button type="submit" class="social-btn social-btn-facebook w-100">
+                    <i class="bi bi-facebook text-primary"></i> Facebook
+                </button>
+            </form>
+        </div>
+
+        <div class="auth-footer">
+            <span>Bạn chưa có tài khoản?</span>
+            <a href="/Account/Register" class="auth-footer-link">Đăng ký ngay</a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function togglePasswordVisibility() {
+            var passwordField = document.getElementById("passwordField");
+            var eyeToggle = document.getElementById("eyeToggle");
+            
+            if (passwordField.type === "password") {
+                passwordField.type = "text";
+                eyeToggle.classList.remove("bi-eye-slash");
+                eyeToggle.classList.add("bi-eye");
+            } else {
+                passwordField.type = "password";
+                eyeToggle.classList.remove("bi-eye");
+                eyeToggle.classList.add("bi-eye-slash");
+            }
+        }
+    </script>
+}

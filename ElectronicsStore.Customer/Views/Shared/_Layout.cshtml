@@ -134,19 +134,16 @@
                             Xin chào, @User.Identity.Name
                         </span>
 
-                        <a asp-controller="Account"
-                           asp-action="Logout"
+                        <a href="/Account/Logout"
                            class="btn btn-sm btn-outline-light rounded-pill fw-bold">
                             Đăng xuất <i class="bi bi-box-arrow-right"></i>
                         </a>
                     }
                     else
                     {
-                        <button class="btn btn-header-custom rounded-pill fw-bold px-4"
-                                data-bs-toggle="modal"
-                                data-bs-target="#loginModal">
+                        <a href="/Account/Login" class="btn btn-header-custom rounded-pill fw-bold px-4">
                             <i class="bi bi-person-circle me-1"></i> Đăng nhập
-                        </button>
+                        </a>
                     }
 
                     @await Component.InvokeAsync("CartWidget")
@@ -181,9 +178,7 @@
         </div>
     </footer>
 
-    <!-- ================= MODAL ================= -->
-    @await Html.PartialAsync("_LoginModal", new ElectronicsStore.Customer.Models.LoginViewModel())
-    @await Html.PartialAsync("_RegisterModal", new ElectronicsStore.Customer.Models.RegisterViewModel())
+    <!-- ================= AUTH MODALS GỠ BỎ ================= -->
 
     <!-- ================= SCRIPT ================= -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
@@ -213,8 +208,7 @@
             if (isLoggedIn === 'true') {
                 window.location.href = "/Cart";
             } else {
-                var modal = new bootstrap.Modal(document.getElementById('loginModal'));
-                modal.show();
+                window.location.href = "/Account/Login";
             }
         }
     </script>
