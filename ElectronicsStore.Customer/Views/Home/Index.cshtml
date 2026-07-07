@@ -1,4 +1,4 @@
-﻿@using ElectronicsStore.Customer.Models
+@using ElectronicsStore.Customer.Models
 @model IEnumerable<ProductViewModel>
 @{
     ViewData["Title"] = "Trang chủ | Electronics Store";
@@ -322,13 +322,39 @@ var categoryBrands = ViewBag.CategoryBrands as Dictionary<int, List<BrandViewMod
                     <p class="text-danger fw-bold mb-0">@item.giaBan.ToString("N0") đ</p>
                     
                     @* Sửa lỗi tính toán: dùng 1.1m (m đại diện cho decimal) *@
-                    <small class="text-muted text-decoration-line-through">
+                    <small class="text-muted text-decoration-line-through d-block mb-1">
                         @((item.giaBan * 1.1m).ToString("N0")) đ
                     </small>
+                    
+                    <button type="button" class="btn btn-sm btn-outline-warning rounded-pill w-100 mb-2" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#quickReviewModal_flash_@item.maSP" 
+                            onclick="event.preventDefault(); event.stopPropagation();">
+                        <i class="bi bi-star-fill"></i> Xem đánh giá
+                    </button>
                 </div>
                 <button class="btn-buy-now">MUA NGAY</button>
             </div>
         </a>
+    </div>
+    
+    <!-- Quick Review Modal cho Flashsale -->
+    <div class="modal fade" id="quickReviewModal_flash_@item.maSP" tabindex="-1" aria-hidden="true" onclick="event.stopPropagation();">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header bg-warning bg-opacity-25">
+                    <h5 class="modal-title fw-bold text-truncate" style="max-width:80%;">@item.tenSP</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <component type="typeof(ElectronicsStore.Customer.Components.ProductReview)" 
+                               render-mode="ServerPrerendered" 
+                               param-ProductId="item.maSP" 
+                               param-IsCompactMode="true" 
+                               param-IsReadOnly="true" />
+                </div>
+            </div>
+        </div>
     </div>
 }
             }
@@ -367,9 +393,34 @@ var categoryBrands = ViewBag.CategoryBrands as Dictionary<int, List<BrandViewMod
                                         <img src="@item.hinhAnh" class="img-fluid" alt="@item.tenSP">
                                     </div>
                                     <h6 class="fw-bold text-truncate mb-2">@item.tenSP</h6>
-                                    <p class="text-danger fw-bold mb-0">@item.giaBan.ToString("N0")₫</p>
+                                    <p class="text-danger fw-bold mb-2">@item.giaBan.ToString("N0")₫</p>
+                                    <button type="button" class="btn btn-sm btn-light border w-100 mt-auto" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#quickReviewModal_cat_@item.maSP" 
+                                            onclick="event.preventDefault(); event.stopPropagation();">
+                                        <i class="bi bi-star text-warning"></i> Đánh giá
+                                    </button>
                                 </div>
                             </a>
+                        </div>
+                        
+                        <!-- Quick Review Modal cho Category -->
+                        <div class="modal fade" id="quickReviewModal_cat_@item.maSP" tabindex="-1" aria-hidden="true" onclick="event.stopPropagation();">
+                            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                                <div class="modal-content">
+                                    <div class="modal-header bg-light">
+                                        <h5 class="modal-title fw-bold text-truncate" style="max-width:80%;">@item.tenSP</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <component type="typeof(ElectronicsStore.Customer.Components.ProductReview)" 
+                                                   render-mode="ServerPrerendered" 
+                                                   param-ProductId="item.maSP" 
+                                                   param-IsCompactMode="true" 
+                                                   param-IsReadOnly="true" />
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     }
                 }
