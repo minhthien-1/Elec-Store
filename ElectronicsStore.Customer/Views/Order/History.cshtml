@@ -1,4 +1,4 @@
-﻿@model List<ElectronicsStore.API.Models.Entities.DonHang>
+@model List<ElectronicsStore.API.Models.Entities.DonHang>
 @{
     ViewData["Title"] = "Lịch sử mua hàng";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -63,12 +63,28 @@
                                                 <div class="flex-grow-1">
                                                     <h6 class="mb-0 fw-bold text-truncate">@item.SanPham.TenSP</h6>
                                                     <small class="text-muted">x @item.SoLuong</small>
+                                                    @if (order.TrangThaiDon == "Hoàn thành")
+                                                    {
+                                                        <div class="mt-2">
+                                                            <button class="btn btn-sm btn-outline-warning rounded-pill" type="button" data-bs-toggle="collapse" data-bs-target="#reviewCollapse_@item.MaChiTiet" aria-expanded="false" aria-controls="reviewCollapse_@item.MaChiTiet">
+                                                                <i class="bi bi-star-fill"></i> Đánh giá
+                                                            </button>
+                                                        </div>
+                                                    }
                                                 </div>
                                                 <div class="text-end">
                                                     <span class="d-block fw-bold text-danger">@item.ThanhTien.ToString("N0")₫</span>
                                                     <small class="text-muted text-decoration-line-through">@item.GiaTaiThoiDiem.ToString("N0")₫</small>
                                                 </div>
                                             </div>
+                                            @if (order.TrangThaiDon == "Hoàn thành")
+                                            {
+                                                <div class="collapse w-100 mt-2 mb-3" id="reviewCollapse_@item.MaChiTiet">
+                                                    <div class="card card-body bg-light border-warning">
+                                                        <component type="typeof(ElectronicsStore.Customer.Components.ProductReview)" render-mode="ServerPrerendered" param-ProductId="item.SanPham.MaSP" param-IsCompactMode="true" />
+                                                    </div>
+                                                </div>
+                                            }
                                         }
                                         <hr class="border-secondary border-opacity-10">
                                         <div class="d-flex justify-content-between align-items-center">

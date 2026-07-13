@@ -422,6 +422,13 @@
                 Sản Phẩm
             </a>
 
+            <a href="@Url.Action("Index", "Order")"
+                   class="nav-item-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Order" ? "active" : "")">
+                <span class="icon"><i class="fas fa-shopping-cart"></i></span>
+                Đơn Hàng
+                <span class="nav-badge">Mới</span>
+            </a>
+
             <a href="@Url.Action("Index", "Voucher")"
                    class="nav-item-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Voucher" ? "active" : "")">
                 <span class="icon"><i class="fas fa-tags"></i></span>

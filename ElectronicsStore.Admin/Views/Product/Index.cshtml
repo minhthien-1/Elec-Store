@@ -1,4 +1,4 @@
-@model List<ElectronicsStore.Admin.Controllers.Product>
+@model List<ElectronicsStore.API.Models.Entities.SanPham>
 @{
     ViewData["Title"] = "Quản Lý Sản Phẩm";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
@@ -27,158 +27,155 @@
                 </div>
                 <div class="ms-3">
                     <div class="text-muted" style="font-size:0.8rem;">Tổng Giá Trị</div>
-                    <div style="font-size:1.6rem; font-weight:700;">@Model.Sum(p => p.Price * p.Quantity).ToString("N0")
-                        VNĐ</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="stats-card">
-                <div class="d-flex align-items-center">
-                    <div class="stats-icon" style="background: linear-gradient(135deg, #4facfe, #00f2fe);">
-                        <i class="fas fa-warehouse"></i>
-                    </div>
-                    <div class="ms-3">
-                        <div class="text-muted" style="font-size:0.8rem;">Tổng Số Lượng</div>
-                        <div style="font-size:1.6rem; font-weight:700;">@Model.Sum(p => p.Quantity)</div>
-                    </div>
+                    <div style="font-size:1.6rem; font-weight:700;">@Model.Sum(p => p.GiaBan * p.SoLuongTonKho).ToString("N0") VNĐ</div>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- Table Card -->
-    <div class="table-card">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h5 class="fw-bold mb-0" style="color:#2d3748;">
-                <i class="fas fa-list me-2" style="color:#FF8C42;"></i>Danh Sách Sản Phẩm
-            </h5>
-            <a href="@Url.Action("Create", "Product")" class="btn btn-orange">
-                <i class="fas fa-plus me-1"></i> Thêm Sản Phẩm Mới
-            </a>
+    <div class="col-md-4">
+        <div class="stats-card">
+            <div class="d-flex align-items-center">
+                <div class="stats-icon" style="background: linear-gradient(135deg, #4facfe, #00f2fe);">
+                    <i class="fas fa-warehouse"></i>
+                </div>
+                <div class="ms-3">
+                    <div class="text-muted" style="font-size:0.8rem;">Tổng Số Lượng</div>
+                    <div style="font-size:1.6rem; font-weight:700;">@Model.Sum(p => p.SoLuongTonKho)</div>
+                </div>
+            </div>
         </div>
+    </div>
+</div>
 
-        <div class="table-responsive">
-            <table class="table table-hover" id="productTable">
-                <thead>
+<!-- Table Card -->
+<div class="table-card">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h5 class="fw-bold mb-0" style="color:#2d3748;">
+            <i class="fas fa-list me-2" style="color:#FF8C42;"></i>Danh Sách Sản Phẩm
+        </h5>
+        <a href="@Url.Action("Create", "Product")" class="btn btn-orange">
+            <i class="fas fa-plus me-1"></i> Thêm Sản Phẩm Mới
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover" id="productTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Tên Sản Phẩm</th>
+                    <th>Giá</th>
+                    <th>Số Lượng</th>
+                    <th>Danh Mục</th>
+                    <th>Trạng Thái</th>
+                    <th class="text-center">Thao Tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var product in Model)
+                {
                     <tr>
-                        <th>ID</th>
-                        <th>Tên Sản Phẩm</th>
-                        <th>Giá</th>
-                        <th>Số Lượng</th>
-                        <th>Danh Mục</th>
-                        <th>Trạng Thái</th>
-                        <th class="text-center">Thao Tác</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var product in Model)
-                    {
-                        <tr>
-                            <td><strong>#@product.Id</strong></td>
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    @if (!string.IsNullOrEmpty(product.ImageUrl))
-                                    {
-                                        <img src="@product.ImageUrl" alt="@product.Name"
-                                             style="width:48px; height:48px; object-fit:cover; border-radius:8px; margin-right:12px; flex-shrink:0;">
-                                    }
-                                    <div>
-                                        <strong>@product.Name</strong>
-                                        <br><small class="text-muted">@product.Description</small>
-                                    </div>
+                        <td><strong>#@product.MaSP</strong></td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                @if (!string.IsNullOrEmpty(product.HinhAnh))
+                                {
+                                    <img src="@product.HinhAnh" alt="@product.TenSP"
+                                         style="width:48px; height:48px; object-fit:cover; border-radius:8px; margin-right:12px; flex-shrink:0;">
+                                }
+                                <div>
+                                    <strong title="@product.TenSP" style="max-width: 250px; display: inline-block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">@product.TenSP</strong>
+                                    <br><small class="text-muted" style="max-width: 250px; display: inline-block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">@product.MoTaChiTiet</small>
                                 </div>
-                            </td>
-                            <td><strong class="text-primary">@product.Price.ToString("N0") VNĐ</strong></td>
-                            <td>@product.Quantity</td>
-                            <td><span class="badge bg-info">@product.Category</span></td>
-                            <td>
-                                @if (product.Quantity > 10)
-                                {
-                                    <span class="badge bg-success" style="padding:6px 12px;">Còn hàng</span>
-                                }
-                                else if (product.Quantity > 0)
-                                {
-
-                                    <span class="badge bg-warning text-dark" style="padding:6px 12px;">Sắp hết</span>
-                                }
-                                else
-                                {
-
-                                    <span class="badge bg-danger" style="padding:6px 12px;">Hết hàng</span>
-                                }
-                            </td>
-                            <td class="text-center">
-                                <a href="@Url.Action("Edit", "Product", new { id = product.Id })"
-                                       class="btn btn-sm btn-edit me-1">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <button onclick="deleteProduct(@product.Id, '@product.Name')"                       class="btn btn-sm btn-secondary">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
+                            </div>
+                        </td>
+                        <td><strong class="text-primary">@product.GiaBan.ToString("N0") VNĐ</strong></td>
+                        <td>@product.SoLuongTonKho</td>
+                        <td><span class="badge bg-info">@(product.DanhMuc?.TenDanhMuc ?? "Chưa phân loại")</span></td>
+                        <td>
+                            @if (product.SoLuongTonKho > 10)
+                            {
+                                <span class="badge bg-success" style="padding:6px 12px;">Còn hàng</span>
+                            }
+                            else if (product.SoLuongTonKho > 0)
+                            {
+                                <span class="badge bg-warning text-dark" style="padding:6px 12px;">Sắp hết</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger" style="padding:6px 12px;">Hết hàng</span>
+                            }
+                        </td>
+                        <td class="text-center">
+                            <a href="@Url.Action("Edit", "Product", new { id = product.MaSP })" class="btn btn-sm btn-edit me-1">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <button onclick="deleteProduct(@product.MaSP, '@product.TenSP')" class="btn btn-sm btn-secondary">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
     </div>
+</div>
 
-    <!-- Delete Modal -->
-    <div class="modal fade" id="deleteModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content border-0 shadow">
-                <div class="modal-header border-0">
-                    <h5 class="modal-title fw-bold">Xác Nhận Xóa</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Bạn có chắc chắn muốn xóa sản phẩm <strong id="productName"></strong>?</p>
-                    <p class="text-danger mb-0"><i class="fas fa-exclamation-triangle"></i> Hành động này không thể hoàn
-                        tác!</p>
-                    </div>
-                    <div class="modal-footer border-0">
-                        <button class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                        <button class="btn btn-danger" id="confirmDelete">Xóa</button>
-                    </div>
-                </div>
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold">Xác Nhận Xóa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn xóa sản phẩm <strong id="productName"></strong>?</p>
+                <p class="text-danger mb-0">
+                    <i class="fas fa-exclamation-triangle"></i> Hành động này không thể hoàn tác!
+                </p>
+            </div>
+            <div class="modal-footer border-0">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button class="btn btn-danger" id="confirmDelete">Xóa</button>
             </div>
         </div>
+    </div>
+</div>
 
-        @section Scripts {
-            <script>
-                $(document).ready(function () {
-                    $('#productTable').DataTable({
-                        language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json' },
-                        pageLength: 10,
-                        order: [[0, 'desc']]
-                    });
-                });
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#productTable').DataTable({
+                language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json' },
+                pageLength: 10,
+                order: [[0, 'desc']]
+            });
+        });
 
-                let productIdToDelete = null;
+        let productIdToDelete = null;
 
-                function deleteProduct(id, name) {
-                    productIdToDelete = id;
-                    document.getElementById('productName').textContent = name;
-                    new bootstrap.Modal(document.getElementById('deleteModal')).show();
-                }
-
-                document.getElementById('confirmDelete').addEventListener('click', async function () {
-                    if (productIdToDelete) {
-                        try {
-                            const response = await fetch('@Url.Action("Delete", "Product")', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ id: productIdToDelete })
-                            });
-                            const result = await response.json();
-                            if (result.success) location.reload();
-                            else alert('Lỗi: ' + result.message);
-                        } catch (error) {
-                            alert('Có lỗi xảy ra: ' + error);
-                        }
-                    }
-                });
-            </script>
+        function deleteProduct(id, name) {
+            productIdToDelete = id;
+            document.getElementById('productName').textContent = name;
+            new bootstrap.Modal(document.getElementById('deleteModal')).show();
         }
+
+        document.getElementById('confirmDelete').addEventListener('click', async function () {
+            if (productIdToDelete) {
+                try {
+                    const response = await fetch('@Url.Action("Delete", "Product")', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ id: productIdToDelete })
+                    });
+                    const result = await response.json();
+                    if (result.success) location.reload();
+                    else alert('Lỗi: ' + result.message);
+                } catch (error) {
+                    alert('Có lỗi xảy ra: ' + error);
+                }
+            }
+        });
+    </script>
+}
