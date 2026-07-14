@@ -312,19 +312,18 @@ var categoryBrands = ViewBag.CategoryBrands as Dictionary<int, List<BrandViewMod
         <a asp-controller="Product" asp-action="Details" asp-route-id="@item.maSP" class="card-link">
             <div class="product-card text-center d-flex flex-column justify-content-between">
                 <div>
-                    <div class="product-img-wrapper">
+                    <div class="product-img-wrapper position-relative">
+                        <sale-badge original-price="@(item.giaBan * 1.1m)" sale-price="@item.giaBan" class="position-absolute top-0 end-0 mt-2 me-2 shadow-sm"></sale-badge>
                         @* Thẻ img phải đầy đủ như thế này thì dấu : sẽ hết đỏ *@
                         <img src="@item.hinhAnh" class="img-fluid mb-2" style="height: 160px; object-fit: contain;" 
                              onerror="this.src='https://via.placeholder.com/160'">
                     </div>
                     <h6 class="fw-bold text-truncate" title="@item.tenSP">@item.tenSP</h6>
                     
-                    <p class="text-danger fw-bold mb-0">@item.giaBan.ToString("N0") đ</p>
+                    <price-format value="@item.giaBan" is-sale="true" class="mb-0"></price-format>
                     
                     @* Sửa lỗi tính toán: dùng 1.1m (m đại diện cho decimal) *@
-                    <small class="text-muted text-decoration-line-through d-block mb-1">
-                        @((item.giaBan * 1.1m).ToString("N0")) đ
-                    </small>
+                    <price-format value="@(item.giaBan * 1.1m)" is-sale="false" class="d-block mb-1 mt-1"></price-format>
                     
                     <button type="button" class="btn btn-sm btn-outline-warning rounded-pill w-100 mb-2" 
                             data-bs-toggle="modal" 
@@ -393,7 +392,7 @@ var categoryBrands = ViewBag.CategoryBrands as Dictionary<int, List<BrandViewMod
                                         <img src="@item.hinhAnh" class="img-fluid" alt="@item.tenSP">
                                     </div>
                                     <h6 class="fw-bold text-truncate mb-2">@item.tenSP</h6>
-                                    <p class="text-danger fw-bold mb-2">@item.giaBan.ToString("N0")₫</p>
+                                    <price-format value="@item.giaBan" is-sale="true" class="mb-2 d-block"></price-format>
                                     <button type="button" class="btn btn-sm btn-light border w-100 mt-auto" 
                                             data-bs-toggle="modal" 
                                             data-bs-target="#quickReviewModal_cat_@item.maSP" 

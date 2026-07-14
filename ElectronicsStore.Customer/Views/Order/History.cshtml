@@ -25,17 +25,7 @@
                                 <span class="text-muted small">@order.NgayTaoDon.ToString("dd/MM/yyyy HH:mm")</span>
                             </div>
                             <div>
-                                @{
-                                    string statusClass = order.TrangThaiDon switch
-                                    {
-                                        "Chờ xác nhận" => "bg-warning text-dark",
-                                        "Đang giao hàng" => "bg-info text-white",
-                                        "Hoàn thành" => "bg-success",
-                                        "Đã hủy" => "bg-danger",
-                                        _ => "bg-secondary"
-                                    };
-                                }
-                                <span class="badge @statusClass rounded-pill me-2">@order.TrangThaiDon</span>
+                                <order-status state="@order.TrangThaiDon" class="me-2"></order-status>
 
                                 @if (order.TrangThaiThanhToan.Contains("Đã thanh toán"))
                                 {
@@ -62,6 +52,7 @@
                                                 <img src="@item.SanPham.HinhAnh" width="60" height="60" class="rounded border me-3" style="object-fit: cover;">
                                                 <div class="flex-grow-1">
                                                     <h6 class="mb-0 fw-bold text-truncate">@item.SanPham.TenSP</h6>
+                                                    <product-rating score="@item.SanPham.DanhGiaXepHang" class="d-block mt-1"></product-rating>
                                                     <small class="text-muted">x @item.SoLuong</small>
                                                     @if (order.TrangThaiDon == "Hoàn thành")
                                                     {
