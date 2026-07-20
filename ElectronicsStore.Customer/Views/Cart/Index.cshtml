@@ -1,8 +1,11 @@
-﻿@model List<ElectronicsStore.API.Models.Entities.GioHang>
+@model List<ElectronicsStore.API.Models.Entities.GioHang>
 @{
     ViewData["Title"] = "Giỏ hàng";
     Layout = "~/Views/Shared/_Layout.cshtml";
     decimal totalCart = Model != null ? Model.Sum(x => x.SoLuong * x.SanPham.GiaBan) : 0;
+    
+    var userIdClaim = User.FindFirst("UserId");
+    int userId = userIdClaim != null ? int.Parse(userIdClaim.Value) : 0;
 }
 
 <style>
@@ -158,115 +161,4 @@
                 </a>
             </div>
 
-            <div class="cart-main">
-                <div class="cart-header d-flex justify-content-between">
-                    <span><i class="bi bi-bag-check me-2 text-danger"></i>Giỏ hàng của bạn</span>
-                    <span class="text-muted small">(@(Model != null ? Model.Count : 0) sản phẩm)</span>
-                </div>
-
-                @if (Model != null && Model.Any())
-                {
-                    <div class="cart-list">
-                        @foreach (var item in Model)
-                        {
-                            <div class="cart-item">
-                                <div class="item-img">
-                                    <a href="/Product/Details/@item.MaSP">
-                                        <img src="@item.SanPham.HinhAnh" onerror="this.src='https://via.placeholder.com/80'">
-                                    </a>
-                                </div>
-                                <div class="item-info">
-                                    <a href="/Product/Details/@item.MaSP" class="item-name">@item.SanPham.TenSP</a>
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div class="item-price">@item.SanPham.GiaBan.ToString("N0")₫</div>
-
-                                        <form asp-controller="Cart" asp-action="Remove" method="post">
-                                            <input type="hidden" name="productId" value="@item.MaSP" />
-                                            <button type="submit" class="btn-remove"><i class="bi bi-trash"></i> Xóa</button>
-                                        </form>
-                                    </div>
-                                    <div class="item-qty">
-                                        <span class="text-muted small me-2">Số lượng:</span>
-                                        <div class="input-group input-group-sm" style="width: 110px;">
-                                            <button class="btn btn-outline-secondary" type="button"
-                                                    onclick="updateQty(@item.MaSP, -1, @item.SanPham.GiaBan)">
-                                                -
-                                            </button>
-
-                                            <input type="text" class="form-control text-center" value="@item.SoLuong" id="qty-@item.MaSP" readonly>
-
-                                            <button class="btn btn-outline-secondary" type="button"
-                                                    onclick="updateQty(@item.MaSP, 1, @item.SanPham.GiaBan)">
-                                                +
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        }
-                    </div>
-
-                    <div class="cart-summary">
-                        <div class="summary-row">
-                            <span>Tạm tính:</span>
-                            <span>@totalCart.ToString("N0")₫</span>
-                        </div>
-                        <div class="summary-row">
-                            <span>Phí vận chuyển:</span>
-                            <span class="text-success">Miễn phí</span>
-                        </div>
-                        <div class="summary-row total-row">
-                            <span>Tổng tiền:</span>
-                            <span id="grand-total">@totalCart.ToString("N0")₫</span>
-                        </div>
-
-                        <a href="/Checkout/Index" class="btn-checkout">
-                            ĐẶT HÀNG NGAY
-                        </a>
-                    </div>
-                }
-                else
-                {
-                    <div class="text-center py-5">
-                        <img src="https://cdn-icons-png.flaticon.com/512/2038/2038854.png" width="100" class="mb-3 opacity-50">
-                        <h5 class="text-muted">Giỏ hàng đang trống</h5>
-                        <a href="/" class="btn btn-outline-danger mt-3 rounded-pill px-4">Đi dạo cửa hàng</a>
-                    </div>
-                }
-            </div>
-
-        </div>
-    </div>
-</div>
-
-<script>
-    function updateQty(productId, change, price) {
-        var qtyInput = document.getElementById('qty-' + productId);
-        var currentQty = parseInt(qtyInput.value);
-        var newQty = currentQty + change;
-
-        if (newQty < 1) return; // Không cho giảm dưới 1
-
-        // 1. Cập nhật giao diện ngay lập tức cho mượt
-        qtyInput.value = newQty;
-
-        // 2. Gọi AJAX xuống Server cập nhật DB
-        $.ajax({
-            url: '/Cart/UpdateQuantity',
-            type: 'POST',
-            data: { productId: productId, quantity: newQty },
-            success: function (response) {
-                if (response.success) {
-                    // 3. Cập nhật lại Tổng tiền cả giỏ hàng từ Server trả về
-                    // Format tiền tệ Việt Nam
-                    var formattedTotal = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(response.newTotal);
-                    document.getElementById('grand-total').innerText = formattedTotal.replace('₫', '') + '₫';
-                }
-            },
-            error: function () {
-                alert('Lỗi cập nhật giỏ hàng!');
-                qtyInput.value = currentQty; // Hoàn tác nếu lỗi
-            }
-        });
-    }
-</script>
+            <component type="typeof(ElectronicsStore.Customer.Components.CartMain)" render-mode="ServerPrerendered" param-UserId="userId" />

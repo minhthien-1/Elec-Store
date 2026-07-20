@@ -1,4 +1,4 @@
-﻿@model ElectronicsStore.Customer.Models.CheckoutViewModel
+@model ElectronicsStore.Customer.Models.CheckoutViewModel
 @{
     ViewData["Title"] = "Thanh toán";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -132,50 +132,7 @@
                             </div>
                         </div>
 
-                        <div class="voucher-box mb-4">
-                            <div class="d-flex align-items-center mb-2">
-                                <i class="bi bi-tag-fill text-warning me-2"></i>
-                                <span class="fw-semibold">Mã giảm giá</span>
-                            </div>
-                            @if (vouchers.Any())
-                            {
-                                <div class="d-flex gap-2 flex-wrap">
-                                    <select id="voucherSelect" class="form-select form-select-sm flex-grow-1"
-                                            style="border:1px solid #ff6600; border-radius:6px;">
-                                        <option value="">-- Chọn mã giảm giá --</option>
-                                        @foreach (var v in vouchers)
-                                        {
-                                            var moTaGiam = v.kieuGiam == "PhanTram"
-                                                ? $"Giảm {v.giaTriGiam}%{(v.giaTriGiamToiDa.HasValue ? $" (tối đa {v.giaTriGiamToiDa:N0}đ)" : "")}"
-                                                : $"Giảm {v.giaTriGiam:N0}đ";
-                                            <option value="@v.maCode">
-                                                [@v.maCode] @moTaGiam
-                                                @if (v.giaTriDonHangToiThieu.HasValue)
-                                                { @($" | Đơn từ {v.giaTriDonHangToiThieu:N0}đ") }
-                                            </option>
-                                        }
-                                    </select>
-                                    <button type="button" onclick="applyVoucher()"
-                                            class="btn btn-warning btn-sm fw-semibold px-3">
-                                        <i class="bi bi-lightning-fill me-1"></i>Áp dụng
-                                    </button>
-                                    <button type="button" onclick="removeVoucher()" id="btnRemoveVoucher"
-                                            class="btn btn-outline-secondary btn-sm" style="display:none;">
-                                        Bỏ mã
-                                    </button>
-                                </div>
-                                <div id="voucherError" class="text-danger small mt-1" style="display:none;"></div>
-                                <div id="voucherSuccess" class="voucher-saving mt-1" style="display:none;">
-                                    <i class="bi bi-check-circle-fill me-1"></i>
-                                    Tiết kiệm: <strong id="discountDisplay"></strong>
-                                    <span class="ms-1 text-muted" id="voucherMessage"></span>
-                                </div>
-                            }
-                            else
-                            {
-                                <p class="text-muted small mb-0">Hiện không có mã giảm giá khả dụng.</p>
-                            }
-                        </div>
+                        <component type="typeof(ElectronicsStore.Customer.Components.VoucherApply)" render-mode="ServerPrerendered" param-TongTienHang="Model.TongTienHang" param-Vouchers="vouchers" />
 
                         <input type="hidden" asp-for="TongTienHang" />
                         <input type="hidden" asp-for="PhiVanChuyen" />
@@ -270,71 +227,25 @@
             new Intl.NumberFormat('vi-VN').format(newTotal) + '₫';
     }
 
-    // Áp dụng voucher
-    async function applyVoucher() {
-        const maCode = document.getElementById('voucherSelect').value;
-        const errDiv = document.getElementById('voucherError');
-        const successDiv = document.getElementById('voucherSuccess');
-
-        if (!maCode) {
-            errDiv.textContent = 'Vui lòng chọn mã giảm giá!';
-            errDiv.style.display = 'block';
-            return;
-        }
-        errDiv.style.display = 'none';
-
-        try {
-            const res = await fetch('/Product/ApplyVoucher', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: `productId=0&maCode=${encodeURIComponent(maCode)}&giaGoc=${tongTienHang}`
-            });
-            const data = await res.json();
-
-            if (data.success) {
-                currentDiscount = data.discount; // Đã sửa: Lưu vào biến global
-
-                // Hiện dòng giảm giá
-                document.getElementById('voucherDiscountRow').style.cssText = 'display:flex !important;';
-                document.getElementById('voucherDiscountAmount').textContent =
-                    '-' + new Intl.NumberFormat('vi-VN').format(data.discount) + '₫';
-
-                // Đã sửa: Tính lại tổng dựa trên cả 2 biến
-                recalculateTotal(); 
-
-                // Thông báo tiết kiệm
-                document.getElementById('discountDisplay').textContent =
-                    new Intl.NumberFormat('vi-VN').format(data.discount) + '₫';
-                document.getElementById('voucherMessage').textContent = data.message;
-                successDiv.style.display = 'block';
-                document.getElementById('btnRemoveVoucher').style.display = 'inline-block';
-
-                // Lưu vào form
-                document.getElementById('appliedVoucherCode').value = maCode;
-                document.getElementById('appliedDiscount').value = data.discount;
-            } else {
-                errDiv.textContent = data.message;
-                errDiv.style.display = 'block';
-                successDiv.style.display = 'none';
-            }
-        } catch (e) {
-            errDiv.textContent = 'Lỗi kết nối, vui lòng thử lại.';
-            errDiv.style.display = 'block';
-        }
-    }
-
-    function removeVoucher() {
-        document.getElementById('voucherSelect').value = '';
-        document.getElementById('btnRemoveVoucher').style.display = 'none';
-        document.getElementById('voucherSuccess').style.display = 'none';
-        document.getElementById('voucherError').style.display = 'none';
-        document.getElementById('voucherDiscountRow').style.cssText = 'display:none !important;';
-        document.getElementById('appliedVoucherCode').value = '';
-        document.getElementById('appliedDiscount').value = '0';
+    // Cập nhật từ Blazor Component
+    window.applyDiscountFromBlazor = function (discount, code) {
+        currentDiscount = discount;
         
-        currentDiscount = 0; // Đã sửa: Reset biến global
-        recalculateTotal(); // Đã sửa: Gọi hàm tính tổng chung
-    }
+        if (discount > 0) {
+            document.getElementById('voucherDiscountRow').style.cssText = 'display:flex !important;';
+            document.getElementById('voucherDiscountAmount').textContent =
+                '-' + new Intl.NumberFormat('vi-VN').format(discount) + '₫';
+            
+            document.getElementById('appliedVoucherCode').value = code;
+            document.getElementById('appliedDiscount').value = discount;
+        } else {
+            document.getElementById('voucherDiscountRow').style.cssText = 'display:none !important;';
+            document.getElementById('appliedVoucherCode').value = '';
+            document.getElementById('appliedDiscount').value = '0';
+        }
+        
+        recalculateTotal();
+    };
 
     $(document).ready(function () {
         // 1. Lấy danh sách Tỉnh/Thành

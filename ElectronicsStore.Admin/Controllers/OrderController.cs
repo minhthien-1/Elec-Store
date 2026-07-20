@@ -16,15 +16,9 @@ namespace ElectronicsStore.Admin.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
-            // Lấy danh sách đơn hàng thực từ Database kèm thông tin người dùng
-            var orders = await _context.DonHangs
-                                       .Include(d => d.NguoiDung)
-                                       .OrderByDescending(d => d.NgayTaoDon)
-                                       .ToListAsync();
-
-            return View(orders);
+            return View();
         }
 
         [HttpPost]

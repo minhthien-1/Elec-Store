@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using ElectronicsStore.API.Data;
 using ElectronicsStore.API.Models.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -177,8 +177,12 @@ namespace ElectronicsStore.API.Controllers
                     SoLuotSuDung = 0,
                     GioiHanSoLuotSuDung = request.GioiHanSoLuotSuDung,
                     GiaTriDonHangToiThieu = request.GiaTriDonHangToiThieu,
-                    NgayBatDau = request.NgayBatDau,
-                    NgayKetThuc = request.NgayKetThuc,
+                    NgayBatDau = request.NgayBatDau.HasValue
+                        ? DateTime.SpecifyKind(request.NgayBatDau.Value, DateTimeKind.Utc)
+                        : (DateTime?)null,
+                    NgayKetThuc = request.NgayKetThuc.HasValue
+                        ? DateTime.SpecifyKind(request.NgayKetThuc.Value, DateTimeKind.Utc)
+                        : (DateTime?)null,
                     TrangThai = request.TrangThai,
                     ThemTrongDB = DateTime.UtcNow
                 };
@@ -234,7 +238,7 @@ namespace ElectronicsStore.API.Controllers
                     promotion.GiaTriDonHangToiThieu = request.GiaTriDonHangToiThieu;
 
                 if (request.NgayKetThuc.HasValue)
-                    promotion.NgayKetThuc = request.NgayKetThuc;
+                    promotion.NgayKetThuc = DateTime.SpecifyKind(request.NgayKetThuc.Value, DateTimeKind.Utc);
 
                 promotion.TrangThai = request.TrangThai;
 
