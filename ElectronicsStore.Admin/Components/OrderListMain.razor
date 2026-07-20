@@ -1,0 +1,247 @@
+@using Microsoft.Extensions.DependencyInjection
+@inject IServiceProvider ServiceProvider
+@inject IJSRuntime JSRuntime
+
+<!-- Stats Cards (Giữ nguyên giao diện của bạn) -->
+<div class="row">
+    <div class="col-md-4">
+        <div class="stats-card">
+            <div class="d-flex align-items-center">
+                <div class="stats-icon" style="background: linear-gradient(135deg, #FF8C42, #FF6B35);">
+                    <i class="fas fa-shopping-cart"></i>
+                </div>
+                <div class="ms-3">
+                    <div class="text-muted" style="font-size:0.8rem;">Tổng Đơn Hàng</div>
+                    <div style="font-size:1.6rem; font-weight:700;">@TotalOrders</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stats-card">
+            <div class="d-flex align-items-center">
+                <div class="stats-icon" style="background: linear-gradient(135deg, #f093fb, #f5576c);">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="ms-3">
+                    <div class="text-muted" style="font-size:0.8rem;">Chờ Xác Nhận</div>
+                    <div style="font-size:1.6rem; font-weight:700;">@PendingOrders</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stats-card">
+            <div class="d-flex align-items-center">
+                <div class="stats-icon" style="background: linear-gradient(135deg, #4facfe, #00f2fe);">
+                    <i class="fas fa-check-double"></i>
+                </div>
+                <div class="ms-3">
+                    <div class="text-muted" style="font-size:0.8rem;">Hoàn Thành</div>
+                    <div style="font-size:1.6rem; font-weight:700;">@CompletedOrders</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Table Card -->
+<div class="table-card">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h5 class="fw-bold mb-0" style="color:#2d3748;">
+            <i class="fas fa-list-alt me-2" style="color:#FF8C42;"></i>Danh Sách Đơn Hàng
+            <span class="badge bg-primary ms-2" style="font-size:0.75rem;">Blazor Real-time</span>
+        </h5>
+        <!-- Nút làm mới chủ động bấm thì cho hiện spinner -->
+        <button type="button" class="btn btn-orange" @onclick="() => LoadOrders(true)">
+            <i class="fas fa-sync-alt me-1"></i> Làm mới dữ liệu
+        </button>
+    </div>
+
+    @if (IsLoading)
+    {
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="mt-2 text-muted">Đang tải danh sách đơn hàng...</p>
+        </div>
+    }
+    else if (!Orders.Any())
+    {
+        <div class="alert alert-info">Chưa có đơn hàng nào.</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Mã Đơn</th>
+                        <th>Khách Hàng</th>
+                        <th>Ngày Đặt</th>
+                        <th>Tổng Tiền</th>
+                        <th>Thanh Toán</th>
+                        <th>Trạng Thái</th>
+                        <th class="text-center">Thao Tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var order in Orders)
+                    {
+                        <tr>
+                            <td><strong>#@order.MaDH</strong></td>
+                            <td>
+                                <div class="d-flex flex-column">
+                                    <strong class="text-dark">@(order.NguoiDung?.TenDayDu ?? "Khách hàng")</strong>
+                                    <small class="text-muted">
+                                        <i class="fas fa-phone-alt me-1" style="font-size: 0.7rem;"></i>
+                                        @(order.SodTLienHe ?? order.NguoiDung?.SoDienThoai ?? "N/A")
+                                    </small>
+                                </div>
+                            </td>
+                            <td>
+                                @order.NgayTaoDon.ToString("dd/MM/yyyy")<br />
+                                <small class="text-muted">@order.NgayTaoDon.ToString("HH:mm")</small>
+                            </td>
+                            <td><strong class="text-danger">@order.TongGiaSauGiam.ToString("N0") VNĐ</strong></td>
+                            <td>
+                                <span class="badge bg-light text-dark border d-block mb-1">@(order.PhuongThucThanhToan ?? "N/A")</span>
+                                <small class="text-muted">@order.TrangThaiThanhToan</small>
+                            </td>
+                            <td>
+                                @{
+                                    var badgeClass = GetBadgeClass(order.TrangThaiDon);
+                                }
+                                <span class="badge @badgeClass" style="padding:6px 12px; font-size: 0.8rem;">
+                                    @order.TrangThaiDon
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <ActionButtons Order="order" OnStatusChanged="HandleStatusChange" />
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(ToastMessage))
+    {
+        <div class="position-fixed bottom-0 end-0 p-3" style="z-index:9999">
+            <div class="toast show align-items-center text-white @(ToastIsError ? "bg-danger" : "bg-success") border-0">
+                <div class="d-flex">
+                    <div class="toast-body">@ToastMessage</div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" @onclick="() => ToastMessage = string.Empty"></button>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private List<DonHang> Orders { get; set; } = new();
+    private bool IsLoading { get; set; } = true;
+    private string ToastMessage { get; set; } = string.Empty;
+    private bool ToastIsError { get; set; } = false;
+
+    private int TotalOrders => Orders.Count;
+    private int PendingOrders => Orders.Count(o => o.TrangThaiDon == "Chờ xác nhận");
+    private int CompletedOrders => Orders.Count(o => o.TrangThaiDon == "Hoàn thành");
+
+    // Lần đầu chạy trang thì bắt buộc hiện spinner loading công khai
+    protected override async Task OnInitializedAsync() => await LoadOrders(showSpinner: true);
+
+    // Thay đổi cấu trúc hàm để nhận biết khi nào cần hiện Spinner che DOM bảng
+    private async Task LoadOrders(bool showSpinner = false)
+    {
+        if (showSpinner)
+        {
+            IsLoading = true;
+            StateHasChanged();
+        }
+
+        try
+        {
+            using var scope = ServiceProvider.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<ElectronicsStoreDbContext>();
+
+            Orders = await db.DonHangs
+                .Include(d => d.NguoiDung)
+                .OrderByDescending(d => d.NgayTaoDon)
+                .ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[Lỗi Tải Đơn Hàng]: {ex.Message}");
+        }
+        finally
+        {
+            if (showSpinner)
+            {
+                IsLoading = false;
+            }
+        }
+    }
+
+    private string GetBadgeClass(string status) => status switch
+    {
+        "Chờ xác nhận" => "bg-warning text-dark",
+        "Đang giao hàng" => "bg-info text-white",
+        "Hoàn thành" => "bg-success",
+        "Đã hủy" => "bg-danger",
+        _ => "bg-secondary"
+    };
+
+    private async Task HandleStatusChange((int orderId, int userId, string oldStatus, string newStatus) args)
+    {
+        try
+        {
+            bool confirmed = await JSRuntime.InvokeAsync<bool>("confirm",
+                $"Bạn có chắc chắn muốn chuyển trạng thái đơn #{args.orderId} thành '{args.newStatus}'?");
+            if (!confirmed) return;
+
+            using var scope = ServiceProvider.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<ElectronicsStoreDbContext>();
+
+            var donHang = await db.DonHangs.FindAsync(args.orderId);
+            if (donHang != null)
+            {
+                donHang.TrangThaiDon = args.newStatus;
+                donHang.NgayCapNhat = DateTime.UtcNow;
+
+                db.LichSuDonHangs.Add(new LichSuDonHang
+                {
+                    MaDH = args.orderId,
+                    TrangThaiCu = args.oldStatus,
+                    TrangThaiMoi = args.newStatus,
+                    MaNguoiCapNhat = args.userId, 
+                    LyDo = $"Admin cập nhật trạng thái sang {args.newStatus}",
+                    NgayCapNhat = DateTime.UtcNow
+                });
+
+                await db.SaveChangesAsync();
+                ToastMessage = $"✓ Đơn #{args.orderId} đã chuyển sang '{args.newStatus}'";
+                ToastIsError = false;
+            }
+            else
+            {
+                ToastMessage = $"Không tìm thấy đơn hàng #{args.orderId}";
+                ToastIsError = true;
+            }
+
+            // Tải dữ liệu ngầm (showSpinner = false) giúp bảng giữ nguyên vị trí, không vỡ DOM
+            await LoadOrders(showSpinner: false);
+        }
+        catch (Exception ex)
+        {
+            // Bắt toàn bộ lỗi phát sinh tránh làm sập SignalR Circuit gây reload trang
+            Console.WriteLine($"[Lỗi Đổi Trạng Thái]: {ex.ToString()}");
+            ToastMessage = $"Có lỗi xảy ra: {ex.Message}";
+            ToastIsError = true;
+        }
+        finally
+        {
+            StateHasChanged();
+        }
+    }
+}

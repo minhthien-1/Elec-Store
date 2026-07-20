@@ -1,0 +1,129 @@
+@using ElectronicsStore.Customer.Controllers
+@inject IJSRuntime JSRuntime
+
+<div class="voucher-box mb-4">
+    <div class="d-flex align-items-center mb-2">
+        <i class="bi bi-tag-fill text-warning me-2"></i>
+        <span class="fw-semibold">Mã giảm giá</span>
+    </div>
+    @if (Vouchers != null && Vouchers.Any())
+    {
+        <div class="d-flex gap-2 flex-wrap">
+            <select @bind="SelectedCode" class="form-select form-select-sm flex-grow-1"
+                    style="border:1px solid #ff6600; border-radius:6px;" disabled="@IsApplied">
+                <option value="">-- Chọn mã giảm giá --</option>
+                @foreach (var v in Vouchers)
+                {
+                    var moTaGiam = v.kieuGiam == "PhanTram"
+                        ? $"Giảm {v.giaTriGiam}%{(v.giaTriGiamToiDa.HasValue ? $" (tối đa {v.giaTriGiamToiDa:N0}đ)" : "")}"
+                        : $"Giảm {v.giaTriGiam:N0}đ";
+                    <option value="@v.maCode">
+                        [@v.maCode] @moTaGiam
+                        @if (v.giaTriDonHangToiThieu.HasValue)
+                        { <text> | Đơn từ @v.giaTriDonHangToiThieu.Value.ToString("N0")đ</text> }
+                    </option>
+                }
+            </select>
+            @if (!IsApplied)
+            {
+                <button type="button" @onclick="ApplyVoucher" class="btn btn-warning btn-sm fw-semibold px-3">
+                    <i class="bi bi-lightning-fill me-1"></i>Áp dụng
+                </button>
+            }
+            else
+            {
+                <button type="button" @onclick="RemoveVoucher" class="btn btn-outline-secondary btn-sm">
+                    Bỏ mã
+                </button>
+            }
+        </div>
+        
+        @if (!string.IsNullOrEmpty(ErrorMessage))
+        {
+            <div class="text-danger small mt-1">@ErrorMessage</div>
+        }
+        
+        @if (IsApplied)
+        {
+            <div class="voucher-saving mt-1">
+                <i class="bi bi-check-circle-fill me-1"></i>
+                Tiết kiệm: <strong>@AppliedDiscount.ToString("N0")₫</strong>
+                <span class="ms-1 text-muted">@SuccessMessage</span>
+            </div>
+        }
+    }
+    else
+    {
+        <p class="text-muted small mb-0">Hiện không có mã giảm giá khả dụng.</p>
+    }
+</div>
+
+@code {
+    [Parameter] public decimal TongTienHang { get; set; }
+    [Parameter] public List<VoucherViewModel> Vouchers { get; set; } = new();
+
+    private string SelectedCode = "";
+    private bool IsApplied = false;
+    private decimal AppliedDiscount = 0;
+    private string ErrorMessage = "";
+    private string SuccessMessage = "";
+
+    private async Task ApplyVoucher()
+    {
+        ErrorMessage = "";
+        if (string.IsNullOrWhiteSpace(SelectedCode))
+        {
+            ErrorMessage = "Vui lòng chọn mã giảm giá!";
+            return;
+        }
+
+        var voucher = Vouchers.FirstOrDefault(v => v.maCode == SelectedCode);
+        if (voucher == null)
+        {
+            ErrorMessage = "Mã không hợp lệ.";
+            return;
+        }
+
+        if (voucher.giaTriDonHangToiThieu.HasValue && TongTienHang < voucher.giaTriDonHangToiThieu.Value)
+        {
+            ErrorMessage = $"Đơn hàng chưa đạt mức tối thiểu {voucher.giaTriDonHangToiThieu.Value:N0}đ để dùng mã này.";
+            return;
+        }
+
+        if (voucher.kieuGiam == "PhanTram")
+        {
+            decimal giam = TongTienHang * ((decimal)voucher.giaTriGiam / 100m);
+            if (voucher.giaTriGiamToiDa.HasValue && giam > voucher.giaTriGiamToiDa.Value)
+            {
+                giam = (decimal)voucher.giaTriGiamToiDa.Value;
+            }
+            AppliedDiscount = giam;
+        }
+        else
+        {
+            AppliedDiscount = (decimal)voucher.giaTriGiam;
+        }
+
+        if (AppliedDiscount > TongTienHang)
+        {
+            AppliedDiscount = TongTienHang;
+        }
+
+        IsApplied = true;
+        SuccessMessage = "Áp dụng thành công.";
+        
+        // Cập nhật lên JS của Checkout page
+        await JSRuntime.InvokeVoidAsync("applyDiscountFromBlazor", AppliedDiscount, SelectedCode);
+    }
+
+    private async Task RemoveVoucher()
+    {
+        IsApplied = false;
+        AppliedDiscount = 0;
+        SelectedCode = "";
+        ErrorMessage = "";
+        SuccessMessage = "";
+        
+        await JSRuntime.InvokeVoidAsync("applyDiscountFromBlazor", 0, "");
+    }
+}

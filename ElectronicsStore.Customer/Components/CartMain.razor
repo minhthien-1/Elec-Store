@@ -1,0 +1,135 @@
+@using Microsoft.Extensions.DependencyInjection
+@inject IServiceProvider ServiceProvider
+@inject NavigationManager NavManager
+@using Microsoft.EntityFrameworkCore
+
+<div class="cart-main">
+    <div class="cart-header d-flex justify-content-between">
+        <span><i class="bi bi-bag-check me-2 text-danger"></i>Giỏ hàng của bạn</span>
+        <span class="text-muted small">(@CartItems.Count sản phẩm)</span>
+    </div>
+
+    @if (CartItems.Any())
+    {
+        <div class="cart-list">
+            @foreach (var item in CartItems)
+            {
+                <div class="cart-item">
+                    <div class="item-img">
+                        <a href="/Product/Details/@item.MaSP">
+                            <img src="@item.SanPham.HinhAnh" onerror="this.src='https://via.placeholder.com/80'">
+                        </a>
+                    </div>
+                    <div class="item-info">
+                        <a href="/Product/Details/@item.MaSP" class="item-name">@item.SanPham.TenSP</a>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="item-price">@item.SanPham.GiaBan.ToString("N0")₫</div>
+
+                            <button type="button" class="btn-remove" @onclick="() => RemoveItem(item.MaSP)">
+                                <i class="bi bi-trash"></i> Xóa
+                            </button>
+                        </div>
+                        <div class="item-qty">
+                            <span class="text-muted small me-2">Số lượng:</span>
+                            <div class="input-group input-group-sm" style="width: 110px;">
+                                <button class="btn btn-outline-secondary" type="button" @onclick="() => UpdateQty(item.MaSP, -1)">-</button>
+                                <input type="text" class="form-control text-center" value="@item.SoLuong" readonly>
+                                <button class="btn btn-outline-secondary" type="button" @onclick="() => UpdateQty(item.MaSP, 1)">+</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="cart-summary">
+            <div class="summary-row">
+                <span>Tạm tính:</span>
+                <span>@TotalCart.ToString("N0")₫</span>
+            </div>
+            <div class="summary-row">
+                <span>Phí vận chuyển:</span>
+                <span class="text-success">Miễn phí</span>
+            </div>
+            <div class="summary-row total-row">
+                <span>Tổng tiền:</span>
+                <span>@TotalCart.ToString("N0")₫</span>
+            </div>
+
+            <a href="/Checkout/Index" class="btn-checkout">
+                ĐẶT HÀNG NGAY
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5">
+            <img src="https://cdn-icons-png.flaticon.com/512/2038/2038854.png" width="100" class="mb-3 opacity-50">
+            <h5 class="text-muted">Giỏ hàng đang trống</h5>
+            <a href="/" class="btn btn-outline-danger mt-3 rounded-pill px-4">Đi dạo cửa hàng</a>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public int UserId { get; set; }
+
+    private List<GioHang> CartItems = new List<GioHang>();
+    private decimal TotalCart => CartItems.Sum(x => x.SoLuong * x.SanPham.GiaBan);
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCart();
+    }
+
+    private async Task LoadCart()
+    {
+        if (UserId <= 0) return;
+
+        using var scope = ServiceProvider.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<ElectronicsStoreDbContext>();
+
+        CartItems = await db.GioHangs
+            .Include(g => g.SanPham)
+            .Where(g => g.MaND == UserId)
+            .OrderByDescending(g => g.NgayThem)
+            .ToListAsync();
+    }
+
+    private async Task UpdateQty(int productId, int change)
+    {
+        var item = CartItems.FirstOrDefault(c => c.MaSP == productId);
+        if (item == null) return;
+
+        int newQty = item.SoLuong + change;
+        if (newQty < 1) return;
+
+        using var scope = ServiceProvider.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<ElectronicsStoreDbContext>();
+        
+        var dbItem = await db.GioHangs.FirstOrDefaultAsync(g => g.MaND == UserId && g.MaSP == productId);
+        if (dbItem != null)
+        {
+            dbItem.SoLuong = newQty;
+            await db.SaveChangesAsync();
+            item.SoLuong = newQty; // Cập nhật state
+            StateHasChanged();
+        }
+    }
+
+    private async Task RemoveItem(int productId)
+    {
+        using var scope = ServiceProvider.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<ElectronicsStoreDbContext>();
+        
+        var dbItem = await db.GioHangs.FirstOrDefaultAsync(g => g.MaND == UserId && g.MaSP == productId);
+        if (dbItem != null)
+        {
+            db.GioHangs.Remove(dbItem);
+            await db.SaveChangesAsync();
+            CartItems.RemoveAll(c => c.MaSP == productId);
+            StateHasChanged();
+        }
+    }
+}

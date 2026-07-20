@@ -1,0 +1,40 @@
+@using ElectronicsStore.API.Models.Entities
+
+@if (Order.TrangThaiDon == "Chờ xác nhận")
+{
+    <button type="button" class="btn btn-sm btn-primary me-1" title="Duyệt đơn hàng"
+            @onclick="ApproveOrder" @onclick:preventDefault @onclick:stopPropagation>
+        <i class="fas fa-truck"></i>
+    </button>
+    <button type="button" class="btn btn-sm btn-danger" title="Hủy đơn hàng"
+            @onclick="CancelOrder" @onclick:preventDefault @onclick:stopPropagation>
+        <i class="fas fa-times"></i>
+    </button>
+}
+else if (Order.TrangThaiDon == "Đang giao hàng")
+{
+    <button type="button" class="btn btn-sm btn-success" title="Xác nhận hoàn thành"
+            @onclick="CompleteOrder" @onclick:preventDefault @onclick:stopPropagation>
+        <i class="fas fa-check"></i>
+    </button>
+}
+else
+{
+    <button type="button" class="btn btn-sm btn-light border" disabled title="Không có hành động">
+        <i class="fas fa-ban text-muted"></i>
+    </button>
+}
+
+@code {
+    [Parameter, EditorRequired] public DonHang Order { get; set; } = default!;
+    [Parameter, EditorRequired] public EventCallback<(int, int, string, string)> OnStatusChanged { get; set; }
+
+    private Task ApproveOrder() =>
+        OnStatusChanged.InvokeAsync((Order.MaDH, Order.MaND, Order.TrangThaiDon, "Đang giao hàng"));
+
+    private Task CancelOrder() =>
+        OnStatusChanged.InvokeAsync((Order.MaDH, Order.MaND, Order.TrangThaiDon, "Đã hủy"));
+
+    private Task CompleteOrder() =>
+        OnStatusChanged.InvokeAsync((Order.MaDH, Order.MaND, Order.TrangThaiDon, "Hoàn thành"));
+}

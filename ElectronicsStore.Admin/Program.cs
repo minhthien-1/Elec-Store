@@ -25,6 +25,7 @@ namespace ElectronicsStore.Admin
             // Thêm HttpClient để gọi API
             builder.Services.AddHttpClient();
             builder.Services.AddRazorPages();
+            builder.Services.AddServerSideBlazor();
 
             // Đăng ký DbContext dùng chung connection string với API
             builder.Services.AddDbContext<ElectronicsStoreDbContext>(options =>
@@ -59,6 +60,9 @@ namespace ElectronicsStore.Admin
 
             app.UseAuthorization();
             app.MapRazorPages();
+            
+            // Map Blazor Hub cho Component Real-time
+            app.MapBlazorHub();
 
             // Route mặc định là Login
             app.MapControllerRoute(
