@@ -149,6 +149,8 @@
                     </div>
                 </div>
 
+                @await Component.InvokeAsync("RelatedProducts", new { categoryId = Model.DanhMuc?.MaDanhMuc ?? 0, currentProductId = Model.MaSP })
+
                 <div class="white-box mt-2">
                     @using ElectronicsStore.Customer.Components
                     <component type="typeof(ProductReview)" 
