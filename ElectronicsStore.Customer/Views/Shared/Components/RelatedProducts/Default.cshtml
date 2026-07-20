@@ -1,0 +1,28 @@
+@model List<ElectronicsStore.API.Models.Entities.SanPham>
+
+@if (Model != null && Model.Any())
+{
+    <div class="mt-5 mb-5 border-top pt-5">
+        <h3 class="fw-bold mb-4 border-start border-danger border-4 ps-3">Sản Phẩm Tương Tự</h3>
+        <div class="row g-4">
+            @foreach (var item in Model)
+            {
+                <div class="col-6 col-md-3">
+                    <a asp-controller="Product" asp-action="Details" asp-route-id="@item.MaSP" class="text-decoration-none text-dark d-block h-100">
+                        <div class="card h-100 border shadow-sm transition-all text-center rounded-4 overflow-hidden" style="transition: transform 0.3s ease;">
+                            <div class="position-relative bg-white pt-3">
+                                <img src="@item.HinhAnh" class="img-fluid p-2" alt="@item.TenSP" style="height: 180px; object-fit: contain;" onerror="this.src='https://via.placeholder.com/180'">
+                                <sale-badge original-price="@(item.GiaBan * 1.1m)" sale-price="@item.GiaBan" class="position-absolute top-0 end-0 mt-3 me-3"></sale-badge>
+                            </div>
+                            <div class="card-body bg-light bg-opacity-50 border-top">
+                                <h6 class="card-title fw-bold text-truncate" title="@item.TenSP">@item.TenSP</h6>
+                                <product-rating score="@item.DanhGiaXepHang" class="d-block mb-2"></product-rating>
+                                <price-format value="@item.GiaBan" is-sale="true" class="fs-5"></price-format>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+}
