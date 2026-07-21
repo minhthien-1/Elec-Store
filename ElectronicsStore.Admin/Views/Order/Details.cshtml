@@ -1,0 +1,160 @@
+@model ElectronicsStore.API.Models.Entities.DonHang
+@{
+    ViewData["Title"] = "Chi Tiết Đơn Hàng #" + Model.MaDH;
+}
+
+<div class="container-fluid py-2">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="fw-bold mb-0 text-dark"><i class="fas fa-file-invoice me-2 text-primary"></i>Chi tiết đơn hàng #@Model.MaDH</h4>
+        <a href="/Order/Index" class="btn btn-outline-secondary rounded-pill fw-bold">
+            <i class="fas fa-arrow-left me-1"></i> Quay lại danh sách
+        </a>
+    </div>
+
+    <div class="row g-4">
+        <!-- Thông tin khách hàng & Giao hàng -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h6 class="mb-0 fw-bold"><i class="fas fa-user me-2 text-info"></i>Thông tin khách hàng</h6>
+                </div>
+                <div class="card-body">
+                    <p class="mb-2"><strong>Khách hàng:</strong> @(Model.NguoiDung?.TenDayDu ?? "Khách Vãng Lai")</p>
+                    <p class="mb-2"><strong>SĐT liên hệ:</strong> @(Model.SodTLienHe ?? Model.NguoiDung?.SoDienThoai ?? "Chưa cập nhật")</p>
+                    <p class="mb-2"><strong>Email:</strong> @(Model.NguoiDung?.Email ?? "Chưa cập nhật")</p>
+                    <hr>
+                    <h6 class="mb-2 fw-bold"><i class="fas fa-map-marker-alt me-2 text-danger"></i>Giao hàng đến</h6>
+                    <p class="mb-1 text-muted">@Model.DiaChiGiaoHang</p>
+                    <p class="mb-0 text-muted">@Model.ThanhPhoPhuong</p>
+                    
+                    @if(!string.IsNullOrEmpty(Model.GhiChu))
+                    {
+                        <div class="alert alert-warning mt-3 mb-0 p-2 small">
+                            <strong>Ghi chú:</strong> @Model.GhiChu
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Tóm tắt thanh toán -->
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h6 class="mb-0 fw-bold"><i class="fas fa-money-bill-wave me-2 text-success"></i>Tóm tắt thanh toán</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Phương thức:</span>
+                        <span class="fw-bold">@Model.PhuongThucThanhToan</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Trạng thái TT:</span>
+                        @if (Model.TrangThaiThanhToan == "Đã thanh toán")
+                        {
+                            <span class="badge bg-success rounded-pill px-3">Đã thanh toán</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-warning text-dark rounded-pill px-3">@Model.TrangThaiThanhToan</span>
+                        }
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Tạm tính:</span>
+                        <span class="fw-medium">@Model.TongGiaTruocGiam.ToString("N0")₫</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Phí vận chuyển:</span>
+                        <span class="fw-medium">@Model.PhiVanChuyen.ToString("N0")₫</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2 text-danger">
+                        <span>Giảm giá:</span>
+                        <span class="fw-medium">-@Model.TienGiamGia.ToString("N0")₫</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="fw-bold fs-5">Tổng cộng:</span>
+                        <span class="fw-bold fs-4 text-danger">@Model.TongGiaSauGiam.ToString("N0")₫</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chi tiết sản phẩm & Lịch sử -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0 fw-bold"><i class="fas fa-box-open me-2 text-warning"></i>Sản phẩm đã đặt</h6>
+                    <span class="badge bg-primary rounded-pill px-3 py-2">Trạng thái đơn: @Model.TrangThaiDon</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-4 py-3">Sản phẩm</th>
+                                    <th class="text-center py-3">Số lượng</th>
+                                    <th class="text-end py-3">Đơn giá</th>
+                                    <th class="text-end pe-4 py-3">Thành tiền</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.ChiTietDonHangs)
+                                {
+                                    <tr>
+                                        <td class="ps-4 py-3">
+                                            <div class="d-flex align-items-center">
+                                                <img src="@item.SanPham?.HinhAnh" class="rounded border me-3 shadow-sm" style="width: 55px; height: 55px; object-fit: cover;" onerror="this.src='https://via.placeholder.com/55'">
+                                                <div>
+                                                    <h6 class="mb-1 text-dark fw-bold" style="font-size:0.95rem;">@(item.SanPham?.TenSP ?? "Sản phẩm không tồn tại")</h6>
+                                                    <small class="text-muted"><i class="fas fa-barcode me-1"></i> Mã SP: @item.MaSP</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="text-center fw-bold fs-6">x @item.SoLuong</td>
+                                        <td class="text-end text-muted">@item.GiaTaiThoiDiem.ToString("N0")₫</td>
+                                        <td class="text-end fw-bold text-danger pe-4">@((item.GiaTaiThoiDiem * item.SoLuong).ToString("N0"))₫</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lịch sử cập nhật đơn -->
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h6 class="mb-0 fw-bold"><i class="fas fa-history me-2 text-secondary"></i>Lịch sử cập nhật đơn hàng</h6>
+                </div>
+                <div class="card-body pt-4">
+                    @if (Model.LichSuDonHangs != null && Model.LichSuDonHangs.Any())
+                    {
+                        <div class="timeline ps-3" style="border-left: 2px solid #e9ecef; margin-left: 10px;">
+                            @foreach (var hs in Model.LichSuDonHangs.OrderByDescending(h => h.NgayCapNhat))
+                            {
+                                <div class="position-relative mb-4 ps-4">
+                                    <span class="position-absolute bg-white rounded-circle shadow-sm" style="width:16px; height:16px; left:-9px; top:2px; border:3px solid #0d6efd;"></span>
+                                    <h6 class="mb-1 fw-bold text-dark">
+                                        Đổi trạng thái: <span class="text-muted">@hs.TrangThaiCu</span> <i class="fas fa-arrow-right mx-1 text-muted" style="font-size: 0.8rem;"></i> <span class="text-success">@hs.TrangThaiMoi</span>
+                                    </h6>
+                                    <p class="mb-1 small text-muted"><i class="far fa-clock me-1"></i> @hs.NgayCapNhat.ToString("dd/MM/yyyy HH:mm:ss")</p>
+                                    @if (!string.IsNullOrEmpty(hs.LyDo))
+                                    {
+                                        <p class="mb-0 mt-1 small p-2 bg-light rounded text-secondary border"><strong>Lý do:</strong> @hs.LyDo</p>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-3">
+                            <i class="fas fa-clipboard-list text-muted fs-3 mb-2"></i>
+                            <p class="text-muted fst-italic mb-0">Đơn hàng này chưa có thay đổi trạng thái nào.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

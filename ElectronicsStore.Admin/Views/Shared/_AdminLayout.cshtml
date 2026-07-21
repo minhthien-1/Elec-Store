@@ -426,7 +426,7 @@
                    class="nav-item-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Order" ? "active" : "")">
                 <span class="icon"><i class="fas fa-shopping-cart"></i></span>
                 Đơn Hàng
-                <span class="nav-badge">Mới</span>
+                @await Component.InvokeAsync("PendingOrdersWidget")
             </a>
 
             <a href="@Url.Action("Index", "Voucher")"
@@ -464,6 +464,7 @@
                 </div>
             </div>
             <div class="d-flex align-items-center gap-2">
+                @await Component.InvokeAsync("LowStockAlert")
                 <span class="badge"
                       style="background:#fff0e6; color:#FF6B35; font-weight:600; padding:6px 12px; border-radius:8px;">
                     <i class="fas fa-circle" style="font-size:0.5rem;"></i> Online

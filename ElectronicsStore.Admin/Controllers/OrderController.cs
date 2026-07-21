@@ -21,6 +21,25 @@ namespace ElectronicsStore.Admin.Controllers
             return View();
         }
 
+        [HttpGet]
+        public async Task<IActionResult> Details(int id)
+        {
+            var order = await _context.DonHangs
+                .Include(d => d.NguoiDung)
+                .Include(d => d.ChiTietDonHangs)
+                    .ThenInclude(c => c.SanPham)
+                .Include(d => d.LichSuDonHangs)
+                .FirstOrDefaultAsync(d => d.MaDH == id);
+
+            if (order == null)
+            {
+                TempData["Error"] = "Không tìm thấy đơn hàng.";
+                return RedirectToAction("Index");
+            }
+
+            return View(order);
+        }
+
         [HttpPost]
         public async Task<IActionResult> UpdateStatus([FromBody] UpdateStatusRequest request)
         {
