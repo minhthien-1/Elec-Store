@@ -62,8 +62,8 @@ namespace ElectronicsStore.Customer.Controllers
 
                 if (categoryId.HasValue || brandId.HasValue)
                 {
-                    var catName = categories.FirstOrDefault(c => c.maDanhMuc == categoryId.Value)?.tenDanhMuc ?? "";
-                    var brandName = allProducts.FirstOrDefault(p => p.nhaSanXuat != null && p.nhaSanXuat.maNhaSX == brandId)?.nhaSanXuat?.tenNhaSX ?? "";
+                    var catName = categoryId.HasValue ? categories.FirstOrDefault(c => c.maDanhMuc == categoryId.Value)?.tenDanhMuc ?? "" : "";
+                    var brandName = brandId.HasValue ? allProducts.FirstOrDefault(p => p.nhaSanXuat != null && p.nhaSanXuat.maNhaSX == brandId.Value)?.nhaSanXuat?.tenNhaSX ?? "" : "";
                     string title = "San pham loc theo: ";
                     if (!string.IsNullOrEmpty(catName)) title += $"[{catName}] ";
                     if (!string.IsNullOrEmpty(brandName)) title += $"Hang {brandName}";
